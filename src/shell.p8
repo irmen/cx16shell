@@ -23,6 +23,7 @@ main {
     sub start() {
         txt.iso()
         void cx16.screen_mode(1, false)
+        cx16.rombank(0)     ; switch to kernal rom for faster operation
         print_intro()
 
         repeat {

@@ -13,6 +13,10 @@ disk_commands {
         iso:"cat", &cmd_cat,
         iso:"vi", &cmd_edit,
         iso:"ed", &cmd_edit,
+        iso:"rm", &cmd_rm,
+        iso:"del", &cmd_rm,
+        iso:"mv", &cmd_rename,
+        iso:"ren", &cmd_rename,
         iso:"pwd", &cmd_pwd,
         iso:"drive", &cmd_drive
     ]
@@ -32,9 +36,43 @@ disk_commands {
         return diskio.directory(drivenumber)
     }
 
+    sub cmd_rm() -> bool {
+        if main.command_arguments_size==0
+            return err.set(iso:"Missing arg: filename")
+
+        diskio.delete(drivenumber, main.command_arguments_ptr)
+        print_disk_status()
+        return true
+    }
+
+    sub cmd_rename() -> bool {
+        if main.command_arguments_size==0
+            return err.set(iso:"Missing args: oldfilename newfilename")
+
+        uword newfilename
+        ubyte space_idx = string.find(main.command_arguments_ptr, iso:' ')
+        if_cs {
+            newfilename = main.command_arguments_ptr + space_idx + 1
+            main.command_arguments_ptr[space_idx] = 0
+            diskio.rename(drivenumber, main.command_arguments_ptr, newfilename)
+            print_disk_status()
+            return true
+        } else {
+            return err.set(iso:"Missing args: oldfilename newfilename")
+        }
+    }
+
+    sub print_disk_status() {
+        txt.color(main.COLOR_HIGHLIGHT2)
+        txt.print(diskio.status(drivenumber))
+        txt.color(main.COLOR_NORMAL)
+        txt.nl()
+    }
 
     sub cmd_cat() -> bool {
-        cx16.rombank(0)     ; switch to kernal rom for faster file i/o
+        if main.command_arguments_size==0
+            return err.set(iso:"Missing arg: filename")
+
         if diskio.f_open(drivenumber, main.command_arguments_ptr) {
             uword line = 0
             repeat {
@@ -57,10 +95,8 @@ disk_commands {
             }
             diskio.f_close()
         } else {
-            txt.print(iso:"cannot open\r")
             err.set(diskio.status(drivenumber))
         }
-        cx16.rombank(4)     ; switch back to basic rom
         return true
     }
 
@@ -91,7 +127,7 @@ disk_commands {
 
         sub launch_x16edit(uword entrypoint) {
             ; set screen resolution back to normal 80x60 for x16edit
-            cx16.rombank(4)
+            cx16.rombank(0)
             void cx16.screen_mode(0, false)
             cx16.rombank(x16edit_bank)
             cx16.r1H = %00000001        ; enable auto-indent
@@ -130,7 +166,7 @@ _return:            nop
                     plx
                 }}
             }
-            cx16.rombank(4)
+            cx16.rombank(0)
         }
     }
 
