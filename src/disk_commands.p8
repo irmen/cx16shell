@@ -89,13 +89,13 @@ disk_commands {
                     break
                 }
                 if c64.STOP2() {
-                    err.set("break")
+                    void err.set("break")
                     break
                 }
             }
             diskio.f_close()
         } else {
-            err.set(diskio.status(drivenumber))
+            void err.set(diskio.status(drivenumber))
         }
         return true
     }

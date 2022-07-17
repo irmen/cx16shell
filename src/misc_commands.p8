@@ -30,27 +30,14 @@ misc_commands {
         if main.command_arguments_size==0
             return err.set(iso:"Missing arg: filename")
 
-        if not diskio.f_open(disk_commands.drivenumber, main.command_arguments_ptr)
-            return err.set(diskio.status(disk_commands.drivenumber))
-
-        ; make sure the screen and everything is set back to normal mode, and issue the load+run commands.
-        c64.IOINIT()
-        c64.RESTOR()
-        c64.CINT()
-        txt.print("\x93load \"")
-        txt.print(main.command_arguments_ptr)
-        txt.print("\",")
-        txt.print_ub(disk_commands.drivenumber)
-        txt.print(":\n")
-        cx16.kbdbuf_put(19)     ; home
-        cx16.kbdbuf_put('\r')
-        cx16.kbdbuf_put('r')
-        cx16.kbdbuf_put('u')
-        cx16.kbdbuf_put('n')
-        cx16.kbdbuf_put(':')
-        cx16.kbdbuf_put('\r')
-        sys.exit(0)
-        return true  ; not reached
+        uword real_filename_ptr = main.file_lookup_matching(main.command_arguments_ptr, true)
+        if real_filename_ptr {
+            main.run_file(real_filename_ptr, true)
+            return true
+        }
+        if not err.error_status
+            return err.set(iso:"File not found")
+        return false
     }
 
     sub cmd_printnumber() -> bool {
@@ -86,7 +73,7 @@ misc_commands {
             txt.spc()
             txt.spc()
         }
-        txt.nl()
+        txt.print(iso:"\rOr simply type name of program to launch (case insensitive, no suffix req'd).\r")
         return true
     }
 }

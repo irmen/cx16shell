@@ -15,7 +15,7 @@ main {
     const ubyte COLOR_BACKGROUND = 11
 
     str command_line = "?" * 160
-    str command_word = "?" * 32
+    str command_word = "?" * 64
     ubyte command_word_size
     uword command_arguments_ptr
     ubyte command_arguments_size
@@ -48,7 +48,12 @@ main {
                             void err.set(iso:"Unspecified error")
                         }
                     } else {
-                        void err.set(iso:"Invalid command")
+                        ; see if there is a program file that matches
+                        uword real_filename_ptr = file_lookup_matching(command_line, true)
+                        if real_filename_ptr
+                            run_file(real_filename_ptr, false)
+                        else
+                            void err.set(iso:"Invalid command")
                     }
                 } else {
                     void err.set(iso:"Invalid input")
@@ -82,7 +87,7 @@ main {
             command_arguments_size = 0
         }
         command_word_size = string.copy(cmd_ptr, command_word)
-        string.upper(command_word)      ; for ISO charset, this actually does a *lower*casing instead.
+        void string.upper(command_word)      ; for ISO charset, this actually does a *lower*casing instead.
 
         return length>0
     }
@@ -95,4 +100,82 @@ main {
         txt.color(COLOR_NORMAL)
         txt.print(iso:"- https://github.com/irmen/cx16shell\r")
     }
+
+    sub file_lookup_matching(uword filename_ptr, bool only_programs) -> uword {
+        str  lowercased_filename = "?" * 64
+        void iso_to_lowercase_petscii(filename_ptr)
+        if diskio.lf_start_list(8, 0) {
+            while diskio.lf_next_entry() {
+                lowercased_filename = diskio.list_filename
+                ubyte disk_name_length = string.lower(lowercased_filename)
+                str name_suffix = "????"
+                void string.right(lowercased_filename, 4, name_suffix)
+                bool has_prg_suffix = name_suffix==".prg"
+                bool is_program = name_suffix[0]!='.' or has_prg_suffix
+                if not only_programs or is_program {
+                    if string.compare(lowercased_filename, filename_ptr)==0 {
+                        diskio.lf_end_list()
+                        return diskio.list_filename
+                    }
+                    if has_prg_suffix {
+                        lowercased_filename[disk_name_length-4] = 0
+                        if string.compare(lowercased_filename, filename_ptr)==0 {
+                            diskio.lf_end_list()
+                            return diskio.list_filename
+                        }
+                        lowercased_filename[disk_name_length-4] = iso:'.'
+                    }
+                } else if only_programs and string.compare(lowercased_filename, filename_ptr)==0 {
+                    diskio.lf_end_list()
+                    return err.set(iso:"Not a program")
+                }
+            }
+            diskio.lf_end_list()
+            return 0
+        } else {
+            return err.set(diskio.status(disk_commands.drivenumber))
+        }
+    }
+
+    sub iso_to_lowercase_petscii(uword str_ptr) -> ubyte {
+        ubyte length=0
+        while @(str_ptr)!=0 {
+            if @(str_ptr) >= iso:'a' and @(str_ptr) <= iso:'z'
+                @(str_ptr) -= 32
+            str_ptr++
+            length++
+        }
+        return length
+    }
+
+    sub run_file(uword filename_ptr, bool via_basic_load) {
+            txt.color(main.COLOR_HIGHLIGHT2)
+            txt.print(iso:"Running: ")
+            txt.color(main.COLOR_NORMAL)
+            txt.print(filename_ptr)
+            txt.nl()
+
+            if via_basic_load {
+                ; make sure the screen and everything is set back to normal mode, and issue the load+run commands.
+                c64.IOINIT()
+                c64.RESTOR()
+                c64.CINT()
+                txt.print("\x93load \"")
+                txt.print(filename_ptr)
+                txt.print("\",")
+                txt.print_ub(disk_commands.drivenumber)
+                txt.print(":\n")
+                cx16.kbdbuf_put(19)     ; home
+                cx16.kbdbuf_put('\r')
+                cx16.kbdbuf_put('r')
+                cx16.kbdbuf_put('u')
+                cx16.kbdbuf_put('n')
+                cx16.kbdbuf_put(':')
+                cx16.kbdbuf_put('\r')
+                sys.exit(0)
+            } else {
+                ; TODO run command via a trampoline function that returns and reloads the shell afterwards
+                run_file(filename_ptr, true);  for now just run it via basic
+            }
+        }
 }
