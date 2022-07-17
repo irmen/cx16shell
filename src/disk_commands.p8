@@ -63,7 +63,7 @@ disk_commands {
     }
 
     sub print_disk_status() {
-        txt.color(main.COLOR_HIGHLIGHT2)
+        txt.color(main.COLOR_HIGHLIGHT)
         txt.print(diskio.status(drivenumber))
         txt.color(main.COLOR_NORMAL)
         txt.nl()
@@ -78,7 +78,7 @@ disk_commands {
             repeat {
                 void diskio.f_readline(main.command_line)
                 line++
-                txt.color(main.COLOR_HIGHLIGHT2)
+                txt.color(main.COLOR_HIGHLIGHT)
                 txt.print_uw(line)
                 txt.column(5)
                 txt.print(": ")

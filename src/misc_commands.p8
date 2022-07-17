@@ -59,7 +59,7 @@ misc_commands {
     }
 
     sub cmd_help() -> bool {
-        txt.color(main.COLOR_HIGHLIGHT2)
+        txt.color(main.COLOR_HIGHLIGHT)
         txt.print(iso:"Commands:\r")
         txt.color(main.COLOR_NORMAL)
         ubyte idx

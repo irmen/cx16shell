@@ -9,9 +9,9 @@
 
 main {
     const ubyte COLOR_NORMAL = 1
+    const ubyte COLOR_HIGHLIGHT = 14
+    const ubyte COLOR_HIGHLIGHT_PROMPT = 13
     const ubyte COLOR_ERROR = 10
-    const ubyte COLOR_HIGHLIGHT = 13
-    const ubyte COLOR_HIGHLIGHT2 = 14
     const ubyte COLOR_BACKGROUND = 11
 
     str command_line = "?" * 160
@@ -27,7 +27,7 @@ main {
         print_intro()
 
         repeat {
-            txt.color(COLOR_HIGHLIGHT)
+            txt.color(COLOR_HIGHLIGHT_PROMPT)
             txt.nl()
             txt.print(iso:"$ ")
             txt.color(COLOR_NORMAL)
@@ -95,37 +95,37 @@ main {
     sub print_intro() {
         txt.color2(COLOR_NORMAL, COLOR_BACKGROUND)
         txt.clear_screen()
-        txt.color(COLOR_HIGHLIGHT)
+        txt.color(COLOR_HIGHLIGHT_PROMPT)
         txt.print(iso:"\r  Commander-X16 SHELL ")
         txt.color(COLOR_NORMAL)
         txt.print(iso:"- https://github.com/irmen/cx16shell\r")
     }
 
     sub file_lookup_matching(uword filename_ptr, bool only_programs) -> uword {
-        str  lowercased_filename = "?" * 64
+        ; we re-use command_word variable as storage for processing the filenames read from disk.
         void iso_to_lowercase_petscii(filename_ptr)
         if diskio.lf_start_list(8, 0) {
             while diskio.lf_next_entry() {
-                lowercased_filename = diskio.list_filename
-                ubyte disk_name_length = string.lower(lowercased_filename)
-                str name_suffix = "????"
-                void string.right(lowercased_filename, 4, name_suffix)
+                command_word = diskio.list_filename
+                ubyte disk_name_length = string.lower(command_word)
+                str name_suffix = "????"    ; TODO use string.endswith() once that is available in prog8
+                void string.right(command_word, 4, name_suffix)
                 bool has_prg_suffix = name_suffix==".prg"
                 bool is_program = name_suffix[0]!='.' or has_prg_suffix
                 if not only_programs or is_program {
-                    if string.compare(lowercased_filename, filename_ptr)==0 {
+                    if string.compare(command_word, filename_ptr)==0 {
                         diskio.lf_end_list()
                         return diskio.list_filename
                     }
                     if has_prg_suffix {
-                        lowercased_filename[disk_name_length-4] = 0
-                        if string.compare(lowercased_filename, filename_ptr)==0 {
+                        command_word[disk_name_length-4] = 0
+                        if string.compare(command_word, filename_ptr)==0 {
                             diskio.lf_end_list()
                             return diskio.list_filename
                         }
-                        lowercased_filename[disk_name_length-4] = iso:'.'
+                        command_word[disk_name_length-4] = iso:'.'
                     }
-                } else if only_programs and string.compare(lowercased_filename, filename_ptr)==0 {
+                } else if only_programs and string.compare(command_word, filename_ptr)==0 {
                     diskio.lf_end_list()
                     return err.set(iso:"Not a program")
                 }
@@ -149,7 +149,7 @@ main {
     }
 
     sub run_file(uword filename_ptr, bool via_basic_load) {
-            txt.color(main.COLOR_HIGHLIGHT2)
+            txt.color(main.COLOR_HIGHLIGHT)
             txt.print(iso:"Running: ")
             txt.color(main.COLOR_NORMAL)
             txt.print(filename_ptr)
