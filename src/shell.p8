@@ -178,4 +178,16 @@ main {
                 run_file(filename_ptr, true);  for now just run it via basic
             }
         }
+
+    sub print_uw_right(uword value) {
+        if value < 10
+            txt.spc()
+        if value < 100
+            txt.spc()
+        if value < 1000
+            txt.spc()
+        if value < 10000
+            txt.spc()
+        txt.print_uw(value)
+    }
 }

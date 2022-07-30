@@ -31,9 +31,36 @@ disk_commands {
     }
 
     sub cmd_ls() -> bool {
-        if main.command_arguments_size
-            return err.set(iso:"Has no args")
-        return diskio.directory(drivenumber)
+        ubyte num_files = 0
+        if diskio.lf_start_list(drivenumber, main.command_arguments_ptr) {
+            txt.color(main.COLOR_HIGHLIGHT)
+            txt.print(iso:" Blocks  Filename\r")
+            txt.color(main.COLOR_NORMAL)
+            while diskio.lf_next_entry() {
+                num_files++
+                txt.spc()
+                txt.spc()
+                main.print_uw_right(diskio.list_blocks)
+                txt.spc()
+                txt.spc()
+                txt.print(diskio.list_filename)
+                txt.nl()
+                if c64.STOP2() {
+                    txt.color(main.COLOR_HIGHLIGHT)
+                    txt.print(iso:"Break\r")
+                    txt.color(main.COLOR_NORMAL)
+                    break
+                }
+            }
+            diskio.lf_end_list()
+            if num_files == 0 {
+                txt.color(main.COLOR_HIGHLIGHT)
+                txt.print(iso:"No files\r")
+                txt.color(main.COLOR_NORMAL)
+            }
+            return true
+        }
+        return err.set(iso:"IO error")
     }
 
     sub cmd_rm() -> bool {
@@ -176,6 +203,12 @@ _return:            nop
         txt.print(iso:"Drive number: ")
         txt.print_ub(drivenumber)
         txt.nl()
+        txt.print(iso:"Disk name: ")
+        uword name = diskio.diskname(drivenumber)
+        if name==0
+            return err.set(iso:"IO error")
+        txt.print(name)
+        txt.nl()
         return true
     }
 
@@ -187,8 +220,10 @@ _return:            nop
 
         when nr {
             8, 9, 10, 11 -> {
+                txt.print(iso:"Switching drive.\r")
                 drivenumber = nr
-                return true
+                main.command_arguments_size = 0
+                return cmd_pwd()
             }
             else -> {
                 return err.set(iso:"Invalid drive number")
