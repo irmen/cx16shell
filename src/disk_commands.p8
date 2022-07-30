@@ -147,7 +147,7 @@ disk_commands {
         ubyte nr = conv.str2ubyte(main.command_arguments_ptr)
 
         when nr {
-            8, 9, 10, 11 -> {
+            8, 9 -> {
                 txt.print(iso:"Switching drive.\r")
                 drivenumber = nr
                 main.command_arguments_size = 0

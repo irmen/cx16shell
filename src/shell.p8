@@ -108,11 +108,12 @@ main {
             while diskio.lf_next_entry() {
                 command_word = diskio.list_filename
                 ubyte disk_name_length = string.lower(command_word)
-                str name_suffix = "????"    ; TODO use string.endswith() once that is available in prog8
-                void string.right(command_word, 4, name_suffix)
-                bool has_prg_suffix = name_suffix==".prg"
-                bool is_program = name_suffix[0]!='.' or has_prg_suffix
-                if not only_programs or is_program {
+                bool has_prg_suffix = string.endswith(command_word, ".prg")
+                bool has_no_suffix = false
+                void string.find(command_word, '.')
+                if_cc
+                    has_no_suffix = true
+                if not only_programs or has_no_suffix or has_prg_suffix {
                     if string.compare(command_word, filename_ptr)==0 {
                         diskio.lf_end_list()
                         return diskio.list_filename
@@ -160,17 +161,15 @@ main {
                 c64.IOINIT()
                 c64.RESTOR()
                 c64.CINT()
-                txt.print("\x93load \"")
+                txt.print("\x13lO\"")       ; home, load
                 txt.print(filename_ptr)
                 txt.print("\",")
-                txt.print_ub(disk_commands.drivenumber)
-                txt.print(":\n")
-                cx16.kbdbuf_put(19)     ; home
+                txt.chrout('0' + disk_commands.drivenumber)
+                txt.nl()
+                cx16.kbdbuf_put($13)        ; home, enter, run, enter
                 cx16.kbdbuf_put('\r')
                 cx16.kbdbuf_put('r')
-                cx16.kbdbuf_put('u')
-                cx16.kbdbuf_put('n')
-                cx16.kbdbuf_put(':')
+                cx16.kbdbuf_put('U')
                 cx16.kbdbuf_put('\r')
                 sys.exit(0)
             } else {
