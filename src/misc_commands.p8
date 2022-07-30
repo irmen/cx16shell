@@ -1,5 +1,6 @@
 %import textio
 %import errors
+%import conv
 
 misc_commands {
 
@@ -7,7 +8,9 @@ misc_commands {
         iso:"basic", &cmd_basic,
         iso:"help", &cmd_help,
         iso:"num", &cmd_printnumber,
-        iso:"run", &cmd_run
+        iso:"run", &cmd_run,
+        iso:"vi", &cmd_edit,
+        iso:"ed", &cmd_edit
     ]
 
     sub recognized(str cmdword, ubyte length) -> uword {
@@ -75,5 +78,75 @@ misc_commands {
         }
         txt.print(iso:"\rOr simply type name of program to launch (case insensitive, no suffix req'd).\r")
         return true
+    }
+
+    sub cmd_edit() -> bool {
+        ; activate x16edit, see https://github.com/stefan-b-jakobsson/x16-edit/tree/master/docs
+        ; try ROM search first, otherwise load the hi-ram version to $6000
+        ubyte x16edit_bank
+        for x16edit_bank in 31 downto 0  {
+            cx16.rombank(x16edit_bank)
+            if string.compare($fff0, petscii:"x16edit")==0
+                break   ; found the x16edit rom tag
+        }
+        if not x16edit_bank {
+            if diskio.load(disk_commands.drivenumber, "x16edit-6000", 0) {
+                x16edit_bank = 4
+                launch_x16edit($6006)
+                void cx16.screen_mode(1, false)     ; back to shell's screen mode
+                return true
+            } else {
+                return err.set(iso:"no x16edit in rom and no x16edit-6000.prg on disk")
+            }
+        }
+
+        ; launch the rom based editor
+        launch_x16edit($c006)
+        void cx16.screen_mode(1, false)     ; back to shell's screen mode
+        return true
+
+        sub launch_x16edit(uword entrypoint) {
+            ; set screen resolution back to normal 80x60 for x16edit
+            cx16.rombank(0)
+            void cx16.screen_mode(0, false)
+            cx16.rombank(x16edit_bank)
+            cx16.r1H = %00000001        ; enable auto-indent
+            cx16.r2L = 4
+            cx16.r2H = 80
+            cx16.r3L = disk_commands.drivenumber
+            cx16.r3H = main.COLOR_BACKGROUND<<4 | main.COLOR_NORMAL
+            cx16.r4 = 0                 ; choose default colors for status bar and headers
+            if main.command_arguments_ptr {
+                cx16.r0 = main.command_arguments_ptr
+                cx16.r1L = main.command_arguments_size
+                %asm {{
+                    phx
+                    ldx  #1
+                    ldy  #255
+                    lda  #>_return
+                    pha
+                    lda  #<_return
+                    pha
+                    jmp  (entrypoint)
+_return:            nop
+                    plx
+                }}
+            } else {
+                cx16.r1L = 0
+                %asm {{
+                    phx
+                    ldx  #1
+                    ldy  #255
+                    lda  #>_return
+                    pha
+                    lda  #<_return
+                    pha
+                    jmp  (entrypoint)
+_return:            nop
+                    plx
+                }}
+            }
+            cx16.rombank(0)
+        }
     }
 }
