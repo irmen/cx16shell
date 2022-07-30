@@ -5,7 +5,6 @@
 %import disk_commands
 %import misc_commands
 %zeropage basicsafe
-%option no_sysinit
 
 main {
     const ubyte COLOR_NORMAL = 1
@@ -174,6 +173,8 @@ main {
                 sys.exit(0)
             } else {
                 ; TODO run command via a trampoline function that returns and reloads the shell afterwards
+                ;      note: IONIT/RESTOR/CINT not needed before loading the shell as it does this by itself at startup. Only needed to set correct ram/rom banks.
+                ;      q: how do we know the start address of the loaded program to JSR to ???  so that we return to the trampoline afterwards?
                 run_file(filename_ptr, true);  for now just run it via basic
             }
         }
