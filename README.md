@@ -20,9 +20,21 @@ Save SHELL.PRG as AUTOBOOT.X16 to the sd-card to automatically load and run the 
 
 ## Usage
 
-Type "help" or "?" at the prompt to get a list of the built-in commands.
+Type "help" at the prompt to get a list of the built-in commands.
 
-"basic" will get you back to a normal Basic prompt.
+| command               | explanation                                                                                   |
+|-----------------------|-----------------------------------------------------------------------------------------------|
+| help                  | show short list of commands                                                                   |
+| basic                 | return back to Basic prompt                                                                   |
+| num                   | print number in various bases, accepts $hex, %binary and normal decimal                       |
+| run  ,<br> *filename* | loads and executes the given file. You can omit any .PRG suffix and is case insensitive.      |
+| vi , ed               | uses X16Edit (in Rom or on disk) to edit the given text file                                  |       
+| ls                    | shows files on disk. You can provide an optional pattern to match such as *.ASM or H???.TXT   |
+| cat                   | prints the contents of the given text file on the screen                                      |       
+| rm , del              | remove given file from the disk                                                               |       
+| mv , ren              | rename given file to given new filename                                                       |       
+| pwd                   | show current drive information                                                                |       
+| drive                 | change current drive                                                                          |       
 
 
 ## Todo
