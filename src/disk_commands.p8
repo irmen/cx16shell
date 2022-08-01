@@ -15,7 +15,12 @@ disk_commands {
         iso:"del", &cmd_rm,
         iso:"mv", &cmd_rename,
         iso:"ren", &cmd_rename,
+        iso:"cp", &cmd_copy,
+        iso:"cd", &cmd_cd,
         iso:"pwd", &cmd_pwd,
+        iso:"mkdir", &cmd_mkdir,
+        iso:"rmdir", &cmd_rmdir,
+        iso:"relabel", &cmd_relabel,
         iso:"drive", &cmd_drive
     ]
 
@@ -136,8 +141,81 @@ disk_commands {
         if name==0
             return err.set(iso:"IO error")
         txt.print(name)
-        txt.nl()
+        txt.print(iso:"\r(sorry, no directory information yet)\r")
         return true
+    }
+
+    sub internal_send_command_print_status(ubyte nameoffset) {
+        void string.copy(main.command_arguments_ptr, diskio.filenames_buffer+nameoffset)
+        void diskio.send_command(drivenumber, diskio.filenames_buffer)
+        print_disk_status()
+    }
+
+    sub cmd_mkdir() -> bool {
+        if main.command_arguments_size==0
+            return err.set(iso:"Missing arg: dirname")
+
+        diskio.filenames_buffer[0] = 'm'
+        diskio.filenames_buffer[1] = 'd'
+        diskio.filenames_buffer[2] = ':'
+        internal_send_command_print_status(3)
+        return true
+    }
+
+    sub cmd_cd() -> bool {
+        if main.command_arguments_size==0
+            return err.set(iso:"Missing arg: dirname")
+
+        diskio.filenames_buffer[0] = 'c'
+        diskio.filenames_buffer[1] = 'd'
+        diskio.filenames_buffer[2] = ':'
+        internal_send_command_print_status(3)
+        return true
+    }
+
+    sub cmd_rmdir() -> bool {
+        if main.command_arguments_size==0
+            return err.set(iso:"Missing arg: dirname")
+
+        diskio.filenames_buffer[0] = 'r'
+        diskio.filenames_buffer[1] = 'd'
+        diskio.filenames_buffer[2] = ':'
+        internal_send_command_print_status(3)
+        return true
+    }
+
+    sub cmd_relabel() -> bool {
+        if main.command_arguments_size==0
+            return err.set(iso:"Missing arg: diskname")
+
+        diskio.filenames_buffer[0] = 'r'
+        diskio.filenames_buffer[1] = '-'
+        diskio.filenames_buffer[2] = 'h'
+        diskio.filenames_buffer[3] = ':'
+        internal_send_command_print_status(4)
+        return true
+    }
+
+    sub cmd_copy() -> bool {
+        if main.command_arguments_size==0
+            return err.set(iso:"Missing args: oldfilename newfilename")
+
+        uword newfilename
+        ubyte space_idx = string.find(main.command_arguments_ptr, iso:' ')
+        if_cs {
+            newfilename = main.command_arguments_ptr + space_idx + 1
+            main.command_arguments_ptr[space_idx] = 0
+            diskio.filenames_buffer[0] = 'c'
+            diskio.filenames_buffer[1] = ':'
+            ubyte length = string.copy(newfilename, diskio.filenames_buffer+2)
+            diskio.filenames_buffer[length+2] = '='
+            void string.copy(main.command_arguments_ptr, diskio.filenames_buffer+length+3)
+            void diskio.send_command(drivenumber, diskio.filenames_buffer)
+            print_disk_status()
+            return true
+        } else {
+            return err.set(iso:"Missing args: oldfilename newfilename")
+        }
     }
 
     sub cmd_drive() -> bool {

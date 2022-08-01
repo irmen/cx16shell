@@ -71,6 +71,7 @@ misc_commands {
             txt.spc()
             txt.spc()
         }
+        txt.nl()
         for idx in 0 to len(disk_commands.commands_table)-1 step 2 {
             txt.print(disk_commands.commands_table[idx])
             txt.spc()
