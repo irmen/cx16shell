@@ -146,8 +146,8 @@ disk_commands {
     }
 
     sub internal_send_command_print_status(ubyte nameoffset) {
-        void string.copy(main.command_arguments_ptr, diskio.filenames_buffer+nameoffset)
-        void diskio.send_command(drivenumber, diskio.filenames_buffer)
+        void string.copy(main.command_arguments_ptr, &diskio.list_filename+nameoffset)
+        void diskio.send_command(drivenumber, diskio.list_filename)
         print_disk_status()
     }
 
@@ -155,9 +155,9 @@ disk_commands {
         if main.command_arguments_size==0
             return err.set(iso:"Missing arg: dirname")
 
-        diskio.filenames_buffer[0] = 'm'
-        diskio.filenames_buffer[1] = 'd'
-        diskio.filenames_buffer[2] = ':'
+        diskio.list_filename[0] = 'm'
+        diskio.list_filename[1] = 'd'
+        diskio.list_filename[2] = ':'
         internal_send_command_print_status(3)
         return true
     }
@@ -166,9 +166,9 @@ disk_commands {
         if main.command_arguments_size==0
             return err.set(iso:"Missing arg: dirname")
 
-        diskio.filenames_buffer[0] = 'c'
-        diskio.filenames_buffer[1] = 'd'
-        diskio.filenames_buffer[2] = ':'
+        diskio.list_filename[0] = 'c'
+        diskio.list_filename[1] = 'd'
+        diskio.list_filename[2] = ':'
         internal_send_command_print_status(3)
         return true
     }
@@ -177,9 +177,9 @@ disk_commands {
         if main.command_arguments_size==0
             return err.set(iso:"Missing arg: dirname")
 
-        diskio.filenames_buffer[0] = 'r'
-        diskio.filenames_buffer[1] = 'd'
-        diskio.filenames_buffer[2] = ':'
+        diskio.list_filename[0] = 'r'
+        diskio.list_filename[1] = 'd'
+        diskio.list_filename[2] = ':'
         internal_send_command_print_status(3)
         return true
     }
@@ -188,10 +188,10 @@ disk_commands {
         if main.command_arguments_size==0
             return err.set(iso:"Missing arg: diskname")
 
-        diskio.filenames_buffer[0] = 'r'
-        diskio.filenames_buffer[1] = '-'
-        diskio.filenames_buffer[2] = 'h'
-        diskio.filenames_buffer[3] = ':'
+        diskio.list_filename[0] = 'r'
+        diskio.list_filename[1] = '-'
+        diskio.list_filename[2] = 'h'
+        diskio.list_filename[3] = ':'
         internal_send_command_print_status(4)
         return true
     }
@@ -205,12 +205,12 @@ disk_commands {
         if_cs {
             newfilename = main.command_arguments_ptr + space_idx + 1
             main.command_arguments_ptr[space_idx] = 0
-            diskio.filenames_buffer[0] = 'c'
-            diskio.filenames_buffer[1] = ':'
-            ubyte length = string.copy(newfilename, diskio.filenames_buffer+2)
-            diskio.filenames_buffer[length+2] = '='
-            void string.copy(main.command_arguments_ptr, diskio.filenames_buffer+length+3)
-            void diskio.send_command(drivenumber, diskio.filenames_buffer)
+            diskio.list_filename[0] = 'c'
+            diskio.list_filename[1] = ':'
+            ubyte length = string.copy(newfilename, &diskio.list_filename+2)
+            diskio.list_filename[length+2] = '='
+            void string.copy(main.command_arguments_ptr, &diskio.list_filename+length+3)
+            void diskio.send_command(drivenumber, diskio.list_filename)
             print_disk_status()
             return true
         } else {
