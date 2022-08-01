@@ -69,7 +69,18 @@ disk_commands {
     sub cmd_rm() -> bool {
         if main.command_arguments_size==0
             return err.set(iso:"Missing arg: filename")
-
+        void string.find(main.command_arguments_ptr, '*')
+        if_cs {
+            ;txt.color(main.COLOR_HIGHLIGHT)
+            ;txt.print(iso:"Has * wildcard. Sure y/n? ")
+            ;txt.color(main.COLOR_NORMAL)
+            ;ubyte answer = c64.CHRIN()
+            ;txt.nl()
+            ;if answer == iso:'y' {
+            ;    return err.set(iso:"TODO custom pattern matching with * wildcard") ; TODO
+            ;}
+            return err.set(iso:"Refused to act on * wildcard")
+        }
         diskio.delete(drivenumber, main.command_arguments_ptr)
         print_disk_status()
         return true
@@ -176,6 +187,10 @@ disk_commands {
     sub cmd_rmdir() -> bool {
         if main.command_arguments_size==0
             return err.set(iso:"Missing arg: dirname")
+
+        void string.find(main.command_arguments_ptr, '*')
+        if_cs
+            return err.set(iso:"Refused to act on * wildcard")
 
         diskio.list_filename[0] = 'r'
         diskio.list_filename[1] = 'd'
