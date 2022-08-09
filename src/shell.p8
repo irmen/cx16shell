@@ -20,9 +20,7 @@ main {
     ubyte command_arguments_size
 
     sub start() {
-        txt.iso()
-        void cx16.screen_mode(1, false)
-        cx16.rombank(0)     ; switch to kernal rom for faster operation
+        reset_screen()
         print_intro()
 
         repeat {
@@ -47,12 +45,19 @@ main {
                             void err.set(iso:"Unspecified error")
                         }
                     } else {
-                        ; see if there is a program file that matches
-                        uword real_filename_ptr = file_lookup_matching(command_line, true)
-                        if real_filename_ptr
-                            run_file(real_filename_ptr, false)
-                        else
-                            void err.set(iso:"Invalid command")
+                        ; see if there is an external shell command in the SHELL-CMDS subdirectory that matches
+                        diskio.list_filename = "//shell-cmds/:"
+                        string.copy(command_word, &diskio.list_filename+14)
+                        if diskio.load(disk_commands.drivenumber, diskio.list_filename, 0)
+                            run_external_command()
+                        else {
+                            ; see if there is a program file that matches
+                            uword real_filename_ptr = file_lookup_matching(command_line, true)
+                            if real_filename_ptr
+                                run_file(real_filename_ptr, false)
+                            else
+                                void err.set(iso:"Invalid command")
+                        }
                     }
                 } else {
                     void err.set(iso:"Invalid input")
@@ -98,6 +103,17 @@ main {
         txt.print(iso:"\r  Commander-X16 SHELL ")
         txt.color(COLOR_NORMAL)
         txt.print(iso:"- https://github.com/irmen/cx16shell\r")
+    }
+
+    sub reset_screen() {
+        cx16.rombank(0)     ; switch to kernal rom for faster operation
+        c64.IOINIT()
+        c64.RESTOR()
+        c64.CINT()
+        txt.iso()
+        void cx16.screen_mode(1, false)
+        txt.color2(COLOR_NORMAL, COLOR_BACKGROUND)
+        txt.clear_screen()
     }
 
     sub file_lookup_matching(uword filename_ptr, bool only_programs) -> uword {
@@ -149,35 +165,60 @@ main {
     }
 
     sub run_file(uword filename_ptr, bool via_basic_load) {
-            txt.color(main.COLOR_HIGHLIGHT)
-            txt.print(iso:"Running: ")
-            txt.color(main.COLOR_NORMAL)
-            txt.print(filename_ptr)
-            txt.nl()
+        txt.color(main.COLOR_HIGHLIGHT)
+        txt.print(iso:"Running: ")
+        txt.color(main.COLOR_NORMAL)
+        txt.print(filename_ptr)
+        txt.nl()
 
-            if via_basic_load {
-                ; make sure the screen and everything is set back to normal mode, and issue the load+run commands.
-                c64.IOINIT()
-                c64.RESTOR()
-                c64.CINT()
-                txt.print("\x13lO\"")       ; home, load
-                txt.print(filename_ptr)
-                txt.print("\",")
-                txt.chrout('0' + disk_commands.drivenumber)
-                txt.nl()
-                cx16.kbdbuf_put($13)        ; home, enter, run, enter
-                cx16.kbdbuf_put('\r')
-                cx16.kbdbuf_put('r')
-                cx16.kbdbuf_put('U')
-                cx16.kbdbuf_put('\r')
-                sys.exit(0)
-            } else {
-                ; TODO run command via a trampoline function that returns and reloads the shell afterwards
-                ;      note: IONIT/RESTOR/CINT not needed before loading the shell as it does this by itself at startup. Only needed to set correct ram/rom banks.
-                ;      q: how do we know the start address of the loaded program to JSR to ???  so that we return to the trampoline afterwards?
-                run_file(filename_ptr, true);  for now just run it via basic
-            }
+        if via_basic_load {
+            ; make sure the screen and everything is set back to normal mode, and issue the load+run commands.
+            c64.IOINIT()
+            c64.RESTOR()
+            c64.CINT()
+            txt.print("\x13lO\"")       ; home, load
+            txt.print(filename_ptr)
+            txt.print("\",")
+            txt.chrout('0' + disk_commands.drivenumber)
+            txt.nl()
+            cx16.kbdbuf_put($13)        ; home, enter, run, enter
+            cx16.kbdbuf_put('\r')
+            cx16.kbdbuf_put('r')
+            cx16.kbdbuf_put('U')
+            cx16.kbdbuf_put('\r')
+            sys.exit(0)
+        } else {
+            ; TODO run command via a trampoline function that returns and reloads the shell afterwards
+            ;      note: IONIT/RESTOR/CINT not needed before loading the shell as it does this by itself at startup. Only needed to set correct ram/rom banks.
+            ;      q: how do we know the start address of the loaded program to JSR to ???  so that we return to the trampoline afterwards?
+            run_file(filename_ptr, true);  for now just run it via basic
         }
+    }
+
+    sub run_external_command() -> bool {
+        ; load the external command program that has already been loaded to $4000
+        ; setup the 'shell bios' jump table
+        poke($07e0, $4c)    ; JMP
+        pokew($07e1, &txt.print)
+        poke($07e3, $4c)    ; JMP
+        pokew($07e4, &txt.print_uw)
+        poke($07e6, $4c)    ; JMP
+        pokew($07e7, &txt.print_uwhex)
+        poke($07e9, $4c)    ; JMP
+        pokew($07ea, &txt.print_uwbin)
+        poke($07ec, $4c)    ; JMP
+        pokew($07ed, &txt.input_chars)
+        poke($07ef, $4c)    ; JMP
+        pokew($07f0, &err.set)
+        poke($07f2, $4c)    ; JMP
+        pokew($07f3, &reset_screen)
+        push(disk_commands.drivenumber)     ; only variable in ZP that we need to save
+        ; call the routine with the input registers
+        romsub $4000 = external_command(uword command @R0, ubyte command_size @R1, uword arguments @R2, ubyte args_size @R3) -> ubyte @A
+        cx16.r0L = external_command(&command_word, command_word_size, command_arguments_ptr, command_arguments_size)
+        pop(disk_commands.drivenumber)
+        return cx16.r0L
+    }
 
     sub print_uw_right(uword value) {
         if value < 10

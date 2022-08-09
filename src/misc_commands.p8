@@ -6,11 +6,13 @@ misc_commands {
 
     uword[] commands_table = [
         iso:"basic", &cmd_basic,
+        iso:"exit", &cmd_basic,
         iso:"help", &cmd_help,
         iso:"num", &cmd_printnumber,
         iso:"run", &cmd_run,
         iso:"vi", &cmd_edit,
-        iso:"ed", &cmd_edit
+        iso:"ed", &cmd_edit,
+        iso:"mem", &cmd_mem
     ]
 
     sub recognized(str cmdword, ubyte length) -> uword {
@@ -43,6 +45,21 @@ misc_commands {
         return false
     }
 
+    sub cmd_mem() -> bool {
+        txt.print(iso:"Shell prg: ")
+        txt.print_uwhex(c64.MEMBOT(0, true), true)
+        txt.chrout(iso:'-')
+        txt.print_uwhex(sys.progend(), true)
+        txt.print(iso:"\rRam banks: ")
+        txt.print_ub(cx16.numbanks())
+        txt.chrout(iso:'=')
+        txt.print_uw(cx16.numbanks() * $0008)
+        txt.print(iso:"Kb\rMemTop: ")
+        txt.print_uwhex(c64.MEMTOP(0, true), true)
+        txt.nl()
+        return true
+    }
+
     sub cmd_printnumber() -> bool {
         if main.command_arguments_size==0
             return err.set(iso:"Missing arg: number (any prefix)")
@@ -63,7 +80,7 @@ misc_commands {
 
     sub cmd_help() -> bool {
         txt.color(main.COLOR_HIGHLIGHT)
-        txt.print(iso:"Commands:\r")
+        txt.print(iso:"Builtin Commands:\r")
         txt.color(main.COLOR_NORMAL)
         ubyte idx
         for idx in 0 to len(misc_commands.commands_table)-1 step 2 {
@@ -77,7 +94,11 @@ misc_commands {
             txt.spc()
             txt.spc()
         }
-        txt.print(iso:"\rOr simply type name of program to launch (case insensitive, no suffix req'd).\r")
+        txt.color(main.COLOR_HIGHLIGHT)
+        txt.print(iso:"\rCommands on disk:\r")
+        txt.color(main.COLOR_NORMAL)
+        txt.print(iso:"Type the name of an external command program located in 'SHELL-CMDS'\r  subdirectory (see documentation).\r")
+        txt.print(iso:"Or simply type name of program to launch (no suffix req'd, case insens.).\r")
         return true
     }
 
