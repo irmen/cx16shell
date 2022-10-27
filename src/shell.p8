@@ -47,9 +47,9 @@ main {
                     } else {
                         ; see if there is an external shell command in the SHELL-CMDS subdirectory that matches
                         diskio.list_filename = "//shell-cmds/:"
-                        string.copy(command_word, &diskio.list_filename+14)
+                        void string.copy(command_word, &diskio.list_filename+14)
                         if diskio.load(disk_commands.drivenumber, diskio.list_filename, 0)
-                            run_external_command()
+                            void run_external_command()
                         else {
                             ; see if there is a program file that matches
                             uword real_filename_ptr = file_lookup_matching(command_line, true)
