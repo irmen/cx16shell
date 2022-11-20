@@ -1,6 +1,7 @@
 %import textio
 %import string
 %import diskio
+%import cx16diskio
 %import conv
 %import errors
 
@@ -159,12 +160,6 @@ disk_commands {
         return true
     }
 
-    sub internal_send_command_print_status(ubyte nameoffset) {
-        void string.copy(main.command_arguments_ptr, &diskio.list_filename+nameoffset)
-        void diskio.send_command(drivenumber, diskio.list_filename)
-        print_disk_status()
-    }
-
     sub cmd_mkdir() -> bool {
         if main.command_arguments_size==0
             return err.set(iso:"Missing arg: dirname")
@@ -172,18 +167,16 @@ disk_commands {
         diskio.list_filename[0] = 'm'
         diskio.list_filename[1] = 'd'
         diskio.list_filename[2] = ':'
-        internal_send_command_print_status(3)
+        cx16diskio.mkdir(drivenumber, main.command_arguments_ptr)
+        print_disk_status()
         return true
     }
 
     sub cmd_cd() -> bool {
         if main.command_arguments_size==0
             return err.set(iso:"Missing arg: dirname")
-
-        diskio.list_filename[0] = 'c'
-        diskio.list_filename[1] = 'd'
-        diskio.list_filename[2] = ':'
-        internal_send_command_print_status(3)
+        cx16diskio.chdir(drivenumber, main.command_arguments_ptr)
+        print_disk_status()
         return true
     }
 
@@ -195,22 +188,16 @@ disk_commands {
         if_cs
             return err.set(iso:"Refused to act on * wildcard")
 
-        diskio.list_filename[0] = 'r'
-        diskio.list_filename[1] = 'd'
-        diskio.list_filename[2] = ':'
-        internal_send_command_print_status(3)
+        cx16diskio.rmdir(drivenumber, main.command_arguments_ptr)
+        print_disk_status()
         return true
     }
 
     sub cmd_relabel() -> bool {
         if main.command_arguments_size==0
             return err.set(iso:"Missing arg: diskname")
-
-        diskio.list_filename[0] = 'r'
-        diskio.list_filename[1] = '-'
-        diskio.list_filename[2] = 'h'
-        diskio.list_filename[3] = ':'
-        internal_send_command_print_status(4)
+        cx16diskio.relabel(drivenumber, main.command_arguments_ptr)
+        print_disk_status()
         return true
     }
 
