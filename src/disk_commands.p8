@@ -43,7 +43,10 @@ disk_commands {
                 num_files++
                 txt.spc()
                 txt.spc()
-                main.print_uw_right(diskio.list_blocks)
+                if diskio.list_filetype == "dir"
+                    txt.print(iso:"[dir]")
+                else
+                    main.print_uw_right(diskio.list_blocks)
                 txt.spc()
                 txt.spc()
                 txt.print(diskio.list_filename)
