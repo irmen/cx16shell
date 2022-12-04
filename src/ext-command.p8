@@ -37,7 +37,7 @@ main $4000 {
         if cx16.r3 {
             shell.shell_print(iso:"\rargs: ")
             shell.shell_print(cx16.r2)        ; arguments
-            c64.CHROUT(iso:' ')
+            shell.shell_print(iso:"\nargs length=")
             shell.shell_print_uw(cx16.r3)     ; length of arguments
         }
         shell.shell_print(iso:"\renter name: ")

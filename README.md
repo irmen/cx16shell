@@ -60,6 +60,13 @@ You can write those commands yourself, they have to adhere to the following API.
 Command should be assembled from address $4000 and up (to max $9f00).
 They should be stored in the ``SHELL-CMDS`` subdirectory on your sdcard.
 
+Input registers set by shell upon calling your command::
+
+    cx16.r0 = command address
+    cx16.r1 = length of command (byte)
+    cx16.r2 = arguments address
+    cx16.r3 = length of arguments (byte)
+
 Utility routines you can call from your command program::
 
     $07e0 = shell_print(str string @AY) clobbers(A,Y)
@@ -70,17 +77,10 @@ Utility routines you can call from your command program::
     $07ef = shell_err_set(str message @AY) clobbers(Y) -> bool @A
     $07f2 = shell_reset_screen() clobbers(A,X,Y)
 
-Input registers set by shell upon calling your command::
-
-    cx16.r0 = command address
-    cx16.r1 = length of command (byte)
-    cx16.r2 = arguments address
-    cx16.r3 = length of arguments (byte)
-
-Command should return error status in A. You can use the ``err_set()`` routine to set a specific error message for the shell.
-Command CAN use the FREE zero page locations.
+Command should return error status in A. You can use the ``shell_err_set()`` routine to set a specific error message for the shell.
+Command CAN use the *free* zero page locations.
 Command CANNOT use memory below $4000 (the shell sits there).
-Command CAN use Ram $0400-$07e0.
+Command CAN use Golden Ram $0400-$07df.
 
 The "ext-command.p8" source file contains a piece of example Prog8 source code of an external command.
 
