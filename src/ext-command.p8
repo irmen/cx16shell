@@ -23,7 +23,7 @@ shell {
     ; command should return error status in A. You can use err_set() to set a specific error message for the shell.
     ; command CAN use the FREE zero page locations.
     ; command CANNOT use memory below $4000 (the shell sits there)
-    ; command CAN use Ram $0400-$07e0.
+    ; command CAN use Ram $0400-$07df.
 }
 
 main $4000 {
@@ -37,7 +37,7 @@ main $4000 {
         if cx16.r3 {
             shell.shell_print(iso:"\rargs: ")
             shell.shell_print(cx16.r2)        ; arguments
-            shell.shell_print(iso:"\nargs length=")
+            shell.shell_print(iso:"\rargs length=")
             shell.shell_print_uw(cx16.r3)     ; length of arguments
         }
         shell.shell_print(iso:"\renter name: ")
