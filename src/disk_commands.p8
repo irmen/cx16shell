@@ -148,16 +148,82 @@ disk_commands {
     sub cmd_pwd() -> bool {
         if main.command_arguments_size
             return err.set(iso:"Has no args")
+        txt.color(main.COLOR_HIGHLIGHT)
         txt.print(iso:"Drive number: ")
+        txt.color(main.COLOR_NORMAL)
         txt.print_ub(drivenumber)
         txt.nl()
-        txt.print(iso:"Disk name: ")
-        uword name = diskio.diskname(drivenumber)
-        if name==0
+
+        ; special X16 dos command to only return the current path in the entry list
+        ; pull request: https://github.com/commanderx16/x16-rom/pull/373
+        ; note: I'm also using *=d filter to not get a screen full of nonsense when
+        ; you run this code on a rom version that doesn't yet have the $=c command.
+        c64.SETNAM(7, "$=c:*=d")
+        c64.SETLFS(12, drivenumber, 0)
+        ubyte status = 1
+        void c64.OPEN()          ; open 12,8,0,"$=c:*=d"
+        if_cs
+            goto io_error
+        void c64.CHKIN(12)        ; use #12 as input channel
+        if_cs
+            goto io_error
+
+        while c64.CHRIN()!='"' {
+            ; skip up to entry name
+        }
+
+        bool first_line_diskname=true
+        status = c64.READST()
+        while status==0 {
+            cx16.r0 = &main.command_line
+            repeat {
+                @(cx16.r0) = c64.CHRIN()
+                if @(cx16.r0)==0
+                    break
+                cx16.r0++
+            }
+            process_line(main.command_line, first_line_diskname)
+            first_line_diskname=false
+            while c64.CHRIN()!='"' and status==0 {
+                status = c64.READST()
+                ; skipping up to next entry name
+            }
+        }
+        status = c64.READST()
+
+io_error:
+        c64.CLRCHN()        ; restore default i/o devices
+        c64.CLOSE(12)
+
+        if status and status & $40 == 0            ; bit 6=end of file
             return err.set(iso:"IO error")
-        txt.print(name)
-        txt.print(iso:"\r(sorry, no directory information yet)\r")
+
+        txt.nl()
         return true
+
+        sub process_line(uword lineptr, bool diskname) {
+            if diskname {
+                txt.color(main.COLOR_HIGHLIGHT)
+                txt.print(iso:"Disk name: ")
+                txt.color(main.COLOR_NORMAL)
+            }
+            repeat {
+                cx16.r0L=@(lineptr)
+                if cx16.r0L=='"'
+                    break
+                txt.chrout(cx16.r0L)
+                lineptr++
+            }
+            if diskname {
+                txt.color(main.COLOR_HIGHLIGHT)
+                txt.print(iso:"\rCurrent dir: ")
+                txt.color(main.COLOR_NORMAL)
+            } else if @(lineptr-1)!='/' {
+                txt.color(main.COLOR_HIGHLIGHT)
+                txt.print(iso:" in ")
+                txt.color(main.COLOR_NORMAL)
+            }
+        }
     }
 
     sub cmd_mkdir() -> bool {
