@@ -281,7 +281,7 @@ io_error:
             ubyte length = string.copy(newfilename, &diskio.list_filename+2)
             diskio.list_filename[length+2] = '='
             void string.copy(main.command_arguments_ptr, &diskio.list_filename+length+3)
-            void diskio.send_command(drivenumber, diskio.list_filename)
+            diskio.send_command(drivenumber, diskio.list_filename)
             print_disk_status()
             return true
         } else {
