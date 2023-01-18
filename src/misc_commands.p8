@@ -12,7 +12,8 @@ misc_commands {
         iso:"run", &cmd_run,
         iso:"vi", &cmd_edit,
         iso:"ed", &cmd_edit,
-        iso:"mem", &cmd_mem
+        iso:"mem", &cmd_mem,
+        iso:"cls", &cmd_cls
     ]
 
     sub recognized(str cmdword, ubyte length) -> uword {
@@ -43,6 +44,11 @@ misc_commands {
         if not err.error_status
             return err.set(iso:"File not found")
         return false
+    }
+
+    sub cmd_cls() -> bool {
+        txt.clear_screen()
+        return true
     }
 
     sub cmd_mem() -> bool {
