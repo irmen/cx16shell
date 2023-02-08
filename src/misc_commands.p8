@@ -57,7 +57,7 @@ misc_commands {
         txt.chrout(iso:'-')
         txt.print_uwhex(sys.progend(), true)
         txt.print(iso:"\rRam banks: ")
-        txt.print_ub(cx16.numbanks())
+        txt.print_uw(cx16.numbanks())
         txt.chrout(iso:'=')
         txt.print_uw(cx16.numbanks() * $0008)
         txt.print(iso:"Kb\rMemTop: ")
