@@ -69,18 +69,18 @@ Input registers set by shell upon calling your command::
 
 Utility routines you can call from your command program::
 
-    $07e0 = shell_print(str string @AY) clobbers(A,Y)
-    $07e3 = shell_print_uw(uword value @AY) clobbers(A,Y)
-    $07e6 = shell_print_uwhex(uword value @ AY, ubyte prefix @ Pc) clobbers(A,Y)
-    $07e9 = shell_print_uwbin(uword value @ AY, ubyte prefix @ Pc) clobbers(A,Y)
-    $07ec = shell_input_chars(uword buffer @ AY) clobbers(A) -> ubyte @Y
-    $07ef = shell_err_set(str message @AY) clobbers(Y) -> bool @A
-    $07f2 = shell_reset_screen() clobbers(A,X,Y)
+    $06e0 = shell_print(str string @AY) clobbers(A,Y)
+    $06e3 = shell_print_uw(uword value @AY) clobbers(A,Y)
+    $06e6 = shell_print_uwhex(uword value @ AY, ubyte prefix @ Pc) clobbers(A,Y)
+    $06e9 = shell_print_uwbin(uword value @ AY, ubyte prefix @ Pc) clobbers(A,Y)
+    $06ec = shell_input_chars(uword buffer @ AY) clobbers(A) -> ubyte @Y
+    $06ef = shell_err_set(str message @AY) clobbers(Y) -> bool @A
+    $06f2 = shell_reset_screen() clobbers(A,X,Y)
 
 Command should return error status in A. You can use the ``shell_err_set()`` routine to set a specific error message for the shell.
 Command CAN use the *free* zero page locations.
 Command CANNOT use memory below $4000 (the shell sits there).
-Command CAN use Golden Ram $0400-$07df.
+Command CAN use Golden Ram $0400-$06df. (the rest contains the jump table mentioned above and prog8's evaluation stack page)
 
 The "ext-command.p8" source file contains a piece of example Prog8 source code of an external command.
 

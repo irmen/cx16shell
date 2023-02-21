@@ -6,13 +6,13 @@
 %address $4000
 
 shell {
-    romsub $07e0 = shell_print(str string @AY) clobbers(A,Y)
-    romsub $07e3 = shell_print_uw(uword value @AY) clobbers(A,Y)
-    romsub $07e6 = shell_print_uwhex(uword value @ AY, ubyte prefix @ Pc) clobbers(A,Y)
-    romsub $07e9 = shell_print_uwbin(uword value @ AY, ubyte prefix @ Pc) clobbers(A,Y)
-    romsub $07ec = shell_input_chars(uword buffer @ AY) clobbers(A) -> ubyte @Y
-    romsub $07ef = shell_err_set(str message @AY) clobbers(Y) -> bool @A
-    romsub $07f2 = shell_reset_screen() clobbers(A,X,Y)
+    romsub $06e0 = shell_print(str string @AY) clobbers(A,Y)
+    romsub $06e3 = shell_print_uw(uword value @AY) clobbers(A,Y)
+    romsub $06e6 = shell_print_uwhex(uword value @ AY, ubyte prefix @ Pc) clobbers(A,Y)
+    romsub $06e9 = shell_print_uwbin(uword value @ AY, ubyte prefix @ Pc) clobbers(A,Y)
+    romsub $06ec = shell_input_chars(uword buffer @ AY) clobbers(A) -> ubyte @Y
+    romsub $06ef = shell_err_set(str message @AY) clobbers(Y) -> bool @A
+    romsub $06f2 = shell_reset_screen() clobbers(A,X,Y)
 
     ; input registers set by shell upon calling your command:
     ;    cx16.r0 = command address
@@ -23,7 +23,7 @@ shell {
     ; command should return error status in A. You can use err_set() to set a specific error message for the shell.
     ; command CAN use the FREE zero page locations.
     ; command CANNOT use memory below $4000 (the shell sits there)
-    ; command CAN use Ram $0400-$07df.
+    ; command CAN use Ram $0400-$06df.
 }
 
 main $4000 {

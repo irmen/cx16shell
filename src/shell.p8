@@ -198,24 +198,26 @@ main {
     sub run_external_command() -> bool {
         ; load the external command program that has already been loaded to $4000
         ; setup the 'shell bios' jump table
-        poke($07e0, $4c)    ; JMP
-        pokew($07e1, &txt.print)
-        poke($07e3, $4c)    ; JMP
-        pokew($07e4, &txt.print_uw)
-        poke($07e6, $4c)    ; JMP
-        pokew($07e7, &txt.print_uwhex)
-        poke($07e9, $4c)    ; JMP
-        pokew($07ea, &txt.print_uwbin)
-        poke($07ec, $4c)    ; JMP
-        pokew($07ed, &txt.input_chars)
-        poke($07ef, $4c)    ; JMP
-        pokew($07f0, &err.set)
-        poke($07f2, $4c)    ; JMP
-        pokew($07f3, &reset_screen)
+        poke($06e0, $4c)    ; JMP
+        pokew($06e1, &txt.print)
+        poke($06e3, $4c)    ; JMP
+        pokew($06e4, &txt.print_uw)
+        poke($06e6, $4c)    ; JMP
+        pokew($06e7, &txt.print_uwhex)
+        poke($06e9, $4c)    ; JMP
+        pokew($06ea, &txt.print_uwbin)
+        poke($06ec, $4c)    ; JMP
+        pokew($06ed, &txt.input_chars)
+        poke($06ef, $4c)    ; JMP
+        pokew($06f0, &err.set)
+        poke($06f2, $4c)    ; JMP
+        pokew($06f3, &reset_screen)
         push(disk_commands.drivenumber)     ; only variable in ZP that we need to save
+        rsavex()
         ; call the routine with the input registers
         romsub $4000 = external_command(uword command @R0, ubyte command_size @R1, uword arguments @R2, ubyte args_size @R3) -> ubyte @A
         cx16.r0L = external_command(&command_word, command_word_size, command_arguments_ptr, command_arguments_size)
+        rrestorex()
         pop(disk_commands.drivenumber)
         return cx16.r0L
     }
