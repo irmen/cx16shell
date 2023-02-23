@@ -37,9 +37,8 @@ main {
                     if command_routine==0
                         command_routine = misc_commands.recognized(command_line, command_word_size)
                     if command_routine {
-                        ubyte success
-                        callfar(0, command_routine, &success)
-                        if success!=0
+                        cx16.r0 = callfar(cx16.getrambank(), command_routine, 0)       ; indirect JSR
+                        if cx16.r0L!=0
                             err.clear()
                         else if not err.error_status {
                             void err.set(iso:"Unspecified error")
