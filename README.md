@@ -75,7 +75,6 @@ Utility routines you can call from your command program::
     $06e9 = shell_print_uwbin(uword value @ AY, ubyte prefix @ Pc) clobbers(A,Y)
     $06ec = shell_input_chars(uword buffer @ AY) clobbers(A) -> ubyte @Y
     $06ef = shell_err_set(str message @AY) clobbers(Y) -> bool @A
-    $06f2 = shell_reset_screen() clobbers(A,X,Y)
 
 Command should return error status in A. You can use the ``shell_err_set()`` routine to set a specific error message for the shell.
 Command CAN use the *free* zero page locations.

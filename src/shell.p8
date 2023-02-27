@@ -20,7 +20,11 @@ main {
     ubyte command_arguments_size
 
     sub start() {
-        reset_screen()
+        cx16.rombank(0)     ; switch to kernal rom for faster operation
+        txt.iso()
+        txt.color2(COLOR_NORMAL, COLOR_BACKGROUND)
+        void cx16.screen_mode(1, false)
+        txt.clear_screen()
         print_intro()
 
         repeat {
@@ -104,17 +108,6 @@ main {
         txt.print(iso:"- https://github.com/irmen/cx16shell\r")
     }
 
-    sub reset_screen() {
-        cx16.rombank(0)     ; switch to kernal rom for faster operation
-        c64.IOINIT()
-        c64.RESTOR()
-        c64.CINT()
-        txt.iso()
-        void cx16.screen_mode(1, false)
-        txt.color2(COLOR_NORMAL, COLOR_BACKGROUND)
-        txt.clear_screen()
-    }
-
     sub file_lookup_matching(uword filename_ptr, bool only_programs) -> uword {
         ; we re-use command_word variable as storage for processing the filenames read from disk.
         void iso_to_lowercase_petscii(filename_ptr)
@@ -172,9 +165,9 @@ main {
 
         if via_basic_load {
             ; make sure the screen and everything is set back to normal mode, and issue the load+run commands.
-            c64.IOINIT()
-            c64.RESTOR()
-            c64.CINT()
+            txt.iso_off()
+            txt.color2(1,6)     ; default white on blue
+            void cx16.screen_mode(0, false)
             txt.print("\x13lO\"")       ; home, load
             txt.print(filename_ptr)
             txt.print("\",")
@@ -209,8 +202,6 @@ main {
         pokew($06ed, &txt.input_chars)
         poke($06ef, $4c)    ; JMP
         pokew($06f0, &err.set)
-        poke($06f2, $4c)    ; JMP
-        pokew($06f3, &reset_screen)
         push(disk_commands.drivenumber)     ; only variable in ZP that we need to save
         rsavex()
         ; call the routine with the input registers

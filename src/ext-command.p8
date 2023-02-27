@@ -12,7 +12,6 @@ shell {
     romsub $06e9 = shell_print_uwbin(uword value @ AY, ubyte prefix @ Pc) clobbers(A,Y)
     romsub $06ec = shell_input_chars(uword buffer @ AY) clobbers(A) -> ubyte @Y
     romsub $06ef = shell_err_set(str message @AY) clobbers(Y) -> bool @A
-    romsub $06f2 = shell_reset_screen() clobbers(A,X,Y)
 
     ; input registers set by shell upon calling your command:
     ;    cx16.r0 = command address
