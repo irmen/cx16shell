@@ -53,7 +53,7 @@ misc_commands {
 
     sub cmd_mem() -> bool {
         txt.print(iso:"Shell prg: ")
-        txt.print_uwhex(c64.MEMBOT(0, true), true)
+        txt.print_uwhex(cbm.MEMBOT(0, true), true)
         txt.chrout(iso:'-')
         txt.print_uwhex(sys.progend(), true)
         txt.print(iso:"\rRam banks: ")
@@ -61,7 +61,7 @@ misc_commands {
         txt.chrout(iso:'=')
         txt.print_uw(cx16.numbanks() * $0008)
         txt.print(iso:"Kb\rMemTop: ")
-        txt.print_uwhex(c64.MEMTOP(0, true), true)
+        txt.print_uwhex(cbm.MEMTOP(0, true), true)
         txt.nl()
         return true
     }
@@ -118,7 +118,7 @@ misc_commands {
                 break   ; found the x16edit rom tag
         }
         if not x16edit_bank {
-            if diskio.load(disk_commands.drivenumber, "x16edit-6000", 0) {
+            if diskio.load("x16edit-6000", 0) {
                 x16edit_bank = 4
                 launch_x16edit($6006)
                 void cx16.screen_mode(1, false)     ; back to shell's screen mode
@@ -141,7 +141,7 @@ misc_commands {
             cx16.r1H = %00000001        ; enable auto-indent
             cx16.r2L = 4
             cx16.r2H = 80
-            cx16.r3L = disk_commands.drivenumber
+            cx16.r3L = diskio.drivenumber
             cx16.r3H = main.COLOR_BACKGROUND<<4 | main.COLOR_NORMAL
             cx16.r4 = 0                 ; choose default colors for status bar and headers
             if main.command_arguments_ptr {

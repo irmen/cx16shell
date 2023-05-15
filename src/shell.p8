@@ -51,7 +51,7 @@ main {
                         ; see if there is an external shell command in the SHELL-CMDS subdirectory that matches
                         diskio.list_filename = "//shell-cmds/:"
                         void string.copy(command_word, &diskio.list_filename+14)
-                        if diskio.load(disk_commands.drivenumber, diskio.list_filename, 0)
+                        if diskio.load(diskio.list_filename, 0)
                             void run_external_command()
                         else {
                             ; see if there is a program file that matches
@@ -111,7 +111,7 @@ main {
     sub file_lookup_matching(uword filename_ptr, bool only_programs) -> uword {
         ; we re-use command_word variable as storage for processing the filenames read from disk.
         void iso_to_lowercase_petscii(filename_ptr)
-        if diskio.lf_start_list(8, 0) {
+        if diskio.lf_start_list(0) {
             while diskio.lf_next_entry() {
                 command_word = diskio.list_filename
                 ubyte disk_name_length = string.lower(command_word)
@@ -141,7 +141,7 @@ main {
             diskio.lf_end_list()
             return 0
         } else {
-            return err.set(diskio.status(disk_commands.drivenumber))
+            return err.set(diskio.status())
         }
     }
 
@@ -171,7 +171,7 @@ main {
             txt.print("\x13lO\"")       ; home, load
             txt.print(filename_ptr)
             txt.print("\",")
-            txt.chrout('0' + disk_commands.drivenumber)
+            txt.chrout('0' + diskio.drivenumber)
             txt.nl()
             cx16.kbdbuf_put($13)        ; home, enter, run, enter
             cx16.kbdbuf_put('\r')
@@ -202,13 +202,13 @@ main {
         pokew($06ed, &txt.input_chars)
         poke($06ef, $4c)    ; JMP
         pokew($06f0, &err.set)
-        push(disk_commands.drivenumber)     ; only variable in ZP that we need to save
+        push(diskio.drivenumber)     ; only variable in ZP that we need to save
         rsavex()
         ; call the routine with the input registers
         romsub $4000 = external_command(uword command @R0, ubyte command_size @R1, uword arguments @R2, ubyte args_size @R3) -> ubyte @A
         cx16.r0L = external_command(&command_word, command_word_size, command_arguments_ptr, command_arguments_size)
         rrestorex()
-        pop(disk_commands.drivenumber)
+        pop(diskio.drivenumber)
         return cx16.r0L
     }
 

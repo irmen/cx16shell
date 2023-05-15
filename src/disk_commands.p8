@@ -1,13 +1,10 @@
 %import textio
 %import string
 %import diskio
-%import cx16diskio
 %import conv
 %import errors
 
 disk_commands {
-
-    ubyte drivenumber = 8
 
     uword[] commands_table = [
         iso:"ls", &cmd_ls,
@@ -36,7 +33,7 @@ disk_commands {
 
     sub cmd_ls() -> bool {
         ubyte num_files = 0
-        if diskio.lf_start_list(drivenumber, main.command_arguments_ptr) {
+        if diskio.lf_start_list(main.command_arguments_ptr) {
             txt.color(main.COLOR_HIGHLIGHT)
             txt.print(iso:" Blocks  Filename\r")
             txt.color(main.COLOR_NORMAL)
@@ -52,7 +49,7 @@ disk_commands {
                 txt.spc()
                 txt.print(diskio.list_filename)
                 txt.nl()
-                if c64.STOP2() {
+                if cbm.STOP2() {
                     txt.color(main.COLOR_HIGHLIGHT)
                     txt.print(iso:"Break\r")
                     txt.color(main.COLOR_NORMAL)
@@ -85,7 +82,7 @@ disk_commands {
             ;}
             return err.set(iso:"Refused to act on * wildcard")
         }
-        diskio.delete(drivenumber, main.command_arguments_ptr)
+        diskio.delete(main.command_arguments_ptr)
         print_disk_status()
         return true
     }
@@ -99,7 +96,7 @@ disk_commands {
         if_cs {
             newfilename = main.command_arguments_ptr + space_idx + 1
             main.command_arguments_ptr[space_idx] = 0
-            diskio.rename(drivenumber, main.command_arguments_ptr, newfilename)
+            diskio.rename(main.command_arguments_ptr, newfilename)
             print_disk_status()
             return true
         } else {
@@ -109,7 +106,7 @@ disk_commands {
 
     sub print_disk_status() {
         txt.color(main.COLOR_HIGHLIGHT)
-        txt.print(diskio.status(drivenumber))
+        txt.print(diskio.status())
         txt.color(main.COLOR_NORMAL)
         txt.nl()
     }
@@ -118,7 +115,7 @@ disk_commands {
         if main.command_arguments_size==0
             return err.set(iso:"Missing arg: filename")
 
-        if diskio.f_open(drivenumber, main.command_arguments_ptr) {
+        if diskio.f_open(main.command_arguments_ptr) {
             uword line = 0
             repeat {
                 void diskio.f_readline(main.command_line)
@@ -130,17 +127,17 @@ disk_commands {
                 txt.color(main.COLOR_NORMAL)
                 txt.print(main.command_line)
                 txt.nl()
-                if c64.READST() & 64 {
+                if cbm.READST() & 64 {
                     break
                 }
-                if c64.STOP2() {
+                if cbm.STOP2() {
                     void err.set("break")
                     break
                 }
             }
             diskio.f_close()
         } else {
-            void err.set(diskio.status(drivenumber))
+            void err.set(diskio.status())
         }
         return true
     }
@@ -151,49 +148,49 @@ disk_commands {
         txt.color(main.COLOR_HIGHLIGHT)
         txt.print(iso:"Drive number: ")
         txt.color(main.COLOR_NORMAL)
-        txt.print_ub(drivenumber)
+        txt.print_ub(diskio.drivenumber)
         txt.nl()
 
         ; special X16 dos command to only return the current path in the entry list
         ; pull request: https://github.com/commanderx16/x16-rom/pull/373
         ; note: I'm also using *=d filter to not get a screen full of nonsense when
         ; you run this code on a rom version that doesn't yet have the $=c command.
-        c64.SETNAM(7, "$=c:*=d")
-        c64.SETLFS(12, drivenumber, 0)
+        cbm.SETNAM(7, "$=c:*=d")
+        cbm.SETLFS(12, diskio.drivenumber, 0)
         ubyte status = 1
-        void c64.OPEN()          ; open 12,8,0,"$=c:*=d"
+        void cbm.OPEN()          ; open 12,8,0,"$=c:*=d"
         if_cs
             goto io_error
-        void c64.CHKIN(12)        ; use #12 as input channel
+        void cbm.CHKIN(12)        ; use #12 as input channel
         if_cs
             goto io_error
 
-        while c64.CHRIN()!='"' {
+        while cbm.CHRIN()!='"' {
             ; skip up to entry name
         }
 
         bool first_line_diskname=true
-        status = c64.READST()
+        status = cbm.READST()
         while status==0 {
             cx16.r0 = &main.command_line
             repeat {
-                @(cx16.r0) = c64.CHRIN()
+                @(cx16.r0) = cbm.CHRIN()
                 if @(cx16.r0)==0
                     break
                 cx16.r0++
             }
             process_line(main.command_line, first_line_diskname)
             first_line_diskname=false
-            while c64.CHRIN()!='"' and status==0 {
-                status = c64.READST()
+            while cbm.CHRIN()!='"' and status==0 {
+                status = cbm.READST()
                 ; skipping up to next entry name
             }
         }
-        status = c64.READST()
+        status = cbm.READST()
 
 io_error:
-        c64.CLRCHN()        ; restore default i/o devices
-        c64.CLOSE(12)
+        cbm.CLRCHN()        ; restore default i/o devices
+        cbm.CLOSE(12)
 
         if status and status & $40 == 0            ; bit 6=end of file
             return err.set(iso:"IO error")
@@ -233,7 +230,7 @@ io_error:
         diskio.list_filename[0] = 'm'
         diskio.list_filename[1] = 'd'
         diskio.list_filename[2] = ':'
-        cx16diskio.mkdir(drivenumber, main.command_arguments_ptr)
+        diskio.mkdir(main.command_arguments_ptr)
         print_disk_status()
         return true
     }
@@ -241,7 +238,7 @@ io_error:
     sub cmd_cd() -> bool {
         if main.command_arguments_size==0
             return err.set(iso:"Missing arg: dirname")
-        cx16diskio.chdir(drivenumber, main.command_arguments_ptr)
+        diskio.chdir(main.command_arguments_ptr)
         print_disk_status()
         return true
     }
@@ -254,7 +251,7 @@ io_error:
         if_cs
             return err.set(iso:"Refused to act on * wildcard")
 
-        cx16diskio.rmdir(drivenumber, main.command_arguments_ptr)
+        diskio.rmdir(main.command_arguments_ptr)
         print_disk_status()
         return true
     }
@@ -262,7 +259,7 @@ io_error:
     sub cmd_relabel() -> bool {
         if main.command_arguments_size==0
             return err.set(iso:"Missing arg: diskname")
-        cx16diskio.relabel(drivenumber, main.command_arguments_ptr)
+        diskio.relabel(main.command_arguments_ptr)
         print_disk_status()
         return true
     }
@@ -281,7 +278,7 @@ io_error:
             ubyte length = string.copy(newfilename, &diskio.list_filename+2)
             diskio.list_filename[length+2] = '='
             void string.copy(main.command_arguments_ptr, &diskio.list_filename+length+3)
-            diskio.send_command(drivenumber, diskio.list_filename)
+            diskio.send_command(diskio.list_filename)
             print_disk_status()
             return true
         } else {
@@ -298,7 +295,7 @@ io_error:
         when nr {
             8, 9 -> {
                 txt.print(iso:"Switching drive.\r")
-                drivenumber = nr
+                diskio.set_drive(nr)
                 main.command_arguments_size = 0
                 return cmd_pwd()
             }
