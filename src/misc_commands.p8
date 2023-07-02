@@ -155,7 +155,7 @@ misc_commands {
                     pha
                     lda  #<_return
                     pha
-                    jmp  (entrypoint)
+                    jmp  (p8_entrypoint)
 _return:            nop
                     plx
                 }}
@@ -169,7 +169,7 @@ _return:            nop
                     pha
                     lda  #<_return
                     pha
-                    jmp  (entrypoint)
+                    jmp  (p8_entrypoint)
 _return:            nop
                     plx
                 }}
