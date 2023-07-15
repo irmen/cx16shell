@@ -8,8 +8,8 @@
 shell {
     romsub $06e0 = shell_print(str string @AY) clobbers(A,Y)
     romsub $06e3 = shell_print_uw(uword value @AY) clobbers(A,Y)
-    romsub $06e6 = shell_print_uwhex(uword value @ AY, ubyte prefix @ Pc) clobbers(A,Y)
-    romsub $06e9 = shell_print_uwbin(uword value @ AY, ubyte prefix @ Pc) clobbers(A,Y)
+    romsub $06e6 = shell_print_uwhex(uword value @ AY, bool prefix @ Pc) clobbers(A,Y)
+    romsub $06e9 = shell_print_uwbin(uword value @ AY, bool prefix @ Pc) clobbers(A,Y)
     romsub $06ec = shell_input_chars(uword buffer @ AY) clobbers(A) -> ubyte @Y
     romsub $06ef = shell_err_set(str message @AY) clobbers(Y) -> bool @A
 
@@ -31,7 +31,7 @@ main $4000 {
     sub start()  {
         shell.shell_print(iso:"This is an external command program!\rinvoked command: ")
         shell.shell_print(cx16.r0)        ; command
-        c64.CHROUT(iso:' ')
+        cbm.CHROUT(iso:' ')
         shell.shell_print_uw(cx16.r1)     ; length of command
         if cx16.r3 {
             shell.shell_print(iso:"\rargs: ")
@@ -44,10 +44,10 @@ main $4000 {
         if shell.shell_input_chars(inputbuffer) {
             shell.shell_print(iso:"\rinput was: ")
             shell.shell_print(inputbuffer)
-            c64.CHROUT(iso:'\r')
+            cbm.CHROUT(iso:'\r')
         }
         shell.shell_print_uwbin(12345, true)
-        c64.CHROUT(iso:'\r')
+        cbm.CHROUT(iso:'\r')
         sys.exit(0)
         ; void shell.shell_err_set(iso:"external command failed")
     }

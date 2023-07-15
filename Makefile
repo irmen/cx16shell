@@ -3,7 +3,7 @@
 all:  shell.prg ext-command.prg
 
 clean:
-	rm -f shell.prg shell.asm *.vice-*
+	rm -f *.prg *.asm *.vice-*
 
 emu:  all
 	mcopy -D o shell.prg x:SHELL
