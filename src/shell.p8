@@ -175,7 +175,7 @@ main {
 		txt.print(iso:"Memory")
 		txt.color(COLOR_NORMAL)
 		txt.print(iso:": ")
-		txt.print_uw((sys.progend()-737) / 1024)
+		txt.print_uw((sys.progend()-737) / 1024) ; 735 bytes of free golden ram + 2 bank registers = 737
 		txt.print(iso:"KiB / ")
 		txt.print_uw((cbm.MEMTOP(0, true)-2) / 1024)
 		txt.print(iso:"KiB")
@@ -205,12 +205,6 @@ main {
 		
 		txt.color(2)
 		txt.print(iso:"\r    M@/           \\@M    ")
-		
-		ubyte i
-		for i in 0 to 15{
-			txt.color(i)
-			;txt.print(iso:"\xad#")
-		}
 		
 		txt.print(iso:"\r")
     }
