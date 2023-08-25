@@ -3,3 +3,4 @@
 *.prg
 *.asm
 *.vice-mon-list
+compile.bat

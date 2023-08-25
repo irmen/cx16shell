@@ -106,6 +106,113 @@ main {
         txt.print(iso:"\r  Commander-X16 SHELL ")
         txt.color(COLOR_NORMAL)
         txt.print(iso:"- https://github.com/irmen/cx16shell\r")
+		
+		txt.color(4)
+		txt.print(iso:"\r  o                   o  ")
+		
+		txt.color(COLOR_HIGHLIGHT)
+		txt.print(iso:"OS")
+		txt.color(COLOR_NORMAL)
+		txt.print(iso:": Commander X16 BASIC v2 Rom ")
+		byte ver = @($ff80) as byte
+		if ver == -1
+			txt.print(iso:"unstable") 
+		else{
+			txt.print(iso:"R")
+			if ver < 0 ver *= -1
+			txt.print_b(ver)
+		}
+		
+		txt.color(4)
+		txt.print(iso:"\r  M@\\               /@M  ")
+		
+		txt.color(COLOR_HIGHLIGHT)
+		txt.print(iso:"Host")
+		txt.color(COLOR_NORMAL)
+		txt.print(iso:": Commander X16 ")
+		if (@($9FBE)==$31) and (@($9FBF) == $36) 
+			txt.print(iso:"Official Emulator") 
+		else txt.print(iso:" gen1 board")
+		; TODO add functionality to distinguish gen2 and gen3 if it's going to be possible. 
+		; Additionally add support for distinguishing Box16
+		
+		txt.color(14)
+		txt.print(iso:"\r  M@@@\\           /@@@M  ")
+		
+		txt.color(COLOR_HIGHLIGHT)
+		txt.print(iso:"Shell")
+		txt.color(COLOR_NORMAL)
+		txt.print(iso:": SHELL.PRG") ;are version numbers even a thing here?
+		
+		txt.color(14)
+		txt.print(iso:"\r  :@@@@@\\       /@@@@@:  ")
+		
+		txt.color(COLOR_HIGHLIGHT)
+		txt.print(iso:"Resolution")
+		txt.color(COLOR_NORMAL)
+		txt.print(iso:": 640x240") ; default resolution when using SHELL.PRG
+		
+		txt.color(3)
+		txt.print(iso:"\r   \\@@@@@@\\   /@@@@@@/   ")
+		
+		txt.color(COLOR_HIGHLIGHT)
+		txt.print(iso:"CPU")
+		txt.color(COLOR_NORMAL)
+		txt.print(iso:": WDC 65c02 (1) @ 8MHz")
+		
+		txt.color(5)
+		txt.print(iso:"\r     \'\'\"\"**N N**\"\"\'\'     ")
+		
+		txt.color(COLOR_HIGHLIGHT)
+		txt.print(iso:"GPU")
+		txt.color(COLOR_NORMAL)
+		txt.print(iso:": VERA module") ;should we even bother detecting vera version, FX support etc?
+		
+		txt.color(7)
+		txt.print(iso:"\r           N N           ")
+		
+		txt.color(COLOR_HIGHLIGHT)
+		txt.print(iso:"Memory")
+		txt.color(COLOR_NORMAL)
+		txt.print(iso:": ")
+		txt.print_uw((sys.progend()-737) / 1024)
+		txt.print(iso:"KiB / ")
+		txt.print_uw((cbm.MEMTOP(0, true)-2) / 1024)
+		txt.print(iso:"KiB")
+		
+		txt.color(7)
+		txt.print(iso:"\r       ..-*N N*-..       ")
+		
+		txt.color(COLOR_HIGHLIGHT)
+		txt.print(iso:"Hi-Memory")
+		txt.color(COLOR_NORMAL)
+		txt.print(iso:": ")
+		txt.print_uw(cx16.numbanks() * $0008)
+		txt.print(iso:"KiB (")
+		txt.print_uw(cx16.numbanks())
+		txt.print(iso:" banks)")
+		
+		txt.color(8)
+		txt.print(iso:"\r    :@@@@@/   \\@@@@@:    ")
+		txt.color(2)
+		txt.print(iso:"\r    M@@@/       \\@@@M    ")
+		
+		ubyte j
+		for j in 0 to 15{
+			txt.color(j)
+			txt.print(iso:"\xad#")
+		}
+		
+		txt.color(2)
+		txt.print(iso:"\r    M@/           \\@M    ")
+		
+		ubyte i
+		for i in 0 to 15{
+			txt.color(i)
+			;txt.print(iso:"\xad#")
+		}
+		
+		txt.print(iso:"\r")
     }
 
     sub file_lookup_matching(uword filename_ptr, bool only_programs) -> uword {
