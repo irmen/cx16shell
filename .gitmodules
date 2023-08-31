@@ -1,0 +1,3 @@
+[submodule "externalcommands/neofetch"]
+	path = externalcommands/neofetch
+	url = https://github.com/adiee5/cx16-neofetch
