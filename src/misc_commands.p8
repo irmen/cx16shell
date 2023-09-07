@@ -60,7 +60,7 @@ misc_commands {
         txt.print_uw(cx16.numbanks())
         txt.chrout(iso:'=')
         txt.print_uw(cx16.numbanks() * $0008)
-        txt.print(iso:"Kb\rMemTop: ")
+        txt.print(iso:"KB\rMemTop: ")
         txt.print_uwhex(cbm.MEMTOP(0, true), true)
         txt.nl()
         return true
