@@ -105,6 +105,7 @@ misc_commands {
         txt.color(main.COLOR_NORMAL)
         txt.print(iso:"Type the name of an external command program located in 'SHELL-CMDS'\r  subdirectory (see documentation).\r")
         txt.print(iso:"Or simply type name of program to launch (no suffix req'd, case insens.).\r")
+        txt.print(iso:"Typing the name of a directory (including '..'), cd's into that dir.\r")
         return true
     }
 

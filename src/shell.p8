@@ -54,12 +54,28 @@ main {
                         if diskio.load(diskio.list_filename, 0)
                             void run_external_command()
                         else {
-                            ; see if there is a program file that matches
-                            uword real_filename_ptr = file_lookup_matching(command_line, true)
-                            if real_filename_ptr
-                                run_file(real_filename_ptr, false)
-                            else
-                                void err.set(iso:"Invalid command")
+                            if command_line==".." {
+                                txt.print(iso:"cd into directory. ")
+                                command_arguments_ptr = ".."
+                                command_arguments_size = string.length(command_arguments_ptr)
+                                disk_commands.cmd_cd()
+                            } else {
+                                ; see if there is a program file that matches
+                                uword real_filename_ptr = file_lookup_matching(command_line, true)
+                                if real_filename_ptr {
+                                    command_word = real_filename_ptr
+                                    if is_directory(command_word) {
+                                        txt.print(iso:"cd into directory. ")
+                                        command_arguments_ptr = command_word
+                                        command_arguments_size = string.length(command_arguments_ptr)
+                                        disk_commands.cmd_cd()
+                                    } else if not err.error_status {
+                                        run_file(command_word, false)
+                                    }
+                                }
+                                else
+                                    void err.set(iso:"Invalid command")
+                            }
                         }
                     }
                 } else {
@@ -110,6 +126,7 @@ main {
 
     sub file_lookup_matching(uword filename_ptr, bool only_programs) -> uword {
         ; we re-use command_word variable as storage for processing the filenames read from disk.
+        ; note that this also returns a success for directory names, not just file names.
         void iso_to_lowercase_petscii(filename_ptr)
         if diskio.lf_start_list(0) {
             while diskio.lf_next_entry() {
@@ -157,29 +174,31 @@ main {
     }
 
     sub run_file(uword filename_ptr, bool via_basic_load) {
-        txt.color(main.COLOR_HIGHLIGHT)
-        txt.print(iso:"Running: ")
-        txt.color(main.COLOR_NORMAL)
-        txt.print(filename_ptr)
-        txt.nl()
-
         if via_basic_load {
             ; make sure the screen and everything is set back to normal mode, and issue the load+run commands.
             txt.iso_off()
             txt.color2(1,6)     ; default white on blue
             void cx16.screen_mode(0, false)
-            txt.print("\x13lO\"")       ; home, load
+            txt.print("\x13load\"")       ; home, load
             txt.print(filename_ptr)
             txt.print("\",")
             txt.chrout('0' + diskio.drivenumber)
-            txt.nl()
-            cx16.kbdbuf_put($13)        ; home, enter, run, enter
+            txt.chrout(':')
+            ; home, enter, run, enter
+            cx16.kbdbuf_put($13)
             cx16.kbdbuf_put('\r')
             cx16.kbdbuf_put('r')
-            cx16.kbdbuf_put('U')
+            cx16.kbdbuf_put('u')
+            cx16.kbdbuf_put('n')
+            cx16.kbdbuf_put(':')
             cx16.kbdbuf_put('\r')
             sys.exit(0)
         } else {
+            txt.color(main.COLOR_HIGHLIGHT)
+            txt.print(iso:"Running: ")
+            txt.color(main.COLOR_NORMAL)
+            txt.print(filename_ptr)
+            txt.nl()
             ; TODO run command via a trampoline function that returns and reloads the shell afterwards
             ;      note: IONIT/RESTOR/CINT not needed before loading the shell as it does this by itself at startup. Only needed to set correct ram/rom banks.
             ;      q: how do we know the start address of the loaded program to JSR to ???  so that we return to the trampoline afterwards?
@@ -222,5 +241,18 @@ main {
         if value < 10000
             txt.spc()
         txt.print_uw(value)
+    }
+
+    sub is_directory(str filename) -> bool {
+        if diskio.lf_start_list(filename) {
+            while diskio.lf_next_entry() {
+                if diskio.list_filename==filename {
+                    bool is_dir = diskio.list_filetype=="dir"
+                    diskio.lf_end_list()
+                    return is_dir
+                }
+            }
+        }
+        return err.set(iso:"File not found")
     }
 }
