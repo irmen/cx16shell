@@ -175,23 +175,17 @@ main {
 
     sub run_file(uword filename_ptr, bool via_basic_load) {
         if via_basic_load {
-            ; make sure the screen and everything is set back to normal mode, and issue the load+run commands.
-            txt.iso_off()
+            ; to avoid character translation issues, we remain in ISO charset mode to perform the actual LOAD.
+            ; only right before issuing the RUN command we switch back to petscii mode.
             txt.color2(1,6)     ; default white on blue
             void cx16.screen_mode(0, false)
-            txt.print("\x13load\"")       ; home, load
-            txt.print(filename_ptr)
-            txt.print("\",")
-            txt.chrout('0' + diskio.drivenumber)
-            txt.chrout(':')
-            ; home, enter, run, enter
-            cx16.kbdbuf_put($13)
-            cx16.kbdbuf_put('\r')
-            cx16.kbdbuf_put('r')
-            cx16.kbdbuf_put('u')
-            cx16.kbdbuf_put('n')
-            cx16.kbdbuf_put(':')
-            cx16.kbdbuf_put('\r')
+            txt.print(iso:"\x13LOAD\"")         ; home, load
+            txt.print(filename_ptr)             ; is in ISO charset
+            txt.print(iso:"\",")
+            txt.chrout(iso:'0' + diskio.drivenumber)
+            txt.chrout(iso:':')
+            for cx16.r0L in "\x13\r\x8frun:\r"     ; home, enter, iso_off, 'run', enter
+                cx16.kbdbuf_put(cx16.r0L)
             sys.exit(0)
         } else {
             txt.color(main.COLOR_HIGHLIGHT)
