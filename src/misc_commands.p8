@@ -11,7 +11,8 @@ misc_commands {
         iso:"num", &cmd_printnumber,
         iso:"run", &cmd_run,
         iso:"vi", &cmd_edit,
-        iso:"ed", &cmd_edit,
+        iso:"pico", &cmd_edit,
+        iso:"nano", &cmd_edit,
         iso:"mem", &cmd_mem,
         iso:"cls", &cmd_cls
     ]

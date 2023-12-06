@@ -295,7 +295,7 @@ io_error:
         when nr {
             8, 9 -> {
                 txt.print(iso:"Switching drive.\r")
-                diskio.set_drive(nr)
+                diskio.drivenumber = nr
                 main.command_arguments_size = 0
                 return cmd_pwd()
             }
