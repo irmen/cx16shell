@@ -33,7 +33,10 @@ main {
             txt.print("$ ")
             txt.color(COLOR_NORMAL)
             err.clear()
+
+            cx16.set_chrin_keyhandler(0, &keystroke_handler)
             ubyte input_size = txt.input_chars(command_line)
+
             if input_size and command_line[0]!=159 {
                 txt.nl()
                 if parse_input(input_size) {
@@ -49,7 +52,7 @@ main {
                         }
                     } else {
                         ; see if there is an external shell command in the SHELL-CMDS subdirectory that matches
-                        diskio.list_filename = "//shell-cmds/:"
+                        diskio.list_filename = petscii:"//shell-cmds/:"
                         void string.copy(command_word, &diskio.list_filename+14)
                         if diskio.load(diskio.list_filename, 0)
                             void run_external_command()
@@ -82,6 +85,75 @@ main {
                     void err.set("Invalid input")
                 }
             }
+        }
+    }
+
+
+    sub keystroke_handler() -> ubyte {
+        %asm {{
+            sta  cx16.r0L
+        }}
+        if_cs {
+            ; first entry, decide if we want to override
+            if cx16.r0L==9 {
+                ; intercept TAB
+                sys.clear_carry()
+                return 0
+            }
+            sys.set_carry()
+            return 0
+        } else {
+            ; second entry, handle override
+            sys.save_prog8_internals()          ; because this routine is kinda called as an interrupt
+            if cx16.r0L==9 {
+                ; process TAB
+                uword cmd = grab_cmdline()
+                if cmd and cmd[0] {
+                    ubyte length = string.length(cmd)
+                    uword filename = tabcomplete(cmd, length)
+                    if filename {
+                        txt.print(filename+length)
+                    }
+                }
+            }
+            sys.restore_prog8_internals()
+            return 0    ; eat all other characters
+        }
+
+        sub tabcomplete(str prefix, ubyte prefixlen) -> uword {
+            prefix[prefixlen] = '*'
+            prefix[prefixlen+1] = 0
+            if diskio.lf_start_list(prefix) {
+                if diskio.lf_next_entry() {
+                    diskio.lf_end_list()
+                    void string.copy(diskio.list_filename, &tabcomplete_buffer)
+                    return &tabcomplete_buffer
+                }
+                diskio.lf_end_list()
+            }
+            return 0
+        }
+
+        ubyte[80] tabcomplete_buffer
+
+        sub grab_cmdline() -> uword {
+            ; TODO is there a kernal buffer for the current editor line that we can read instead?
+            ubyte @shared cursor_x, cursor_y
+            %asm {{
+                sec
+                jsr  cbm.PLOT
+                stx  p8_cursor_y
+                sty  p8_cursor_x
+            }}
+            uword wordptr = &tabcomplete_buffer + cursor_x-1
+            tabcomplete_buffer[cursor_x] = 0
+            while cursor_x {
+                cursor_x--
+                tabcomplete_buffer[cursor_x] = txt.getchr(cursor_x, cursor_y)
+            }
+            while @(wordptr)!=' ' and wordptr!=&tabcomplete_buffer
+                wordptr--
+            return wordptr+1
         }
     }
 
@@ -121,7 +193,7 @@ main {
 
         if diskio.f_open(misc_commands.motd_file) {
             diskio.f_close()
-            misc_commands.cmd_motd()
+            void misc_commands.cmd_motd()
         } else {
             diskio.send_command(petscii:"i")
         }
@@ -140,7 +212,7 @@ main {
             while diskio.lf_next_entry() {
                 command_word = diskio.list_filename
                 ubyte disk_name_length = string.lower(command_word)
-                bool has_prg_suffix = string.endswith(command_word, ".prg")
+                bool has_prg_suffix = string.endswith(command_word, petscii:".prg")
                 bool has_no_suffix = false
                 void string.find(command_word, '.')
                 if_cc
@@ -192,7 +264,7 @@ main {
             txt.print("\",")
             txt.chrout('0' + diskio.drivenumber)
             txt.chrout(':')
-            for cx16.r0L in "\x13\r\x8frun:\r"     ; home, enter, iso_off, 'run', enter
+            for cx16.r0L in petscii:"\x13\r\x8frun:\r"     ; home, enter, iso_off, 'run', enter
                 cx16.kbdbuf_put(cx16.r0L)
             sys.exit(0)
         } else {
@@ -249,7 +321,7 @@ main {
         if diskio.lf_start_list(filename) {
             while diskio.lf_next_entry() {
                 if diskio.list_filename==filename {
-                    bool is_dir = diskio.list_filetype=="dir"
+                    bool is_dir = diskio.list_filetype==petscii:"dir"
                     diskio.lf_end_list()
                     return is_dir
                 }

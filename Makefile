@@ -6,6 +6,7 @@ clean:
 	rm -f *.prg *.asm *.vice-*
 
 emu:  all
+	mmd -D s x:SHELL-CMDS || true
 	mcopy -D o shell.prg x:SHELL
 	mcopy -D o ext-command.prg x:SHELL-CMDS/EXT-COMMAND
 	mcopy -D o neofetch.prg x:SHELL-CMDS/NEOFETCH
@@ -15,7 +16,7 @@ emu:  all
 	x16emu -sdcard ~/cx16sdcard.img -scale 2 -quality best -run -prg shell.prg
 
 shell.prg: src/shell.p8 src/errors.p8 src/disk_commands.p8 src/misc_commands.p8
-	p8compile $< -target cx16
+	p8compile $< -target cx16 -sourcelines
 
 ext-command.prg: externalcommands/example/ext-command.p8
 	p8compile $< -target cx16
@@ -25,3 +26,14 @@ neofetch.prg: externalcommands/neofetch/neofetch.p8
 
 time.prg: externalcommands/example/time.p8
 	p8compile $< -target cx16
+
+zip: all
+	rm -f shell.zip
+	rm -rf SHELL-CMDS
+	mkdir SHELL-CMDS
+	cp shell.prg SHELL.PRG
+	cp ext-command.prg SHELL-CMDS/EXT-COMMAND
+	cp neofetch.prg SHELL-CMDS/NEOFETCH
+	cp time.prg SHELL-CMDS/TIME
+	cp time.prg SHELL-CMDS/DATE
+	7z a shell.zip SHELL.PRG SHELL-CMDS

@@ -19,7 +19,7 @@ misc_commands {
         "cls", &cmd_cls
     ]
 
-    str motd_file = "//shell-cmds/:motd.txt"
+    str motd_file = petscii:"//shell-cmds/:motd.txt"
 
     sub recognized(str cmdword, ubyte length) -> uword {
         ubyte idx
@@ -31,8 +31,9 @@ misc_commands {
     }
 
     sub cmd_basic() -> bool {
-        void cx16.screen_mode(0, false)
+        txt.color2(1, 6)
         txt.iso_off()
+        void cx16.screen_mode(0, false)
         sys.exit(0)
         return true  ; not reached
     }
@@ -95,8 +96,7 @@ misc_commands {
         txt.color(main.COLOR_NORMAL)
         main.command_arguments_ptr = &motd_file
         main.command_arguments_size = string.length(motd_file)
-        disk_commands.cmd_cat()
-        return true
+        return disk_commands.cmd_cat()
     }
 
     sub cmd_help() -> bool {
@@ -120,7 +120,8 @@ misc_commands {
         txt.color(main.COLOR_NORMAL)
         txt.print("Type the name of an external command program located in 'SHELL-CMDS'\r  subdirectory (see documentation).\r")
         txt.print("Or simply type name of program to launch (no suffix req'd, case insens.).\r")
-        txt.print("Typing the name of a directory (including '..'), cd's into that dir.\r")
+        txt.print("Typing the name of a directory, moves to there.\r")
+        txt.print("Filename tab-completion is active (case sensitive).\r")
         return true
     }
 

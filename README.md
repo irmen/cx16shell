@@ -25,6 +25,7 @@ Type "help" at the prompt to get a list of the built-in commands.
 | command                | explanation                                                                                 |
 |------------------------|---------------------------------------------------------------------------------------------|
 | help                   | show short list of commands                                                                 |
+| motd                   | show the contents of the "motd.txt" file if it exists in SHELL-CMDS                         |
 | basic , exit           | return back to Basic prompt                                                                 |
 | num                    | print number in various bases, accepts $hex, %binary and normal decimal                     |
 | run  ,<br/> *filename* | loads and executes the given file. You can omit any .PRG suffix and is case insensitive.    |
@@ -44,6 +45,10 @@ Type "help" at the prompt to get a list of the built-in commands.
 
 You can also type the name of an "external command" program, located in the SHELL-CMDS subdirectory.
 Finally you can simply type the name of a program to launch (no file extension required, case-insensitive).
+
+"time" (and "date") and "neofetch" are available as some potentially useful external commands.
+
+You can use tab for filename completion (case-sensitive).
 
 
 ### X16Edit text editor support (vi/ed command)
@@ -85,8 +90,5 @@ The "ext-command.p8" source file contains a piece of example Prog8 source code o
 
 
 ## Todo
-
-- intercept TAB and do file-completion
-- remember current working directory? (CbmDos doesn't do this for us...)
 
 ...

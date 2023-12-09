@@ -42,7 +42,7 @@ disk_commands {
                 num_files++
                 txt.spc()
                 txt.spc()
-                if diskio.list_filetype == "dir"
+                if diskio.list_filetype == petscii:"dir"
                     txt.print("[dir]")
                 else
                     main.print_uw_right(diskio.list_blocks)
@@ -156,7 +156,7 @@ disk_commands {
         ; pull request: https://github.com/commanderx16/x16-rom/pull/373
         ; note: I'm also using *=d filter to not get a screen full of nonsense when
         ; you run this code on a rom version that doesn't yet have the $=c command.
-        cbm.SETNAM(7, "$=c:*=d")
+        cbm.SETNAM(7, petscii:"$=c:*=d")
         cbm.SETLFS(12, diskio.drivenumber, 0)
         ubyte status = 1
         void cbm.OPEN()          ; open 12,8,0,"$=c:*=d"
