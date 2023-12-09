@@ -58,7 +58,7 @@ main {
                                 txt.print(iso:"cd into directory. ")
                                 command_arguments_ptr = ".."
                                 command_arguments_size = string.length(command_arguments_ptr)
-                                disk_commands.cmd_cd()
+                                void disk_commands.cmd_cd()
                             } else {
                                 ; see if there is a program file that matches
                                 uword real_filename_ptr = file_lookup_matching(command_line, true)
@@ -68,7 +68,7 @@ main {
                                         txt.print(iso:"cd into directory. ")
                                         command_arguments_ptr = command_word
                                         command_arguments_size = string.length(command_arguments_ptr)
-                                        disk_commands.cmd_cd()
+                                        void disk_commands.cmd_cd()
                                     } else if not err.error_status {
                                         run_file(command_word, false)
                                     }
