@@ -3,6 +3,7 @@
 %launcher none
 %option no_sysinit
 %zeropage basicsafe
+%encoding iso
 %address $4000
 
 shell {
@@ -29,26 +30,26 @@ main $4000 {
     %option force_output
 
     sub start()  {
-        shell.shell_print(iso:"This is an external command program!\rinvoked command: ")
+        shell.shell_print("This is an external command program!\rinvoked command: ")
         shell.shell_print(cx16.r0)        ; command
-        cbm.CHROUT(iso:' ')
+        cbm.CHROUT(' ')
         shell.shell_print_uw(cx16.r1)     ; length of command
         if cx16.r3 {
-            shell.shell_print(iso:"\rargs: ")
+            shell.shell_print("\rargs: ")
             shell.shell_print(cx16.r2)        ; arguments
-            shell.shell_print(iso:"\rargs length=")
+            shell.shell_print("\rargs length=")
             shell.shell_print_uw(cx16.r3)     ; length of arguments
         }
-        shell.shell_print(iso:"\renter name: ")
+        shell.shell_print("\renter name: ")
         str inputbuffer = "?"*20
         if shell.shell_input_chars(inputbuffer) {
-            shell.shell_print(iso:"\rinput was: ")
+            shell.shell_print("\rinput was: ")
             shell.shell_print(inputbuffer)
-            cbm.CHROUT(iso:'\r')
+            cbm.CHROUT('\r')
         }
         shell.shell_print_uwbin(12345, true)
-        cbm.CHROUT(iso:'\r')
+        cbm.CHROUT('\r')
         sys.exit(0)
-        ; void shell.shell_err_set(iso:"external command failed")
+        ; void shell.shell_err_set("external command failed")
     }
 }

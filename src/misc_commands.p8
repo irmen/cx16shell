@@ -1,21 +1,25 @@
 %import textio
 %import errors
 %import conv
+%encoding iso
 
 misc_commands {
 
     uword[] commands_table = [
-        iso:"basic", &cmd_basic,
-        iso:"exit", &cmd_basic,
-        iso:"help", &cmd_help,
-        iso:"num", &cmd_printnumber,
-        iso:"run", &cmd_run,
-        iso:"vi", &cmd_edit,
-        iso:"pico", &cmd_edit,
-        iso:"nano", &cmd_edit,
-        iso:"mem", &cmd_mem,
-        iso:"cls", &cmd_cls
+        "basic", &cmd_basic,
+        "exit", &cmd_basic,
+        "help", &cmd_help,
+        "motd", &cmd_motd,
+        "num", &cmd_printnumber,
+        "run", &cmd_run,
+        "vi", &cmd_edit,
+        "pico", &cmd_edit,
+        "nano", &cmd_edit,
+        "mem", &cmd_mem,
+        "cls", &cmd_cls
     ]
+
+    str motd_file = "//shell-cmds/:motd.txt"
 
     sub recognized(str cmdword, ubyte length) -> uword {
         ubyte idx
@@ -35,7 +39,7 @@ misc_commands {
 
     sub cmd_run() -> bool {
         if main.command_arguments_size==0
-            return err.set(iso:"Missing arg: filename")
+            return err.set("Missing arg: filename")
 
         uword real_filename_ptr = main.file_lookup_matching(main.command_arguments_ptr, true)
         if real_filename_ptr {
@@ -43,7 +47,7 @@ misc_commands {
             return true
         }
         if not err.error_status
-            return err.set(iso:"File not found")
+            return err.set("File not found")
         return false
     }
 
@@ -53,15 +57,15 @@ misc_commands {
     }
 
     sub cmd_mem() -> bool {
-        txt.print(iso:"Shell prg: ")
+        txt.print("Shell prg: ")
         txt.print_uwhex(cbm.MEMBOT(0, true), true)
-        txt.chrout(iso:'-')
+        txt.chrout('-')
         txt.print_uwhex(sys.progend(), true)
-        txt.print(iso:"\rRam banks: ")
+        txt.print("\rRam banks: ")
         txt.print_uw(cx16.numbanks())
-        txt.chrout(iso:'=')
+        txt.chrout('=')
         txt.print_uw(cx16.numbanks() * $0008)
-        txt.print(iso:"KB\rMemTop: ")
+        txt.print("KB\rMemTop: ")
         txt.print_uwhex(cbm.MEMTOP(0, true), true)
         txt.nl()
         return true
@@ -69,7 +73,7 @@ misc_commands {
 
     sub cmd_printnumber() -> bool {
         if main.command_arguments_size==0
-            return err.set(iso:"Missing arg: number (any prefix)")
+            return err.set("Missing arg: number (any prefix)")
 
         if conv.any2uword(main.command_arguments_ptr) {
             txt.spc()
@@ -81,13 +85,23 @@ misc_commands {
             txt.nl()
             return true
         } else {
-            return err.set(iso:"Invalid number")
+            return err.set("Invalid number")
         }
+    }
+
+    sub cmd_motd() -> bool {
+        txt.color(main.COLOR_HIGHLIGHT)
+        txt.print("Message Of The Day (motd.txt):\r")
+        txt.color(main.COLOR_NORMAL)
+        main.command_arguments_ptr = &motd_file
+        main.command_arguments_size = string.length(motd_file)
+        disk_commands.cmd_cat()
+        return true
     }
 
     sub cmd_help() -> bool {
         txt.color(main.COLOR_HIGHLIGHT)
-        txt.print(iso:"Builtin Commands:\r")
+        txt.print("Builtin Commands:\r")
         txt.color(main.COLOR_NORMAL)
         ubyte idx
         for idx in 0 to len(misc_commands.commands_table)-1 step 2 {
@@ -102,11 +116,11 @@ misc_commands {
             txt.spc()
         }
         txt.color(main.COLOR_HIGHLIGHT)
-        txt.print(iso:"\rCommands on disk:\r")
+        txt.print("\rCommands on disk:\r")
         txt.color(main.COLOR_NORMAL)
-        txt.print(iso:"Type the name of an external command program located in 'SHELL-CMDS'\r  subdirectory (see documentation).\r")
-        txt.print(iso:"Or simply type name of program to launch (no suffix req'd, case insens.).\r")
-        txt.print(iso:"Typing the name of a directory (including '..'), cd's into that dir.\r")
+        txt.print("Type the name of an external command program located in 'SHELL-CMDS'\r  subdirectory (see documentation).\r")
+        txt.print("Or simply type name of program to launch (no suffix req'd, case insens.).\r")
+        txt.print("Typing the name of a directory (including '..'), cd's into that dir.\r")
         return true
     }
 
@@ -126,7 +140,7 @@ misc_commands {
                 void cx16.screen_mode(1, false)     ; back to shell's screen mode
                 return true
             } else {
-                return err.set(iso:"no x16edit in rom and no x16edit-6000.prg on disk")
+                return err.set("no x16edit in rom and no x16edit-6000.prg on disk")
             }
         }
 

@@ -86,6 +86,7 @@ The "ext-command.p8" source file contains a piece of example Prog8 source code o
 
 ## Todo
 
+- intercept TAB and do file-completion
 - remember current working directory? (CbmDos doesn't do this for us...)
 
 ...

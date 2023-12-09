@@ -4,6 +4,7 @@
 %import errors
 %import disk_commands
 %import misc_commands
+%encoding iso
 %zeropage basicsafe
 
 main {
@@ -12,7 +13,6 @@ main {
     const ubyte COLOR_HIGHLIGHT_PROMPT = 13
     const ubyte COLOR_ERROR = 10
     const ubyte COLOR_BACKGROUND = 11
-
     str command_line = "?" * 160
     str command_word = "?" * 64
     ubyte command_word_size
@@ -30,7 +30,7 @@ main {
         repeat {
             txt.color(COLOR_HIGHLIGHT_PROMPT)
             txt.nl()
-            txt.print(iso:"$ ")
+            txt.print("$ ")
             txt.color(COLOR_NORMAL)
             err.clear()
             ubyte input_size = txt.input_chars(command_line)
@@ -45,7 +45,7 @@ main {
                         if cx16.r0L!=0
                             err.clear()
                         else if not err.error_status {
-                            void err.set(iso:"Unspecified error")
+                            void err.set("Unspecified error")
                         }
                     } else {
                         ; see if there is an external shell command in the SHELL-CMDS subdirectory that matches
@@ -55,7 +55,7 @@ main {
                             void run_external_command()
                         else {
                             if command_line==".." {
-                                txt.print(iso:"cd into directory. ")
+                                txt.print("cd into directory. ")
                                 command_arguments_ptr = ".."
                                 command_arguments_size = string.length(command_arguments_ptr)
                                 void disk_commands.cmd_cd()
@@ -65,7 +65,7 @@ main {
                                 if real_filename_ptr {
                                     command_word = real_filename_ptr
                                     if is_directory(command_word) {
-                                        txt.print(iso:"cd into directory. ")
+                                        txt.print("cd into directory. ")
                                         command_arguments_ptr = command_word
                                         command_arguments_size = string.length(command_arguments_ptr)
                                         void disk_commands.cmd_cd()
@@ -74,12 +74,12 @@ main {
                                     }
                                 }
                                 else
-                                    void err.set(iso:"Invalid command")
+                                    void err.set("Invalid command")
                             }
                         }
                     }
                 } else {
-                    void err.set(iso:"Invalid input")
+                    void err.set("Invalid input")
                 }
             }
         }
@@ -90,17 +90,17 @@ main {
         ; replace Shift-SPACE by just normal SPACE
         while @(cmd_ptr) {
             if @(cmd_ptr)==$a0
-                @(cmd_ptr)=iso:' '
+                @(cmd_ptr)=' '
             cmd_ptr++
         }
         ; skip leading spaces
         cmd_ptr = &command_line
-        while @(cmd_ptr)==iso:' ' {
+        while @(cmd_ptr)==' ' {
             cmd_ptr++
             length--
         }
 
-        ubyte space_idx = string.find(cmd_ptr, iso:' ')
+        ubyte space_idx = string.find(cmd_ptr, ' ')
         if_cs {
             cmd_ptr[space_idx] = 0
             command_arguments_ptr = cmd_ptr + space_idx + 1
@@ -118,10 +118,18 @@ main {
     sub print_intro() {
         txt.color2(COLOR_NORMAL, COLOR_BACKGROUND)
         txt.clear_screen()
+
+        if diskio.f_open(misc_commands.motd_file) {
+            diskio.f_close()
+            misc_commands.cmd_motd()
+        } else {
+            diskio.send_command(petscii:"i")
+        }
+
         txt.color(COLOR_HIGHLIGHT_PROMPT)
-        txt.print(iso:"\r  Commander-X16 SHELL ")
+        txt.print("\r  Commander-X16 SHELL v1.1 ")
         txt.color(COLOR_NORMAL)
-        txt.print(iso:"- https://github.com/irmen/cx16shell\r")
+        txt.print("- https://github.com/irmen/cx16shell\r")
     }
 
     sub file_lookup_matching(uword filename_ptr, bool only_programs) -> uword {
@@ -148,11 +156,11 @@ main {
                             diskio.lf_end_list()
                             return diskio.list_filename
                         }
-                        command_word[disk_name_length-4] = iso:'.'
+                        command_word[disk_name_length-4] = '.'
                     }
                 } else if only_programs and string.compare(command_word, filename_ptr)==0 {
                     diskio.lf_end_list()
-                    return err.set(iso:"Not a program")
+                    return err.set("Not a program")
                 }
             }
             diskio.lf_end_list()
@@ -165,7 +173,7 @@ main {
     sub iso_to_lowercase_petscii(uword str_ptr) -> ubyte {
         ubyte length=0
         while @(str_ptr)!=0 {
-            if @(str_ptr) >= iso:'a' and @(str_ptr) <= iso:'z'
+            if @(str_ptr) >= 'a' and @(str_ptr) <= 'z'
                 @(str_ptr) -= 32
             str_ptr++
             length++
@@ -179,17 +187,17 @@ main {
             ; only right before issuing the RUN command we switch back to petscii mode.
             txt.color2(1,6)     ; default white on blue
             void cx16.screen_mode(0, false)
-            txt.print(iso:"\x13LOAD\"")         ; home, load
+            txt.print("\x13LOAD\"")         ; home, load
             txt.print(filename_ptr)             ; is in ISO charset
-            txt.print(iso:"\",")
-            txt.chrout(iso:'0' + diskio.drivenumber)
-            txt.chrout(iso:':')
+            txt.print("\",")
+            txt.chrout('0' + diskio.drivenumber)
+            txt.chrout(':')
             for cx16.r0L in "\x13\r\x8frun:\r"     ; home, enter, iso_off, 'run', enter
                 cx16.kbdbuf_put(cx16.r0L)
             sys.exit(0)
         } else {
             txt.color(main.COLOR_HIGHLIGHT)
-            txt.print(iso:"Running: ")
+            txt.print("Running: ")
             txt.color(main.COLOR_NORMAL)
             txt.print(filename_ptr)
             txt.nl()
@@ -247,6 +255,6 @@ main {
                 }
             }
         }
-        return err.set(iso:"File not found")
+        return err.set("File not found")
     }
 }
