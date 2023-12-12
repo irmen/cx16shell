@@ -195,7 +195,7 @@ main {
             str temp="?"*32
             diskio.f_readline(temp)
             diskio.f_close()
-            if temp=="#!neofetch" and diskio.load(petscii:"//shell-cmds/:neofetch", 0){
+            if (temp=="#!neofetch" or temp==petscii:"#!neofetch") and diskio.load(petscii:"//shell-cmds/:neofetch", 0){
                 void run_external_command()
             }
             else{
