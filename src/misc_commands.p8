@@ -74,7 +74,7 @@ misc_commands {
 
     sub cmd_printnumber() -> bool {
         if main.command_arguments_size==0
-            return err.set("Missing arg: number (any prefix)")
+            return err.set("Missing arg: number (can use % and $ prefixes too)")
 
         if conv.any2uword(main.command_arguments_ptr) {
             txt.spc()
