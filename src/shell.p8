@@ -192,8 +192,15 @@ main {
         txt.clear_screen()
 
         if diskio.f_open(misc_commands.motd_file) {
+            str temp="?"*32
+            diskio.f_readline(temp)
             diskio.f_close()
-            void misc_commands.cmd_motd()
+            if temp=="#!neofetch" and diskio.load(petscii:"//shell-cmds/:neofetch", 0){
+                void run_external_command()
+            }
+            else{
+                void misc_commands.cmd_motd()
+            }
         } else {
             diskio.send_command(petscii:"i")
         }
