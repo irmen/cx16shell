@@ -159,7 +159,17 @@ main {
 
     sub parse_input(ubyte length) -> bool {
         uword cmd_ptr = &command_line
+
+        ; When the cursor was moved around on the screen (up/down) the '$' prompt prefix
+        ; gets copied into the input buffer too (which is how CHRIN works...)
+        ; So, simply replace all initial '$' characters by a space.
+        while @(cmd_ptr)=='$' {
+            @(cmd_ptr)=' '
+            cmd_ptr++
+        }
+
         ; replace Shift-SPACE by just normal SPACE
+        cmd_ptr = &command_line
         while @(cmd_ptr) {
             if @(cmd_ptr)==$a0
                 @(cmd_ptr)=' '
@@ -170,6 +180,10 @@ main {
         while @(cmd_ptr)==' ' {
             cmd_ptr++
             length--
+        }
+        if cmd_ptr!=command_line {
+            void string.copy(cmd_ptr, command_line)
+            cmd_ptr = &command_line
         }
 
         ubyte space_idx = string.find(cmd_ptr, ' ')
