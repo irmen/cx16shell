@@ -9,12 +9,15 @@ disk_commands {
 
     uword[] commands_table = [
         "ls", &cmd_ls,
+        "dir", &cmd_ls,
         "cat", &cmd_cat,
+        "type", &cmd_cat,
         "rm", &cmd_rm,
         "del", &cmd_rm,
         "mv", &cmd_rename,
         "ren", &cmd_rename,
         "cp", &cmd_copy,
+        "copy", &cmd_copy,
         "cd", &cmd_cd,
         "pwd", &cmd_pwd,
         "mkdir", &cmd_mkdir,
