@@ -126,34 +126,22 @@ misc_commands {
     }
 
     sub cmd_edit() -> bool {
-        ; activate x16edit, see https://github.com/stefan-b-jakobsson/x16-edit/tree/master/docs
-        ; try ROM search first, otherwise load the hi-ram version to $6000
+        ; activate rom based x16edit, see https://github.com/stefan-b-jakobsson/x16-edit/tree/master/docs
         ubyte x16edit_bank
         for x16edit_bank in 31 downto 0  {
             cx16.rombank(x16edit_bank)
-            if string.compare($fff0, petscii:"x16edit")==0
-                break   ; found the x16edit rom tag
-        }
-        if not x16edit_bank {
-            if diskio.load("x16edit-6000", 0) {
-                x16edit_bank = 4
-                launch_x16edit($6006)
-                void cx16.screen_mode(1, false)     ; back to shell's screen mode
+            if string.compare($fff0, petscii:"x16edit")==0 {
+                launch_x16edit()
                 return true
-            } else {
-                return err.set("no x16edit in rom and no x16edit-6000.prg on disk")
             }
         }
+        return err.set("no x16edit found in rom")
 
-        ; launch the rom based editor
-        launch_x16edit($c006)
-        void cx16.screen_mode(1, false)     ; back to shell's screen mode
-        return true
-
-        sub launch_x16edit(uword entrypoint) {
-            ; set screen resolution back to normal 80x60 for x16edit
+        sub launch_x16edit() {
             cx16.rombank(0)
-            void cx16.screen_mode(0, false)
+            ; void cx16.screen_mode(0, false)   ; back to 80x60 mode?
+            sys.enable_caseswitch()     ; workaround for character set issue in X16Edit 0.7.1
+            txt.iso_off()               ; back to PETSCII charset
             cx16.rombank(x16edit_bank)
             cx16.r1H = %00000001        ; enable auto-indent
             cx16.r2L = 4
@@ -164,34 +152,19 @@ misc_commands {
             if main.command_arguments_ptr {
                 cx16.r0 = main.command_arguments_ptr
                 cx16.r1L = main.command_arguments_size
-                %asm {{
-                    phx
-                    ldx  #1
-                    ldy  #255
-                    lda  #>_return
-                    pha
-                    lda  #<_return
-                    pha
-                    jmp  (p8_entrypoint)
-_return:            nop
-                    plx
-                }}
             } else {
                 cx16.r1L = 0
-                %asm {{
-                    phx
-                    ldx  #1
-                    ldy  #255
-                    lda  #>_return
-                    pha
-                    lda  #<_return
-                    pha
-                    jmp  (p8_entrypoint)
-_return:            nop
-                    plx
-                }}
             }
+            %asm {{
+                ldx  #1
+                ldy  #255
+                jsr  $c006
+            }}
             cx16.rombank(0)
+            void cx16.screen_mode(1, false)     ; back to shell's screen mode 80x30
+            txt.iso()
+            sys.disable_caseswitch()
+            return
         }
     }
 }

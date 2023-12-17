@@ -4,7 +4,7 @@ Command Line Shell for Commander X16
 
 Software License: MIT open source, see file LICENSE.
 
-![Shell screenshot](./screenshot.png "Screenshot of the shel; running in X16 emulator")
+![Shell screenshot](./screenshot.png "Screenshot of the shell; running in X16 emulator")
 
 ## Compiling the shell
 

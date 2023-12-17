@@ -44,7 +44,7 @@ main {
                     if command_routine==0
                         command_routine = misc_commands.recognized(command_line, command_word_size)
                     if command_routine {
-                        cx16.r0 = callfar(cx16.getrambank(), command_routine, 0)       ; indirect JSR  ;; TODO use regular pointer call once this is in Prog8 9.8
+                        call(command_routine)       ; indirect JSR, result will be in r0
                         if cx16.r0L!=0
                             err.clear()
                         else if not err.error_status {
@@ -213,7 +213,7 @@ main {
         }
 
         txt.color(COLOR_HIGHLIGHT_PROMPT)
-        txt.print("\r  Commander-X16 SHELL v1.1 ")
+        txt.print("\r  Commander-X16 SHELL v1.2 ")
         txt.color(COLOR_NORMAL)
         txt.print("- https://github.com/irmen/cx16shell\r")
     }
