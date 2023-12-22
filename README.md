@@ -8,7 +8,7 @@ Software License: MIT open source, see file LICENSE.
 
 ## Compiling the shell
 
-You'll need a very recent prog8 compiler to build this from source.
+You'll need a Prog8 compiler v9.8 or later, to build this from source.
 If the latest official release gives you problems compiling this program, you may have to use
 the git master version that hasn't been officially released yet.
 

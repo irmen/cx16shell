@@ -71,9 +71,9 @@ main $4000 {
 ;        ubyte clock_hi
 ;        %asm {{
 ;            jsr  cbm.RDTIM
-;            sta  p8_clock_lo
-;            stx  p8_clock_mid
-;            sty  p8_clock_hi
+;            sta  p8v_clock_lo
+;            stx  p8v_clock_mid
+;            sty  p8v_clock_hi
 ;        }}
 ;        shell.print("\rJiffy clock: ")
 ;        shell.print_uwhex(clock_hi, true)

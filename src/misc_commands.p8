@@ -16,7 +16,8 @@ misc_commands {
         "pico", &cmd_edit,
         "nano", &cmd_edit,
         "mem", &cmd_mem,
-        "cls", &cmd_cls
+        "cls", &cmd_cls,
+        "echo", &cmd_echo
     ]
 
     str motd_file = petscii:"//shell-cmds/:motd.txt"
@@ -30,7 +31,7 @@ misc_commands {
         return 0
     }
 
-    sub cmd_basic() -> bool {
+    sub cmd_basic() -> uword {
         txt.color2(1, 6)
         txt.iso_off()
         void cx16.screen_mode(0, false)
@@ -38,7 +39,7 @@ misc_commands {
         return true  ; not reached
     }
 
-    sub cmd_run() -> bool {
+    sub cmd_run() -> uword {
         if main.command_arguments_size==0
             return err.set("Missing arg: filename")
 
@@ -52,12 +53,21 @@ misc_commands {
         return false
     }
 
-    sub cmd_cls() -> bool {
+    sub cmd_cls() -> uword {
         txt.clear_screen()
         return true
     }
 
-    sub cmd_mem() -> bool {
+    sub cmd_echo() -> uword {
+        if main.command_arguments_size {
+            while string.isspace(@(main.command_arguments_ptr))
+                main.command_arguments_ptr++
+            txt.print(main.command_arguments_ptr)
+        }
+        return true
+    }
+
+    sub cmd_mem() -> uword {
         txt.print("Shell prg: ")
         txt.print_uwhex(cbm.MEMBOT(0, true), true)
         txt.chrout('-')
@@ -72,7 +82,7 @@ misc_commands {
         return true
     }
 
-    sub cmd_printnumber() -> bool {
+    sub cmd_printnumber() -> uword {
         if main.command_arguments_size==0
             return err.set("Missing arg: number (can use % and $ prefixes too)")
 
@@ -90,7 +100,7 @@ misc_commands {
         }
     }
 
-    sub cmd_motd() -> bool {
+    sub cmd_motd() -> uword {
         txt.color(main.COLOR_HIGHLIGHT)
         txt.print("Message Of The Day (motd.txt):\r")
         txt.color(main.COLOR_NORMAL)
@@ -99,7 +109,7 @@ misc_commands {
         return disk_commands.cmd_cat()
     }
 
-    sub cmd_help() -> bool {
+    sub cmd_help() -> uword {
         txt.color(main.COLOR_HIGHLIGHT)
         txt.print("Builtin Commands:\r")
         txt.color(main.COLOR_NORMAL)
@@ -125,46 +135,30 @@ misc_commands {
         return true
     }
 
-    sub cmd_edit() -> bool {
+    sub cmd_edit() -> uword {
         ; activate rom based x16edit, see https://github.com/stefan-b-jakobsson/x16-edit/tree/master/docs
-        ubyte x16edit_bank
-        for x16edit_bank in 31 downto 0  {
-            cx16.rombank(x16edit_bank)
-            if string.compare($fff0, petscii:"x16edit")==0 {
-                launch_x16edit()
-                return true
-            }
-        }
-        return err.set("no x16edit found in rom")
-
-        sub launch_x16edit() {
-            cx16.rombank(0)
-            ; void cx16.screen_mode(0, false)   ; back to 80x60 mode?
+        ubyte x16edit_bank = cx16.search_x16edit()
+        if x16edit_bank<255 {
             sys.enable_caseswitch()     ; workaround for character set issue in X16Edit 0.7.1
-            txt.iso_off()               ; back to PETSCII charset
+            ;; void cx16.screen_mode(0, false)   ; back to 80x60 mode?
+            txt.iso_off()
+            ubyte filename_length = 0
+            if main.command_arguments_ptr
+                filename_length = main.command_arguments_size
+            ubyte old_bank = cx16.getrombank()
             cx16.rombank(x16edit_bank)
-            cx16.r1H = %00000001        ; enable auto-indent
-            cx16.r2L = 4
-            cx16.r2H = 80
-            cx16.r3L = diskio.drivenumber
-            cx16.r3H = main.COLOR_BACKGROUND<<4 | main.COLOR_NORMAL
-            cx16.r4 = 0                 ; choose default colors for status bar and headers
-            if main.command_arguments_ptr {
-                cx16.r0 = main.command_arguments_ptr
-                cx16.r1L = main.command_arguments_size
-            } else {
-                cx16.r1L = 0
-            }
-            %asm {{
-                ldx  #1
-                ldy  #255
-                jsr  $c006
-            }}
+            cx16.x16edit_loadfile_options(1, 255, main.command_arguments_ptr,
+                mkword(%00000011, filename_length),         ; auto-indent and word-wrap enable
+                mkword(80, 4),          ; wrap and tabstop
+                mkword(main.COLOR_BACKGROUND<<4 | main.COLOR_NORMAL, diskio.drivenumber),
+                mkword(0,0))
             cx16.rombank(0)
             void cx16.screen_mode(1, false)     ; back to shell's screen mode 80x30
             txt.iso()
             sys.disable_caseswitch()
-            return
+            return true
+        } else {
+            return err.set("no x16edit found in rom")
         }
     }
 }

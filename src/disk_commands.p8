@@ -35,7 +35,7 @@ disk_commands {
         return 0
     }
 
-    sub cmd_ls() -> bool {
+    sub cmd_ls() -> uword {
         ubyte num_files = 0
         if diskio.lf_start_list(main.command_arguments_ptr) {
             txt.color(main.COLOR_HIGHLIGHT)
@@ -71,7 +71,7 @@ disk_commands {
         return err.set("IO error")
     }
 
-    sub cmd_rm() -> bool {
+    sub cmd_rm() -> uword {
         if main.command_arguments_size==0
             return err.set("Missing arg: filename")
         void string.find(main.command_arguments_ptr, '*')
@@ -91,7 +91,7 @@ disk_commands {
         return true
     }
 
-    sub cmd_rename() -> bool {
+    sub cmd_rename() -> uword {
         if main.command_arguments_size==0
             return err.set("Missing args: oldfilename newfilename")
 
@@ -115,7 +115,7 @@ disk_commands {
         txt.nl()
     }
 
-    sub cmd_cat() -> bool {
+    sub cmd_cat() -> uword {
         if main.command_arguments_size==0
             return err.set("Missing arg: filename")
 
@@ -146,7 +146,7 @@ disk_commands {
         return true
     }
 
-    sub cmd_pwd() -> bool {
+    sub cmd_pwd() -> uword {
         if main.command_arguments_size
             return err.set("Has no args")
         txt.color(main.COLOR_HIGHLIGHT)
@@ -227,7 +227,7 @@ io_error:
         }
     }
 
-    sub cmd_mkdir() -> bool {
+    sub cmd_mkdir() -> uword {
         if main.command_arguments_size==0
             return err.set("Missing arg: dirname")
 
@@ -239,7 +239,7 @@ io_error:
         return true
     }
 
-    sub cmd_cd() -> bool {
+    sub cmd_cd() -> uword {
         if main.command_arguments_size==0
             return err.set("Missing arg: dirname")
         diskio.chdir(main.command_arguments_ptr)
@@ -247,7 +247,7 @@ io_error:
         return true
     }
 
-    sub cmd_rmdir() -> bool {
+    sub cmd_rmdir() -> uword {
         if main.command_arguments_size==0
             return err.set("Missing arg: dirname")
 
@@ -260,7 +260,7 @@ io_error:
         return true
     }
 
-    sub cmd_relabel() -> bool {
+    sub cmd_relabel() -> uword {
         if main.command_arguments_size==0
             return err.set("Missing arg: diskname")
         diskio.relabel(main.command_arguments_ptr)
@@ -268,7 +268,7 @@ io_error:
         return true
     }
 
-    sub cmd_copy() -> bool {
+    sub cmd_copy() -> uword {
         if main.command_arguments_size==0
             return err.set("Missing args: oldfilename newfilename")
 
@@ -290,7 +290,7 @@ io_error:
         }
     }
 
-    sub cmd_drive() -> bool {
+    sub cmd_drive() -> uword {
         if main.command_arguments_size==0
             return err.set("Missing arg: drive number")
 

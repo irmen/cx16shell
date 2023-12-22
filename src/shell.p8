@@ -44,12 +44,10 @@ main {
                     if command_routine==0
                         command_routine = misc_commands.recognized(command_line, command_word_size)
                     if command_routine {
-                        call(command_routine)       ; indirect JSR, result will be in r0
-                        if cx16.r0L!=0
+                        if call(command_routine)!=0   ; indirect JSR
                             err.clear()
-                        else if not err.error_status {
+                        else if not err.error_status
                             void err.set("Unspecified error")
-                        }
                     } else {
                         ; see if there is an external shell command in the SHELL-CMDS subdirectory that matches
                         diskio.list_filename = petscii:"//shell-cmds/:"
@@ -142,8 +140,8 @@ main {
             %asm {{
                 sec
                 jsr  cbm.PLOT
-                stx  p8_cursor_y
-                sty  p8_cursor_x
+                stx  p8v_cursor_y
+                sty  p8v_cursor_x
             }}
             uword wordptr = &tabcomplete_buffer + cursor_x-1
             tabcomplete_buffer[cursor_x] = 0
