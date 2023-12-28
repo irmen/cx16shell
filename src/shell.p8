@@ -307,13 +307,13 @@ main {
         pokew($06ed, &txt.input_chars)
         poke($06ef, $4c)    ; JMP
         pokew($06f0, &err.set)
-        push(diskio.drivenumber)     ; only variable in ZP that we need to save
+        sys.push(diskio.drivenumber)     ; only variable in ZP that we need to save
         rsave()
         ; call the routine with the input registers
         romsub $4000 = external_command(uword command @R0, ubyte command_size @R1, uword arguments @R2, ubyte args_size @R3) -> ubyte @A
         cx16.r0L = external_command(&command_word, command_word_size, command_arguments_ptr, command_arguments_size)
         rrestore()
-        pop(diskio.drivenumber)
+        diskio.drivenumber = sys.pop()
         return cx16.r0L
     }
 
