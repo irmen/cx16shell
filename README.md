@@ -91,4 +91,9 @@ The "ext-command.p8" source file contains a piece of example Prog8 source code o
 
 ## Todo
 
+- add a (external) command to switch color scheme
+- add a (external) display command to view images (make it part of the imageviewer project)
+- typing a filename with a known image suffix should launch the display program automatically
+- do the same for sound files including zsm / zcm
+
 ...

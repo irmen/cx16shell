@@ -17,7 +17,8 @@ misc_commands {
         "nano", &cmd_edit,
         "mem", &cmd_mem,
         "cls", &cmd_cls,
-        "echo", &cmd_echo
+        "echo", &cmd_echo,
+        "mode", &cmd_mode
     ]
 
     str motd_file = petscii:"//shell-cmds/:motd.txt"
@@ -65,6 +66,35 @@ misc_commands {
             txt.print(main.command_arguments_ptr)
         }
         return true
+    }
+
+    sub cmd_mode() -> uword {
+        if main.command_arguments_size==0 {
+            void cx16.get_screen_mode()
+            %asm {{
+                sta  cx16.r2L
+                stx  cx16.r3L
+                sty  cx16.r4L
+            }}
+            txt.print("Active screen mode: ")
+            txt.print_ub(cx16.r2L)
+            txt.print(" (")
+            txt.print_ub(cx16.r3L)
+            txt.print(" by ")
+            txt.print_ub(cx16.r4L)
+            txt.print(")\rCall with mode number to switch modes.\r")
+            return true
+        }
+        if conv.any2uword(main.command_arguments_ptr) {
+            if cx16.r15L>11 {
+                return err.set("Invalid mode (0-11)")
+            }
+            main.screenmode = cx16.r15L
+            main.set_screen_mode()
+            return true
+        } else {
+            return err.set("Invalid mode (0-11)")
+        }
     }
 
     sub cmd_mem() -> uword {
@@ -129,8 +159,8 @@ misc_commands {
         txt.print("\rCommands on disk:\r")
         txt.color(main.COLOR_NORMAL)
         txt.print("Type the name of an external command program located in 'SHELL-CMDS'\r  subdirectory (see documentation).\r")
-        txt.print("Or simply type name of program to launch (no suffix req'd, case insens.).\r")
-        txt.print("Typing the name of a directory, moves to there.\r")
+        txt.print("Or just type name of program to launch (no suffix req'd, case insensitive).\r")
+        txt.print("Typing the name of a directory moves into it.\r")
         txt.print("Filename tab-completion is active (case sensitive).\r")
         return true
     }
@@ -153,8 +183,8 @@ misc_commands {
                 mkword(main.COLOR_BACKGROUND<<4 | main.COLOR_NORMAL, diskio.drivenumber),
                 mkword(0,0))
             cx16.rombank(0)
-            void cx16.screen_mode(1, false)     ; back to shell's screen mode 80x30
             txt.iso()
+            main.set_screen_mode()
             sys.disable_caseswitch()
             return true
         } else {

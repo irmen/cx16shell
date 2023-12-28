@@ -18,13 +18,18 @@ main {
     ubyte command_word_size
     uword command_arguments_ptr
     ubyte command_arguments_size
+    ubyte screenmode = 1
+
+    sub set_screen_mode() {
+        void cx16.screen_mode(screenmode, false)
+        txt.color2(COLOR_NORMAL, COLOR_BACKGROUND)
+        txt.clear_screen()
+    }
 
     sub start() {
         cx16.rombank(0)     ; switch to kernal rom for faster operation
         txt.iso()
-        txt.color2(COLOR_NORMAL, COLOR_BACKGROUND)
-        void cx16.screen_mode(1, false)
-        txt.clear_screen()
+        set_screen_mode()
         print_intro()
 
         repeat {
