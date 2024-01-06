@@ -9,11 +9,11 @@
 %option no_sysinit
 
 main {
-    const ubyte COLOR_NORMAL = 1
+    ubyte COLOR_NORMAL = 1
+    ubyte COLOR_BACKGROUND = 11
     const ubyte COLOR_HIGHLIGHT = 14
     const ubyte COLOR_HIGHLIGHT_PROMPT = 13
     const ubyte COLOR_ERROR = 10
-    const ubyte COLOR_BACKGROUND = 11
     str command_line = "?" * 160
     str command_word = "?" * 64
     ubyte command_word_size
@@ -208,17 +208,17 @@ main {
         txt.color2(COLOR_NORMAL, COLOR_BACKGROUND)
         txt.clear_screen()
 
+        txt.color(COLOR_HIGHLIGHT_PROMPT)
+        txt.print("\r  Commander-X16 SHELL v1.2 ")
+        txt.color(COLOR_NORMAL)
+        txt.print("- https://github.com/irmen/cx16shell\r\r")
+
         if diskio.f_open(misc_commands.motd_file) {
             diskio.f_close()
             void misc_commands.cmd_motd()
         } else {
             diskio.send_command(petscii:"i")
         }
-
-        txt.color(COLOR_HIGHLIGHT_PROMPT)
-        txt.print("\r  Commander-X16 SHELL v1.2 ")
-        txt.color(COLOR_NORMAL)
-        txt.print("- https://github.com/irmen/cx16shell\r")
     }
 
     sub file_lookup_matching(uword filename_ptr, bool only_programs) -> uword {

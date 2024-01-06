@@ -24,7 +24,7 @@ ext-command.prg: externalcommands/example/ext-command.p8
 neofetch.prg: externalcommands/neofetch/neofetch.p8
 	p8compile $< -target cx16
 
-time.prg: externalcommands/example/time.p8
+time.prg: externalcommands/time.p8
 	p8compile $< -target cx16
 
 zip: all

@@ -18,7 +18,8 @@ misc_commands {
         "mem", &cmd_mem,
         "cls", &cmd_cls,
         "echo", &cmd_echo,
-        "mode", &cmd_mode
+        "mode", &cmd_mode,
+        "color", &cmd_color
     ]
 
     str motd_file = petscii:"//shell-cmds/:motd.txt"
@@ -64,6 +65,26 @@ misc_commands {
                 main.command_arguments_ptr++
             txt.print(main.command_arguments_ptr)
         }
+        return true
+    }
+
+    sub cmd_color() -> uword {
+        if main.command_arguments_size==0
+            return err.set("Missing args: textcolor,bgcolor,bordercolor")
+
+        ubyte txtcol = conv.str2ubyte(main.command_arguments_ptr) & 15
+        main.command_arguments_ptr += cx16.r15 + 1
+        ubyte bgcol = conv.str2ubyte(main.command_arguments_ptr) & 15
+        main.command_arguments_ptr += cx16.r15 + 1
+
+        if txtcol==bgcol
+            return err.set("Text and bg color are the same")
+
+        main.COLOR_NORMAL = txtcol
+        main.COLOR_BACKGROUND = bgcol
+        cx16.VERA_DC_BORDER = conv.str2ubyte(main.command_arguments_ptr)
+        txt.color2(main.COLOR_NORMAL, main.COLOR_BACKGROUND)
+        txt.clear_screen()
         return true
     }
 
