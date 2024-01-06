@@ -35,7 +35,6 @@ misc_commands {
     sub cmd_basic() -> uword {
         txt.color2(1, 6)
         txt.iso_off()
-        void cx16.screen_mode(0, false)
         sys.exit(0)
         return true  ; not reached
     }
@@ -89,8 +88,8 @@ misc_commands {
             if cx16.r15L>11 {
                 return err.set("Invalid mode (0-11)")
             }
-            main.screenmode = cx16.r15L
-            main.set_screen_mode()
+            void cx16.screen_mode(cx16.r15L, false)
+            main.init_screen()
             return true
         } else {
             return err.set("Invalid mode (0-11)")
@@ -183,8 +182,7 @@ misc_commands {
                 mkword(main.COLOR_BACKGROUND<<4 | main.COLOR_NORMAL, diskio.drivenumber),
                 mkword(0,0))
             cx16.rombank(0)
-            txt.iso()
-            main.set_screen_mode()
+            main.init_screen()
             sys.disable_caseswitch()
             return true
         } else {

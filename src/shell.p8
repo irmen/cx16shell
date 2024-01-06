@@ -6,6 +6,7 @@
 %import misc_commands
 %encoding iso
 %zeropage basicsafe
+%option no_sysinit
 
 main {
     const ubyte COLOR_NORMAL = 1
@@ -18,18 +19,11 @@ main {
     ubyte command_word_size
     uword command_arguments_ptr
     ubyte command_arguments_size
-    ubyte screenmode = 1
 
-    sub set_screen_mode() {
-        void cx16.screen_mode(screenmode, false)
-        txt.color2(COLOR_NORMAL, COLOR_BACKGROUND)
-        txt.clear_screen()
-    }
 
     sub start() {
         cx16.rombank(0)     ; switch to kernal rom for faster operation
-        txt.iso()
-        set_screen_mode()
+        init_screen()
         print_intro()
 
         repeat {
@@ -91,6 +85,12 @@ main {
         }
     }
 
+    sub init_screen() {
+        txt.color2(COLOR_NORMAL, COLOR_BACKGROUND)
+        cx16.VERA_DC_BORDER = COLOR_BACKGROUND
+        txt.clear_screen()
+        txt.iso()
+    }
 
     sub keystroke_handler() -> ubyte {
         %asm {{
@@ -275,9 +275,9 @@ main {
             ; to avoid character translation issues, we remain in ISO charset mode to perform the actual LOAD.
             ; only right before issuing the RUN command we switch back to petscii mode.
             txt.color2(1,6)     ; default white on blue
-            void cx16.screen_mode(0, false)
+            ;; void cx16.screen_mode(0, false)
             txt.print("\x13LOAD\"")         ; home, load
-            txt.print(filename_ptr)             ; is in ISO charset
+            txt.print(filename_ptr)         ; is in ISO charset! Hence not yet iso_off!
             txt.print("\",")
             txt.chrout('0' + diskio.drivenumber)
             txt.chrout(':')
