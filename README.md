@@ -12,8 +12,10 @@ You'll need a Prog8 compiler v9.8 or later, to build this from source.
 If the latest official release gives you problems compiling this program, you may have to use
 the git master version that hasn't been officially released yet.
 
-Just type ``make`` to compile the shell
-Type ``make emu`` to compile and immediately start it in the Commander X16 emulator.
+First type ``git submodule update --init`` to fetch the external modules. 
+Then just type ``make`` to compile the shell.
+Type ``make emu`` to compile, copy everything to the correct folders on the sdcard,
+and immediately start it in the Commander X16 emulator.
 
 Save SHELL.PRG as AUTOBOOT.X16 to the sd-card to automatically load and run the shell at startup.
 
@@ -51,12 +53,6 @@ Finally you can simply type the name of a program to launch (no file extension r
 You can use tab for filename completion (case-sensitive).
 
 
-### X16Edit text editor support (vi/ed command)
-
-Either have X16Edit ROM edition present in ROM, or have the Hi-Ram version on disk as 'X16EDIT-6000' on the sdcard.
-See [their github](https://github.com/stefan-b-jakobsson/x16-edit) for details on how to do this.
-
-
 ## External commands
 
 The shell can launch 'external commands' much like a Unix shell runs programs from disk.
@@ -74,25 +70,31 @@ Input registers set by shell upon calling your command::
 
 Utility routines you can call from your command program::
 
-    $06e0 = shell_print(str string @AY) clobbers(A,Y)
-    $06e3 = shell_print_uw(uword value @AY) clobbers(A,Y)
-    $06e6 = shell_print_uwhex(uword value @ AY, ubyte prefix @ Pc) clobbers(A,Y)
-    $06e9 = shell_print_uwbin(uword value @ AY, ubyte prefix @ Pc) clobbers(A,Y)
-    $06ec = shell_input_chars(uword buffer @ AY) clobbers(A) -> ubyte @Y
-    $06ef = shell_err_set(str message @AY) clobbers(Y) -> bool @A
+    romsub $07dc = version() -> uword @AY               ; returns pointer to string with shell's version
+    romsub $07df = get_text_colors() -> uword @AY       ; returns address of array of 5 text color bytes (text, background, highlight, prompt, error)
+    romsub $07e2 = chrout(ubyte character @A)
+    romsub $07e5 = print(str string @AY) clobbers(A,Y)
+    romsub $07e8 = print_ub(ubyte value @ A) clobbers(A,X,Y)
+    romsub $07eb = print_ubhex(ubyte value @ A, bool prefix @ Pc) clobbers(A,X,Y)
+    romsub $07ee = print_ubbin(ubyte value @ A, bool prefix @ Pc) clobbers(A,X,Y)
+    romsub $07f1 = print_uw(uword value @AY) clobbers(A,Y)
+    romsub $07f4 = print_uwhex(uword value @ AY, bool prefix @ Pc) clobbers(A,Y)
+    romsub $07f7 = print_uwbin(uword value @ AY, bool prefix @ Pc) clobbers(A,Y)
+    romsub $07fa = input_chars(uword buffer @ AY) clobbers(A) -> ubyte @Y
+    romsub $07fd = err_set(str message @AY) clobbers(Y) -> bool @A
 
-Command should return error status in A. You can use the ``shell_err_set()`` routine to set a specific error message for the shell.
+Command should return error status in A. You can use the ``err_set()`` routine to set a specific error message for the shell.
 Command CAN use the *free* zero page locations.
 Command CANNOT use memory below $4000 (the shell sits there).
-Command CAN use Golden Ram $0400-$06df. (the rest contains the jump table mentioned above and prog8's evaluation stack page)
+Command CAN use Golden Ram $0400-up to where the jump table starts. 
 
 The "ext-command.p8" source file contains a piece of example Prog8 source code of an external command.
 
 
 ## Todo
 
-- add a (external) display command to view images (make it part of the imageviewer project)
-- typing a filename with a known image suffix should launch the display program automatically
+- add a (external) 'view' command to view images (make it part of the imageviewer project)
+- typing a filename with a known image suffix should launch the 'view' program automatically
 - do the same for sound files including zsm / zcm
 
 ...

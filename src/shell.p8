@@ -209,9 +209,10 @@ main {
         txt.clear_screen()
 
         txt.color(COLOR_HIGHLIGHT_PROMPT)
-        txt.print("\r  Commander-X16 SHELL v1.2 ")
+        txt.print("\r  Commander-X16 SHELL v")
+        txt.print(main.extcommand_shell_version.version_string)
         txt.color(COLOR_NORMAL)
-        txt.print("- https://github.com/irmen/cx16shell\r\r")
+        txt.print(" - https://github.com/irmen/cx16shell\r\r")
 
         if diskio.f_open(misc_commands.motd_file) {
             diskio.f_close()
@@ -300,18 +301,33 @@ main {
     sub run_external_command() -> bool {
         ; load the external command program that has already been loaded to $4000
         ; setup the 'shell bios' jump table
-        poke($06e0, $4c)    ; JMP
-        pokew($06e1, &txt.print)
-        poke($06e3, $4c)    ; JMP
-        pokew($06e4, &txt.print_uw)
-        poke($06e6, $4c)    ; JMP
-        pokew($06e7, &txt.print_uwhex)
-        poke($06e9, $4c)    ; JMP
-        pokew($06ea, &txt.print_uwbin)
-        poke($06ec, $4c)    ; JMP
-        pokew($06ed, &txt.input_chars)
-        poke($06ef, $4c)    ; JMP
-        pokew($06f0, &err.set)
+
+        const uword JUMPTABLE_TOP = $0800
+        uword[] vectors = [
+            ; NOTE:
+            ;  - do NOT change the order of the vectors.
+            ;  - only add new vectors AT THE START of the list (so existing ones stay on the same address)
+            &main.extcommand_shell_version,
+            &main.extcommand_get_colors,
+            &cbm.CHROUT,
+            &txt.print,
+            &txt.print_ub,
+            &txt.print_ubhex,
+            &txt.print_ubbin,
+            &txt.print_uw,
+            &txt.print_uwhex,
+            &txt.print_uwbin,
+            &txt.input_chars,
+            &err.set
+        ]
+
+        uword jumptable = JUMPTABLE_TOP - 3*len(vectors)
+        for cx16.r0 in vectors {
+            poke(jumptable, $4c)        ; JMP
+            pokew(jumptable+1, cx16.r0)
+            jumptable += 3
+        }
+
         sys.push(diskio.drivenumber)     ; only variable in ZP that we need to save
         rsave()
         ; call the routine with the input registers
@@ -345,5 +361,20 @@ main {
             }
         }
         return err.set("File not found")
+    }
+
+    sub extcommand_get_colors() -> uword {
+        ubyte[5] colors
+        colors[0] = main.COLOR_NORMAL
+        colors[1] = main.COLOR_BACKGROUND
+        colors[2] = main.COLOR_HIGHLIGHT
+        colors[3] = main.COLOR_HIGHLIGHT_PROMPT
+        colors[4] = main.COLOR_ERROR
+        return &colors
+    }
+
+    sub extcommand_shell_version() -> str {
+        str version_string="1.2"
+        return version_string
     }
 }

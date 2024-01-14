@@ -19,10 +19,10 @@ shell.prg: src/shell.p8 src/errors.p8 src/disk_commands.p8 src/misc_commands.p8
 	p8compile $< -target cx16 -sourcelines
 
 ext-command.prg: externalcommands/example/ext-command.p8
-	p8compile $< -target cx16
+	p8compile $< -target cx16 -srcdirs externalcommands
 
 neofetch.prg: externalcommands/neofetch/neofetch.p8
-	p8compile $< -target cx16
+	p8compile $< -target cx16 -srcdirs externalcommands
 
 time.prg: externalcommands/time.p8
 	p8compile $< -target cx16
