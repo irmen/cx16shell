@@ -300,18 +300,33 @@ main {
     sub run_external_command() -> bool {
         ; load the external command program that has already been loaded to $4000
         ; setup the 'shell bios' jump table
-        poke($06e0, $4c)    ; JMP
-        pokew($06e1, &txt.print)
-        poke($06e3, $4c)    ; JMP
-        pokew($06e4, &txt.print_uw)
-        poke($06e6, $4c)    ; JMP
-        pokew($06e7, &txt.print_uwhex)
-        poke($06e9, $4c)    ; JMP
-        pokew($06ea, &txt.print_uwbin)
-        poke($06ec, $4c)    ; JMP
-        pokew($06ed, &txt.input_chars)
-        poke($06ef, $4c)    ; JMP
-        pokew($06f0, &err.set)
+
+        const uword JUMPTABLE_TOP = $06f2       ; TODO move to $0800
+        uword[] vectors = [
+            ; NOTE:
+            ;  - do NOT change the order of the vectors.
+            ;  - only add new vectors AT THE START of the list (so existing ones stay on the same address)
+;            &main.get_colors,
+;            &txt.chrout,
+;            &txt.print,
+;            &txt.print_ub,
+;            &txt.print_ubhex,
+;            &txt.print_ubbin,
+            &txt.print,
+            &txt.print_uw,
+            &txt.print_uwhex,
+            &txt.print_uwbin,
+            &txt.input_chars,
+            &err.set
+        ]
+
+        uword jumptable = JUMPTABLE_TOP - 3*len(vectors)
+        for cx16.r0 in vectors {
+            poke(jumptable, $4c)        ; JMP
+            pokew(jumptable+1, cx16.r0)
+            jumptable += 3
+        }
+
         sys.push(diskio.drivenumber)     ; only variable in ZP that we need to save
         rsave()
         ; call the routine with the input registers

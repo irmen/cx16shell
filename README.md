@@ -12,8 +12,10 @@ You'll need a Prog8 compiler v9.8 or later, to build this from source.
 If the latest official release gives you problems compiling this program, you may have to use
 the git master version that hasn't been officially released yet.
 
-Just type ``make`` to compile the shell
-Type ``make emu`` to compile and immediately start it in the Commander X16 emulator.
+First type ``git submodule update --init`` to fetch the external modules. 
+Then just type ``make`` to compile the shell.
+Type ``make emu`` to compile, copy everything to the correct folders on the sdcard,
+and immediately start it in the Commander X16 emulator.
 
 Save SHELL.PRG as AUTOBOOT.X16 to the sd-card to automatically load and run the shell at startup.
 
@@ -51,12 +53,6 @@ Finally you can simply type the name of a program to launch (no file extension r
 You can use tab for filename completion (case-sensitive).
 
 
-### X16Edit text editor support (vi/ed command)
-
-Either have X16Edit ROM edition present in ROM, or have the Hi-Ram version on disk as 'X16EDIT-6000' on the sdcard.
-See [their github](https://github.com/stefan-b-jakobsson/x16-edit) for details on how to do this.
-
-
 ## External commands
 
 The shell can launch 'external commands' much like a Unix shell runs programs from disk.
@@ -91,8 +87,11 @@ The "ext-command.p8" source file contains a piece of example Prog8 source code o
 
 ## Todo
 
-- add a (external) display command to view images (make it part of the imageviewer project)
-- typing a filename with a known image suffix should launch the display program automatically
+- shift the shell's jump table up to $07xx because the eval stack has been removed a long time ago already!
+- add a call to query the list of text/bg colors the shell uses (so programs can adapt)
+
+- add a (external) 'view' command to view images (make it part of the imageviewer project)
+- typing a filename with a known image suffix should launch the 'view' program automatically
 - do the same for sound files including zsm / zcm
 
 ...
