@@ -3,3 +3,6 @@
 *.prg
 *.asm
 *.vice-mon-list
+SHELL-CMDS
+# for local batch scripts used by windows contributors
+compile.bat
