@@ -209,9 +209,10 @@ main {
         txt.clear_screen()
 
         txt.color(COLOR_HIGHLIGHT_PROMPT)
-        txt.print("\r  Commander-X16 SHELL v1.2 ")
+        txt.print("\r  Commander-X16 SHELL v")
+        txt.print(main.extcommand_shell_version.version_string)
         txt.color(COLOR_NORMAL)
-        txt.print("- https://github.com/irmen/cx16shell\r\r")
+        txt.print(" - https://github.com/irmen/cx16shell\r\r")
 
         if diskio.f_open(misc_commands.motd_file) {
             diskio.f_close()
@@ -301,18 +302,18 @@ main {
         ; load the external command program that has already been loaded to $4000
         ; setup the 'shell bios' jump table
 
-        const uword JUMPTABLE_TOP = $06f2       ; TODO move to $0800
+        const uword JUMPTABLE_TOP = $0800
         uword[] vectors = [
             ; NOTE:
             ;  - do NOT change the order of the vectors.
             ;  - only add new vectors AT THE START of the list (so existing ones stay on the same address)
-;            &main.get_colors,
-;            &txt.chrout,
-;            &txt.print,
-;            &txt.print_ub,
-;            &txt.print_ubhex,
-;            &txt.print_ubbin,
+            &main.extcommand_shell_version,
+            &main.extcommand_get_colors,
+            &cbm.CHROUT,
             &txt.print,
+            &txt.print_ub,
+            &txt.print_ubhex,
+            &txt.print_ubbin,
             &txt.print_uw,
             &txt.print_uwhex,
             &txt.print_uwbin,
@@ -360,5 +361,20 @@ main {
             }
         }
         return err.set("File not found")
+    }
+
+    sub extcommand_get_colors() -> uword {
+        ubyte[5] colors
+        colors[0] = main.COLOR_NORMAL
+        colors[1] = main.COLOR_BACKGROUND
+        colors[2] = main.COLOR_HIGHLIGHT
+        colors[3] = main.COLOR_HIGHLIGHT_PROMPT
+        colors[4] = main.COLOR_ERROR
+        return &colors
+    }
+
+    sub extcommand_shell_version() -> str {
+        str version_string="1.2"
+        return version_string
     }
 }

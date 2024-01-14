@@ -1,55 +1,54 @@
 ; EXAMPLE external command source code
 
+%import shellroutines
 %launcher none
 %option no_sysinit
 %zeropage basicsafe
 %encoding iso
 %address $4000
 
-shell {
-    romsub $06e0 = shell_print(str string @AY) clobbers(A,Y)
-    romsub $06e3 = shell_print_uw(uword value @AY) clobbers(A,Y)
-    romsub $06e6 = shell_print_uwhex(uword value @ AY, bool prefix @ Pc) clobbers(A,Y)
-    romsub $06e9 = shell_print_uwbin(uword value @ AY, bool prefix @ Pc) clobbers(A,Y)
-    romsub $06ec = shell_input_chars(uword buffer @ AY) clobbers(A) -> ubyte @Y
-    romsub $06ef = shell_err_set(str message @AY) clobbers(Y) -> bool @A
-
-    ; input registers set by shell upon calling your command:
-    ;    cx16.r0 = command address
-    ;    cx16.r1 = length of command (byte)
-    ;    cx16.r2 = arguments address
-    ;    cx16.r3 = length of arguments (byte)
-
-    ; command should return error status in A. You can use err_set() to set a specific error message for the shell.
-    ; command CAN use the FREE zero page locations.
-    ; command CANNOT use memory below $4000 (the shell sits there)
-    ; command CAN use Ram $0400-$06df.
-}
 
 main $4000 {
     %option force_output
 
     sub start()  {
-        shell.shell_print("This is an external command program!\rinvoked command: ")
-        shell.shell_print(cx16.r0)        ; command
-        cbm.CHROUT(' ')
-        shell.shell_print_uw(cx16.r1)     ; length of command
+        shell.print("This is an external command program!\rinvoked command: ")
+        shell.print(cx16.r0)        ; command
+        shell.chrout(' ')
+        shell.print_uw(cx16.r1)     ; length of command
         if cx16.r3 {
-            shell.shell_print("\rargs: ")
-            shell.shell_print(cx16.r2)        ; arguments
-            shell.shell_print("\rargs length=")
-            shell.shell_print_uw(cx16.r3)     ; length of arguments
+            shell.print("\rargs: ")
+            shell.print(cx16.r2)        ; arguments
+            shell.print("\rargs length=")
+            shell.print_uw(cx16.r3)     ; length of arguments
         }
-        shell.shell_print("\renter name: ")
+        shell.print("\renter name: ")
         str inputbuffer = "?"*20
-        if shell.shell_input_chars(inputbuffer) {
-            shell.shell_print("\rinput was: ")
-            shell.shell_print(inputbuffer)
-            cbm.CHROUT('\r')
+        if shell.input_chars(inputbuffer) {
+            shell.print("\rinput was: ")
+            shell.print(inputbuffer)
+            shell.chrout('\r')
         }
-        shell.shell_print_uwbin(12345, true)
-        cbm.CHROUT('\r')
+        shell.print_uwbin(12345, true)
+        shell.chrout('\r')
+        shell.print_ubhex(99, true)
+        shell.chrout('\r')
+
+        uword colors = shell.get_text_colors()
+        shell.print_ub(colors[0])
+        shell.chrout(' ')
+        shell.print_ub(colors[1])
+        shell.chrout(' ')
+        shell.print_ub(colors[2])
+        shell.chrout(' ')
+        shell.print_ub(colors[3])
+        shell.chrout(' ')
+        shell.print_ub(colors[4])
+        shell.chrout('\r')
+        shell.print(shell.version())
+        shell.chrout('\r')
+
         sys.exit(0)
-        ; void shell.shell_err_set("external command failed")
+        ; void shell.err_set("external command failed")
     }
 }
