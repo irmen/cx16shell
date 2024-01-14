@@ -33,7 +33,7 @@ main $4000 {
 
     sub start()  {
         str[13] months = [0, "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
-        str[7] days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+        str[8] days = ["", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
         shell.print("Current date and time (from RTC clock):\r")
         ; romsub $ff50 = clock_get_date_time()  clobbers(A, X, Y)  -> uword @R0, uword @R1, uword @R2, uword @R3   ; result registers see clock_set_date_time()
