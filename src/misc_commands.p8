@@ -19,7 +19,8 @@ misc_commands {
         "cls", &cmd_cls,
         "echo", &cmd_echo,
         "mode", &cmd_mode,
-        "color", &cmd_color
+        "color", &cmd_color,
+        "hicolor", &cmd_highlight_color
     ]
 
     str motd_file = petscii:"//shell-cmds/:motd.txt"
@@ -87,6 +88,62 @@ misc_commands {
         txt.clear_screen()
         return true
     }
+
+        sub cmd_highlight_color() -> uword {
+        if main.command_arguments_size==0
+            return err.set("Missing args: strongcolor,promptcolor,errcolor")
+
+        ubyte strcol = conv.str2ubyte(main.command_arguments_ptr) & 15
+        main.command_arguments_ptr += cx16.r15 + 1
+        
+        if strcol==main.COLOR_BACKGROUND
+            return err.set("Highlight and bg color are the same")
+
+        ubyte prptcol = conv.str2ubyte(main.command_arguments_ptr) & 15
+        main.command_arguments_ptr += cx16.r15 + 1
+
+        ubyte errcol = conv.str2ubyte(main.command_arguments_ptr)
+
+        if errcol==main.COLOR_BACKGROUND
+            return err.set("Error and bg color are the same")
+
+        if errcol==main.COLOR_NORMAL
+            return err.set("Error and text color are the same")
+
+        txt.print("H: ")
+        txt.color(main.COLOR_HIGHLIGHT)
+        txt.print_ub(main.COLOR_HIGHLIGHT)
+        txt.color(main.COLOR_NORMAL)
+        txt.print("->")
+        txt.color(strcol)
+        txt.print_ub(strcol)
+        txt.color(main.COLOR_NORMAL)
+
+        txt.print("\rP: ")
+        txt.color(main.COLOR_HIGHLIGHT_PROMPT)
+        txt.print_ub(main.COLOR_HIGHLIGHT_PROMPT)
+        txt.color(main.COLOR_NORMAL)
+        txt.print("->")
+        txt.color(prptcol)
+        txt.print_ub(prptcol)
+        txt.color(main.COLOR_NORMAL)
+
+        txt.print("\rE: ")
+        txt.color(main.COLOR_ERROR)
+        txt.print_ub(main.COLOR_ERROR)
+        txt.color(main.COLOR_NORMAL)
+        txt.print("->")
+        txt.color(errcol)
+        txt.print_ub(errcol)
+        txt.color(main.COLOR_NORMAL)
+
+
+        main.COLOR_HIGHLIGHT = strcol
+        main.COLOR_HIGHLIGHT_PROMPT = prptcol
+        main.COLOR_ERROR = errcol
+        return true
+    }
+
 
     sub cmd_mode() -> uword {
         if main.command_arguments_size==0 {

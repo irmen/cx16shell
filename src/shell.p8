@@ -11,9 +11,9 @@
 main {
     ubyte COLOR_NORMAL = 1
     ubyte COLOR_BACKGROUND = 11
-    const ubyte COLOR_HIGHLIGHT = 14
-    const ubyte COLOR_HIGHLIGHT_PROMPT = 13
-    const ubyte COLOR_ERROR = 10
+    ubyte COLOR_HIGHLIGHT = 14
+    ubyte COLOR_HIGHLIGHT_PROMPT = 13
+    ubyte COLOR_ERROR = 10
     str command_line = "?" * 160
     str command_word = "?" * 64
     ubyte command_word_size
