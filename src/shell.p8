@@ -150,7 +150,7 @@ main {
             }}
             uword wordptr = &tabcomplete_buffer + cursor_x-1
             tabcomplete_buffer[cursor_x] = 0
-            while cursor_x {
+            while cursor_x!=0 {
                 cursor_x--
                 tabcomplete_buffer[cursor_x] = txt.getchr(cursor_x, cursor_y)
             }
@@ -173,7 +173,7 @@ main {
 
         ; replace Shift-SPACE by just normal SPACE
         cmd_ptr = &command_line
-        while @(cmd_ptr) {
+        while @(cmd_ptr)!=0 {
             if @(cmd_ptr)==$a0
                 @(cmd_ptr)=' '
             cmd_ptr++
