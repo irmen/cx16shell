@@ -15,14 +15,10 @@ shell {
     romsub $07fa = input_chars(uword buffer @ AY) clobbers(A) -> ubyte @Y
     romsub $07fd = err_set(str message @AY) clobbers(Y) -> bool @A
 
-    ; input registers set by shell upon calling your command:
-    ;    cx16.r0 = command address
-    ;    cx16.r1 = length of command (byte)
-    ;    cx16.r2 = arguments address
-    ;    cx16.r3 = length of arguments (byte)
-
+    ; command receives arguments at $0:BF00 (zero terminated, see  https://github.com/X16Community/x16-docs/blob/master/X16%20Reference%20-%2007%20-%20Memory%20Map.md#bank-0)
+    ;         (you can use the cx16.get_program_args routine to retrieve them)
     ; command should return error status in A. You can use err_set() to set a specific error message for the shell.
     ; command CAN use the FREE zero page locations.
-    ; command CANNOT use memory below $4000 (the shell sits there)
-    ; command CAN use Ram $0400-up to the jump table start.
+    ; command CANNOT use memory below $4000 (the shell program itself sits there!)
+    ; command CAN use Ram $0400-up to the jump table start (see romsubs above)
 }

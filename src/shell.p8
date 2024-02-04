@@ -331,11 +331,12 @@ main {
         sys.push(diskio.drivenumber)     ; only variable in ZP that we need to save
         rsave()
         ; call the routine with the input registers
-        romsub $4000 = external_command(uword command @R0, ubyte command_size @R1, uword arguments @R2, ubyte args_size @R3) -> ubyte @A
-        cx16.r0L = external_command(&command_word, command_word_size, command_arguments_ptr, command_arguments_size)
+        romsub $4000 = external_command() -> ubyte @A
+        cx16.set_program_args(command_arguments_ptr, command_arguments_size)
+        cx16.r1 = call($4000)
         rrestore()
         diskio.drivenumber = sys.pop()
-        return cx16.r0L
+        return cx16.r1L != 0
     }
 
     sub print_uw_right(uword value) {

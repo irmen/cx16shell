@@ -61,13 +61,6 @@ You can write those commands yourself, they have to adhere to the following API.
 Command should be assembled from address $4000 and up (to max $9f00).
 They should be stored in the ``SHELL-CMDS`` subdirectory on your sdcard.
 
-Input registers set by shell upon calling your command::
-
-    cx16.r0 = command address
-    cx16.r1 = length of command (byte)
-    cx16.r2 = arguments address
-    cx16.r3 = length of arguments (byte)
-
 Utility routines you can call from your command program::
 
     romsub $07dc = version() -> uword @AY               ; returns pointer to string with shell's version
@@ -83,10 +76,12 @@ Utility routines you can call from your command program::
     romsub $07fa = input_chars(uword buffer @ AY) clobbers(A) -> ubyte @Y
     romsub $07fd = err_set(str message @AY) clobbers(Y) -> bool @A
 
+Command receives arguments at $0:BF00 (zero terminated, see  https://github.com/X16Community/x16-docs/blob/master/X16%20Reference%20-%2007%20-%20Memory%20Map.md#bank-0)
+(you can use the cx16.get_program_args routine to retrieve them)
 Command should return error status in A. You can use the ``err_set()`` routine to set a specific error message for the shell.
 Command CAN use the *free* zero page locations.
-Command CANNOT use memory below $4000 (the shell sits there).
-Command CAN use Golden Ram $0400-up to where the jump table starts. 
+Command CANNOT use memory below $4000 (the shell program itself sits there).
+Command CAN use Golden Ram $0400-up to where the jump table starts (see above). 
 
 The "ext-command.p8" source file contains a piece of example Prog8 source code of an external command.
 

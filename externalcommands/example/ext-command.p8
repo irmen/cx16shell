@@ -11,17 +11,14 @@
 main $4000 {
     %option force_output
 
+
     sub start()  {
-        shell.print("This is an external command program!\rinvoked command: ")
-        shell.print(cx16.r0)        ; command
-        shell.chrout(' ')
-        shell.print_uw(cx16.r1)     ; length of command
-        if cx16.r3 {
-            shell.print("\rargs: ")
-            shell.print(cx16.r2)        ; arguments
-            shell.print("\rargs length=")
-            shell.print_uw(cx16.r3)     ; length of arguments
-        }
+        shell.print("This is an external command program!\r")
+
+        str args = "?" * 40
+        cx16.get_program_args(args, len(args), false)
+        shell.print("\rargs: ")
+        shell.print(args)
         shell.print("\renter name: ")
         str inputbuffer = "?"*20
         if shell.input_chars(inputbuffer) {
