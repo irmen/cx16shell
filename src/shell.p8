@@ -36,13 +36,13 @@ main {
             cx16.set_chrin_keyhandler(0, &keystroke_handler)
             ubyte input_size = txt.input_chars(command_line)
 
-            if input_size and command_line[0]!=159 {
+            if input_size!=0 and command_line[0]!=159 {
                 txt.nl()
                 if parse_input(input_size) {
                     uword command_routine = disk_commands.recognized(command_line, command_word_size)
                     if command_routine==0
                         command_routine = misc_commands.recognized(command_line, command_word_size)
-                    if command_routine {
+                    if command_routine!=0 {
                         if call(command_routine)!=0   ; indirect JSR
                             err.clear()
                         else if not err.error_status
@@ -51,7 +51,7 @@ main {
                         ; see if there is an external shell command in the SHELL-CMDS subdirectory that matches
                         diskio.list_filename = petscii:"//shell-cmds/:"
                         void string.copy(command_word, &diskio.list_filename+14)
-                        if diskio.load(diskio.list_filename, 0)
+                        if diskio.load(diskio.list_filename, 0)!=0
                             void run_external_command()
                         else {
                             if command_line==".." {
@@ -62,7 +62,7 @@ main {
                             } else {
                                 ; see if there is a program file that matches
                                 uword real_filename_ptr = file_lookup_matching(command_line, true)
-                                if real_filename_ptr {
+                                if real_filename_ptr!=0 {
                                     command_word = real_filename_ptr
                                     if is_directory(command_word) {
                                         txt.print("cd into directory. ")
@@ -111,10 +111,10 @@ main {
             if cx16.r0L==9 {
                 ; process TAB
                 uword cmd = grab_cmdline()
-                if cmd and cmd[0] {
+                if cmd!=0 and cmd[0]!=0 {
                     ubyte length = string.length(cmd)
                     uword filename = tabcomplete(cmd, length)
-                    if filename {
+                    if filename!=0 {
                         txt.print(filename+length)
                     }
                 }
@@ -250,13 +250,15 @@ main {
                     }
                 } else if only_programs and string.compare(command_word, filename_ptr)==0 {
                     diskio.lf_end_list()
-                    return err.set("Not a program")
+                    void err.set("Not a program")
+                    return 0
                 }
             }
             diskio.lf_end_list()
             return 0
         } else {
-            return err.set(diskio.status())
+            void err.set(diskio.status())
+            return 0
         }
     }
 

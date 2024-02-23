@@ -4,7 +4,7 @@ err {
     bool error_status
 
     sub clear() {
-        error_status = 0
+        error_status = false
     }
 
     sub set(str message) -> bool {

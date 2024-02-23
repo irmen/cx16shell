@@ -46,7 +46,7 @@ misc_commands {
             return err.set("Missing arg: filename")
 
         uword real_filename_ptr = main.file_lookup_matching(main.command_arguments_ptr, true)
-        if real_filename_ptr {
+        if real_filename_ptr!=0 {
             main.run_file(real_filename_ptr, true)
             return true
         }
@@ -61,7 +61,7 @@ misc_commands {
     }
 
     sub cmd_echo() -> uword {
-        if main.command_arguments_size {
+        if main.command_arguments_size!=0 {
             while string.isspace(@(main.command_arguments_ptr))
                 main.command_arguments_ptr++
             txt.print(main.command_arguments_ptr)
@@ -162,7 +162,7 @@ misc_commands {
             txt.print(")\rCall with mode number to switch modes.\r")
             return true
         }
-        if conv.any2uword(main.command_arguments_ptr) {
+        if conv.any2uword(main.command_arguments_ptr)!=0 {
             if cx16.r15L>11 {
                 return err.set("Invalid mode (0-11)")
             }
@@ -193,7 +193,7 @@ misc_commands {
         if main.command_arguments_size==0
             return err.set("Missing arg: number (can use % and $ prefixes too)")
 
-        if conv.any2uword(main.command_arguments_ptr) {
+        if conv.any2uword(main.command_arguments_ptr)!=0 {
             txt.spc()
             txt.print_uw(cx16.r15)
             txt.nl()
@@ -250,7 +250,7 @@ misc_commands {
             ;; void cx16.screen_mode(0, false)   ; back to 80x60 mode?
             txt.iso_off()
             ubyte filename_length = 0
-            if main.command_arguments_ptr
+            if main.command_arguments_ptr!=0
                 filename_length = main.command_arguments_size
             ubyte old_bank = cx16.getrombank()
             cx16.rombank(x16edit_bank)

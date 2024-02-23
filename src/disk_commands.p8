@@ -53,7 +53,7 @@ disk_commands {
                 txt.spc()
                 txt.print(diskio.list_filename)
                 txt.nl()
-                if cbm.STOP2() {
+                if cbm.STOP2()!=0 {
                     txt.color(main.COLOR_HIGHLIGHT)
                     txt.print("Break\r")
                     txt.color(main.COLOR_NORMAL)
@@ -131,10 +131,10 @@ disk_commands {
                 txt.color(main.COLOR_NORMAL)
                 txt.print(main.command_line)
                 txt.nl()
-                if cbm.READST() & 64 {
+                if cbm.READST() & 64 !=0 {
                     break
                 }
-                if cbm.STOP2() {
+                if cbm.STOP2() !=0 {
                     void err.set("break")
                     break
                 }
@@ -147,7 +147,7 @@ disk_commands {
     }
 
     sub cmd_pwd() -> uword {
-        if main.command_arguments_size
+        if main.command_arguments_size!=0
             return err.set("Has no args")
         txt.color(main.COLOR_HIGHLIGHT)
         txt.print("Drive number: ")
@@ -196,7 +196,7 @@ io_error:
         cbm.CLRCHN()        ; restore default i/o devices
         cbm.CLOSE(12)
 
-        if status and status & $40 == 0            ; bit 6=end of file
+        if status!=0 and status & $40 == 0            ; bit 6=end of file
             return err.set("IO error")
 
         txt.nl()

@@ -21,7 +21,7 @@ main $4000 {
         shell.print(args)
         shell.print("\renter name: ")
         str inputbuffer = "?"*20
-        if shell.input_chars(inputbuffer) {
+        if shell.input_chars(inputbuffer)!=0 {
             shell.print("\rinput was: ")
             shell.print(inputbuffer)
             shell.chrout('\r')
