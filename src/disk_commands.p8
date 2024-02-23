@@ -274,9 +274,9 @@ io_error:
             newfilename = main.command_arguments_ptr + space_idx + 1
             main.command_arguments_ptr[space_idx] = 0
             diskio.list_filename[0] = petscii:'c'
-            diskio.list_filename[1] = ':'
+            diskio.list_filename[1] = petscii:':'
             ubyte length = string.copy(newfilename, &diskio.list_filename+2)
-            diskio.list_filename[length+2] = '='
+            diskio.list_filename[length+2] = petscii:'='
             void string.copy(main.command_arguments_ptr, &diskio.list_filename+length+3)
             diskio.send_command(diskio.list_filename)
             print_disk_status()
