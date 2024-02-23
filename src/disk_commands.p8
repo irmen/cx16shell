@@ -230,10 +230,6 @@ io_error:
     sub cmd_mkdir() -> uword {
         if main.command_arguments_size==0
             return err.set("Missing arg: dirname")
-
-        diskio.list_filename[0] = 'm'
-        diskio.list_filename[1] = 'd'
-        diskio.list_filename[2] = ':'
         diskio.mkdir(main.command_arguments_ptr)
         print_disk_status()
         return true
@@ -277,7 +273,7 @@ io_error:
         if_cs {
             newfilename = main.command_arguments_ptr + space_idx + 1
             main.command_arguments_ptr[space_idx] = 0
-            diskio.list_filename[0] = 'c'
+            diskio.list_filename[0] = petscii:'c'
             diskio.list_filename[1] = ':'
             ubyte length = string.copy(newfilename, &diskio.list_filename+2)
             diskio.list_filename[length+2] = '='
