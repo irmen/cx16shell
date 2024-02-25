@@ -34,14 +34,14 @@ misc_commands {
         return 0
     }
 
-    sub cmd_basic() -> uword {
+    sub cmd_basic() -> bool {
         txt.color2(1, 6)
         txt.iso_off()
         sys.exit(0)
         return true  ; not reached
     }
 
-    sub cmd_run() -> uword {
+    sub cmd_run() -> bool {
         if main.command_arguments_size==0
             return err.set("Missing arg: filename")
 
@@ -55,12 +55,12 @@ misc_commands {
         return false
     }
 
-    sub cmd_cls() -> uword {
+    sub cmd_cls() -> bool {
         txt.clear_screen()
         return true
     }
 
-    sub cmd_echo() -> uword {
+    sub cmd_echo() -> bool {
         if main.command_arguments_size!=0 {
             while string.isspace(@(main.command_arguments_ptr))
                 main.command_arguments_ptr++
@@ -69,7 +69,7 @@ misc_commands {
         return true
     }
 
-    sub cmd_color() -> uword {
+    sub cmd_color() -> bool {
         if main.command_arguments_size==0
             return err.set("Missing args: textcolor,bgcolor,bordercolor")
 
@@ -89,7 +89,7 @@ misc_commands {
         return true
     }
 
-        sub cmd_highlight_color() -> uword {
+    sub cmd_highlight_color() -> bool {
         if main.command_arguments_size==0
             return err.set("Missing args: strongcolor,promptcolor,errcolor")
 
@@ -145,7 +145,7 @@ misc_commands {
     }
 
 
-    sub cmd_mode() -> uword {
+    sub cmd_mode() -> bool {
         if main.command_arguments_size==0 {
             void cx16.get_screen_mode()
             %asm {{
@@ -174,7 +174,7 @@ misc_commands {
         }
     }
 
-    sub cmd_mem() -> uword {
+    sub cmd_mem() -> bool {
         txt.print("Shell prg: ")
         txt.print_uwhex(cbm.MEMBOT(0, true), true)
         txt.chrout('-')
@@ -189,7 +189,7 @@ misc_commands {
         return true
     }
 
-    sub cmd_printnumber() -> uword {
+    sub cmd_printnumber() -> bool {
         if main.command_arguments_size==0
             return err.set("Missing arg: number (can use % and $ prefixes too)")
 
@@ -207,7 +207,7 @@ misc_commands {
         }
     }
 
-    sub cmd_motd() -> uword {
+    sub cmd_motd() -> bool {
         txt.color(main.COLOR_HIGHLIGHT)
         txt.print("Message Of The Day (motd.txt):\r")
         txt.color(main.COLOR_NORMAL)
@@ -216,7 +216,7 @@ misc_commands {
         return disk_commands.cmd_cat()
     }
 
-    sub cmd_help() -> uword {
+    sub cmd_help() -> bool {
         txt.color(main.COLOR_HIGHLIGHT)
         txt.print("Builtin Commands:\r")
         txt.color(main.COLOR_NORMAL)
@@ -242,7 +242,7 @@ misc_commands {
         return true
     }
 
-    sub cmd_edit() -> uword {
+    sub cmd_edit() -> bool {
         ; activate rom based x16edit, see https://github.com/stefan-b-jakobsson/x16-edit/tree/master/docs
         ubyte x16edit_bank = cx16.search_x16edit()
         if x16edit_bank<255 {

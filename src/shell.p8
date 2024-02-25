@@ -43,7 +43,7 @@ main {
                     if command_routine==0
                         command_routine = misc_commands.recognized(command_line, command_word_size)
                     if command_routine!=0 {
-                        if call(command_routine)!=0   ; indirect JSR
+                        if lsb(call(command_routine))!=0   ; indirect JSR, only returning a byte in this case
                             err.clear()
                         else if not err.error_status
                             void err.set("Unspecified error")
