@@ -45,7 +45,7 @@ main $4000 {
         shell.print(shell.version())
         shell.chrout('\r')
 
+        ; shell.err_set("external command failed")
         sys.exit(0)
-        ; void shell.err_set("external command failed")
     }
 }

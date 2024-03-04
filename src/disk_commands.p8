@@ -68,12 +68,15 @@ disk_commands {
             }
             return true
         }
-        return err.set("IO error")
+        err.set("IO error")
+        return false
     }
 
     sub cmd_rm() -> bool {
-        if main.command_arguments_size==0
-            return err.set("Missing arg: filename")
+        if main.command_arguments_size==0 {
+            err.set("Missing arg: filename")
+            return false
+        }
         void string.find(main.command_arguments_ptr, '*')
         if_cs {
             ;txt.color(main.COLOR_HIGHLIGHT)
@@ -82,9 +85,11 @@ disk_commands {
             ;ubyte answer = c64.CHRIN()
             ;txt.nl()
             ;if answer == 'y' {
-            ;    return err.set("TODO custom pattern matching with * wildcard") ; TODO
+            ;    err.set("TODO custom pattern matching with * wildcard") ; TODO
+            ;    return false
             ;}
-            return err.set("Refused to act on * wildcard")
+            err.set("Refused to act on * wildcard")
+            return false
         }
         diskio.delete(main.command_arguments_ptr)
         print_disk_status()
@@ -92,8 +97,10 @@ disk_commands {
     }
 
     sub cmd_rename() -> bool {
-        if main.command_arguments_size==0
-            return err.set("Missing args: oldfilename newfilename")
+        if main.command_arguments_size==0 {
+            err.set("Missing args: oldfilename newfilename")
+            return false
+        }
 
         uword newfilename
         ubyte space_idx = string.find(main.command_arguments_ptr, ' ')
@@ -104,7 +111,8 @@ disk_commands {
             print_disk_status()
             return true
         } else {
-            return err.set("Missing args: oldfilename newfilename")
+            err.set("Missing args: oldfilename newfilename")
+            return false
         }
     }
 
@@ -116,8 +124,10 @@ disk_commands {
     }
 
     sub cmd_cat() -> bool {
-        if main.command_arguments_size==0
-            return err.set("Missing arg: filename")
+        if main.command_arguments_size==0 {
+            err.set("Missing arg: filename")
+            return false
+        }
 
         if diskio.f_open(main.command_arguments_ptr) {
             uword line = 0
@@ -135,20 +145,22 @@ disk_commands {
                     break
                 }
                 if cbm.STOP2() {
-                    void err.set("break")
+                    err.set("break")
                     break
                 }
             }
             diskio.f_close()
         } else {
-            void err.set(diskio.status())
+            err.set(diskio.status())
         }
         return true
     }
 
     sub cmd_pwd() -> bool {
-        if main.command_arguments_size!=0
-            return err.set("Has no args")
+        if main.command_arguments_size!=0 {
+            err.set("Has no args")
+            return false
+        }
         txt.color(main.COLOR_HIGHLIGHT)
         txt.print("Drive number: ")
         txt.color(main.COLOR_NORMAL)
@@ -196,8 +208,10 @@ io_error:
         cbm.CLRCHN()        ; restore default i/o devices
         cbm.CLOSE(12)
 
-        if status!=0 and status & $40 == 0            ; bit 6=end of file
-            return err.set("IO error")
+        if status!=0 and status & $40 == 0  {          ; bit 6=end of file
+            err.set("IO error")
+            return false
+        }
 
         txt.nl()
         return true
@@ -228,28 +242,36 @@ io_error:
     }
 
     sub cmd_mkdir() -> bool {
-        if main.command_arguments_size==0
-            return err.set("Missing arg: dirname")
+        if main.command_arguments_size==0 {
+            err.set("Missing arg: dirname")
+            return false
+        }
         diskio.mkdir(main.command_arguments_ptr)
         print_disk_status()
         return true
     }
 
     sub cmd_cd() -> bool {
-        if main.command_arguments_size==0
-            return err.set("Missing arg: dirname")
+        if main.command_arguments_size==0 {
+            err.set("Missing arg: dirname")
+            return false
+        }
         diskio.chdir(main.command_arguments_ptr)
         print_disk_status()
         return true
     }
 
     sub cmd_rmdir() -> bool {
-        if main.command_arguments_size==0
-            return err.set("Missing arg: dirname")
+        if main.command_arguments_size==0 {
+            err.set("Missing arg: dirname")
+            return false
+        }
 
         void string.find(main.command_arguments_ptr, '*')
-        if_cs
-            return err.set("Refused to act on * wildcard")
+        if_cs {
+            err.set("Refused to act on * wildcard")
+            return false
+        }
 
         diskio.rmdir(main.command_arguments_ptr)
         print_disk_status()
@@ -257,16 +279,20 @@ io_error:
     }
 
     sub cmd_relabel() -> bool {
-        if main.command_arguments_size==0
-            return err.set("Missing arg: diskname")
+        if main.command_arguments_size==0 {
+            err.set("Missing arg: diskname")
+            return false
+        }
         diskio.relabel(main.command_arguments_ptr)
         print_disk_status()
         return true
     }
 
     sub cmd_copy() -> bool {
-        if main.command_arguments_size==0
-            return err.set("Missing args: oldfilename newfilename")
+        if main.command_arguments_size==0 {
+            err.set("Missing args: oldfilename newfilename")
+            return false
+        }
 
         uword newfilename
         ubyte space_idx = string.find(main.command_arguments_ptr, ' ')
@@ -282,13 +308,16 @@ io_error:
             print_disk_status()
             return true
         } else {
-            return err.set("Missing args: oldfilename newfilename")
+            err.set("Missing args: oldfilename newfilename")
+            return false
         }
     }
 
     sub cmd_drive() -> bool {
-        if main.command_arguments_size==0
-            return err.set("Missing arg: drive number")
+        if main.command_arguments_size==0 {
+            err.set("Missing arg: drive number")
+            return false
+        }
 
         ubyte nr = conv.str2ubyte(main.command_arguments_ptr)
 
@@ -300,7 +329,8 @@ io_error:
                 return cmd_pwd()
             }
             else -> {
-                return err.set("Invalid drive number")
+                err.set("Invalid drive number")
+                return false
             }
         }
     }

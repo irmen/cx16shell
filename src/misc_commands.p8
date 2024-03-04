@@ -42,8 +42,10 @@ misc_commands {
     }
 
     sub cmd_run() -> bool {
-        if main.command_arguments_size==0
-            return err.set("Missing arg: filename")
+        if main.command_arguments_size==0 {
+            err.set("Missing arg: filename")
+            return false
+        }
 
         uword real_filename_ptr = main.file_lookup_matching(main.command_arguments_ptr, true)
         if real_filename_ptr!=0 {
@@ -51,7 +53,7 @@ misc_commands {
             return true
         }
         if not err.error_status
-            return err.set("File not found")
+            err.set("File not found")
         return false
     }
 
@@ -70,16 +72,20 @@ misc_commands {
     }
 
     sub cmd_color() -> bool {
-        if main.command_arguments_size==0
-            return err.set("Missing args: textcolor,bgcolor,bordercolor")
+        if main.command_arguments_size==0 {
+            err.set("Missing args: textcolor,bgcolor,bordercolor")
+            return false
+        }
 
         ubyte txtcol = conv.str2ubyte(main.command_arguments_ptr) & 15
         main.command_arguments_ptr += cx16.r15 + 1
         ubyte bgcol = conv.str2ubyte(main.command_arguments_ptr) & 15
         main.command_arguments_ptr += cx16.r15 + 1
 
-        if txtcol==bgcol
-            return err.set("Text and bg color are the same")
+        if txtcol==bgcol {
+            err.set("Text and bg color are the same")
+            return false
+        }
 
         main.COLOR_NORMAL = txtcol
         main.COLOR_BACKGROUND = bgcol
@@ -90,25 +96,33 @@ misc_commands {
     }
 
     sub cmd_highlight_color() -> bool {
-        if main.command_arguments_size==0
-            return err.set("Missing args: strongcolor,promptcolor,errcolor")
+        if main.command_arguments_size==0 {
+            err.set("Missing args: strongcolor,promptcolor,errcolor")
+            return false
+        }
 
         ubyte strcol = conv.str2ubyte(main.command_arguments_ptr) & 15
         main.command_arguments_ptr += cx16.r15 + 1
         
-        if strcol==main.COLOR_BACKGROUND
-            return err.set("Highlight and bg color are the same")
+        if strcol==main.COLOR_BACKGROUND {
+            err.set("Highlight and bg color are the same")
+            return false
+        }
 
         ubyte prptcol = conv.str2ubyte(main.command_arguments_ptr) & 15
         main.command_arguments_ptr += cx16.r15 + 1
 
         ubyte errcol = conv.str2ubyte(main.command_arguments_ptr)
 
-        if errcol==main.COLOR_BACKGROUND
-            return err.set("Error and bg color are the same")
+        if errcol==main.COLOR_BACKGROUND {
+            err.set("Error and bg color are the same")
+            return false
+        }
 
-        if errcol==main.COLOR_NORMAL
-            return err.set("Error and text color are the same")
+        if errcol==main.COLOR_NORMAL {
+            err.set("Error and text color are the same")
+            return false
+        }
 
         txt.print("H: ")
         txt.color(main.COLOR_HIGHLIGHT)
@@ -164,13 +178,15 @@ misc_commands {
         }
         if conv.any2uword(main.command_arguments_ptr)!=0 {
             if cx16.r15L>11 {
-                return err.set("Invalid mode (0-11)")
+                err.set("Invalid mode (0-11)")
+                return false
             }
             void cx16.screen_mode(cx16.r15L, false)
             main.init_screen()
             return true
         } else {
-            return err.set("Invalid mode (0-11)")
+            err.set("Invalid mode (0-11)")
+            return false
         }
     }
 
@@ -190,8 +206,10 @@ misc_commands {
     }
 
     sub cmd_printnumber() -> bool {
-        if main.command_arguments_size==0
-            return err.set("Missing arg: number (can use % and $ prefixes too)")
+        if main.command_arguments_size==0 {
+            err.set("Missing arg: number (can use % and $ prefixes too)")
+            return false
+        }
 
         if conv.any2uword(main.command_arguments_ptr)!=0 {
             txt.spc()
@@ -203,7 +221,8 @@ misc_commands {
             txt.nl()
             return true
         } else {
-            return err.set("Invalid number")
+            err.set("Invalid number")
+            return false
         }
     }
 
@@ -264,7 +283,8 @@ misc_commands {
             sys.disable_caseswitch()
             return true
         } else {
-            return err.set("no x16edit found in rom")
+            err.set("no x16edit found in rom")
+            return false
         }
     }
 }

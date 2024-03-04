@@ -46,7 +46,7 @@ main {
                         if lsb(call(command_routine))!=0   ; indirect JSR, only returning a byte in this case
                             err.clear()
                         else if not err.error_status
-                            void err.set("Unspecified error")
+                            err.set("Unspecified error")
                     } else {
                         ; see if there is an external shell command in the SHELL-CMDS subdirectory that matches
                         diskio.list_filename = petscii:"//shell-cmds/:"
@@ -74,12 +74,12 @@ main {
                                     }
                                 }
                                 else
-                                    void err.set("Invalid command")
+                                    err.set("Invalid command")
                             }
                         }
                     }
                 } else {
-                    void err.set("Invalid input")
+                    err.set("Invalid input")
                 }
             }
         }
@@ -250,14 +250,14 @@ main {
                     }
                 } else if only_programs and string.compare(command_word, filename_ptr)==0 {
                     diskio.lf_end_list()
-                    void err.set("Not a program")
+                    err.set("Not a program")
                     return 0
                 }
             }
             diskio.lf_end_list()
             return 0
         } else {
-            void err.set(diskio.status())
+            err.set(diskio.status())
             return 0
         }
     }
@@ -363,7 +363,8 @@ main {
                 }
             }
         }
-        return err.set("File not found")
+        err.set("File not found")
+        return false
     }
 
     sub extcommand_get_colors() -> uword {

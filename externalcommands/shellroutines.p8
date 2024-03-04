@@ -13,7 +13,7 @@ shell {
     romsub $07f4 = print_uwhex(uword value @ AY, bool prefix @ Pc) clobbers(A,Y)
     romsub $07f7 = print_uwbin(uword value @ AY, bool prefix @ Pc) clobbers(A,Y)
     romsub $07fa = input_chars(uword buffer @ AY) clobbers(A) -> ubyte @Y
-    romsub $07fd = err_set(str message @AY) clobbers(Y) -> bool @A
+    romsub $07fd = err_set(str message @AY) clobbers(A,Y)
 
     ; command receives arguments at $0:BF00 (zero terminated, see  https://github.com/X16Community/x16-docs/blob/master/X16%20Reference%20-%2007%20-%20Memory%20Map.md#bank-0)
     ;         (you can use the cx16.get_program_args routine to retrieve them)
