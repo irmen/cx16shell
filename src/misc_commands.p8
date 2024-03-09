@@ -6,9 +6,10 @@
 misc_commands {
 
     uword[] commands_table = [
+        "help", &cmd_help,
         "basic", &cmd_basic,
         "exit", &cmd_basic,
-        "help", &cmd_help,
+        "mon", &cmd_mon,
         "motd", &cmd_motd,
         "num", &cmd_printnumber,
         "run", &cmd_run,
@@ -286,5 +287,13 @@ misc_commands {
             err.set("no x16edit found in rom")
             return false
         }
+    }
+
+    sub cmd_mon() -> bool {
+        txt.print("Entering the machine language monitor.\r")
+        txt.print("(use 'G' without args, to return directly back to the shell)\r")
+        cx16.monitor()
+        txt.nl()
+        return true
     }
 }

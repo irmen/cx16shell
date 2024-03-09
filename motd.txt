@@ -2,3 +2,4 @@ Hello!
 This is the file "SHELL-CMDS/motd.txt".
 If this file exists, its contents will be printed upon startup.
 You can always display it again with the 'motd' command.
+Type 'help' to see a list of the available commands.

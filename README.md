@@ -91,5 +91,7 @@ The "ext-command.p8" source file contains a piece of example Prog8 source code o
 - add a (external) 'view' command to view images (make it part of the imageviewer project)
 - typing a filename with a known image suffix should launch the 'view' program automatically
 - do the same for sound files including zsm / zcm
+- new memory layout? Shell program at the top of memory (say $6000-$9f00) so that you can load regular programs at $0801? What about the external commands? No longer forced to start at $4000 but just regular programs?
+- vi should launch the external xvi program if it exists (needs the previous change)
 
 ...
