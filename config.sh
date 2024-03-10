@@ -2,7 +2,7 @@
 # note: character encoding is ISO!
 # note2: keep the size under 1 kilobyte otherwise it overwrites basic program memory!
 
-# Screen mode and colors. Uncomment to keep the defaults.
+# Screen mode and colors. Comment out to keep the defaults.
 mode 1
 color 1,11,11
 hicolor 14,13,10
@@ -18,10 +18,9 @@ alias pico=nano
 alias edit=nano
 alias date=time
 
-# Display the Message of the Day.
-# TODO uncomment this after the file load conflict is solved
-# cat //shell-cmds/:motd.txt
-
 echo
 echo "  Commander-X16 Shell v1.3 - https://github.com/irmen/cx16shell"
 echo
+
+# Display the Message of the Day.
+cat //shell-cmds/:motd.txt
