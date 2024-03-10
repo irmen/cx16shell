@@ -12,7 +12,7 @@ aliases {
     sub lookup(str name) -> str {
         cx16.r0L = find_alias(name)
         if cx16.r0L==255
-            return 0
+            return $0000
 
         return &alias_defs + cx16.r0L
     }
