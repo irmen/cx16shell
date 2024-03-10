@@ -57,20 +57,19 @@ main {
         cx16.r0 = diskio.load_raw(configfile, script_buffer)            ; TODO be smarter to not overwrite basic memory if script > 1kb
         if cx16.r0!=0 {
             @(cx16.r0)=0
+            @(cx16.r0+1)=0
             uword script_ptr = script_buffer
             do {
                 ubyte eol_index = string.find(script_ptr, '\n')
-                if_cs {
-                    script_ptr[eol_index] = 0
-                    command_line = script_ptr
-                    if not process_command(eol_index) {
-                        err.set("error in config script")
-                        break
-                    }
-                    script_ptr += eol_index + 1
-                } else {
+                if_cc
+                    eol_index = string.length(script_ptr)       ; last line without \n at the end
+                script_ptr[eol_index] = 0
+                command_line = script_ptr
+                if not process_command(eol_index) {
+                    err.set("error in config script")
                     break
                 }
+                script_ptr += eol_index + 1
             } until @(script_ptr)==0
         } else {
             diskio.send_command(petscii:"i")
