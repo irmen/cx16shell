@@ -11,8 +11,7 @@ emu:  all
 	mcopy -D o ext-command.prg x:SHELL-CMDS/EXT-COMMAND
 	mcopy -D o neofetch.prg x:SHELL-CMDS/NEOFETCH
 	mcopy -D o time.prg x:SHELL-CMDS/TIME
-	mcopy -D o time.prg x:SHELL-CMDS/DATE
-	mcopy -D o motd.txt x:SHELL-CMDS/motd.txt
+	mcopy -D o config.sh motd.txt x:SHELL-CMDS/
 	PULSE_LATENCY_MSEC=20 x16emu -sdcard ~/cx16sdcard.img -scale 2 -quality best -run -prg shell.prg -rtc -debug
 
 shell.prg: src/shell.p8 src/aliases.p8 src/errors.p8 src/disk_commands.p8 src/misc_commands.p8
@@ -35,5 +34,5 @@ zip: all
 	cp ext-command.prg SHELL-CMDS/EXT-COMMAND
 	cp neofetch.prg SHELL-CMDS/NEOFETCH
 	cp time.prg SHELL-CMDS/TIME
-	cp time.prg SHELL-CMDS/DATE
+	cp config.sh motd.txt SHELL-CMDS/
 	7z a shell.zip SHELL.PRG SHELL-CMDS

@@ -10,8 +10,8 @@
 
 main {
     ubyte COLOR_NORMAL = 1
-    ubyte COLOR_BACKGROUND = 11
-    ubyte COLOR_HIGHLIGHT = 14
+    ubyte COLOR_BACKGROUND = 6
+    ubyte COLOR_HIGHLIGHT = 3
     ubyte COLOR_HIGHLIGHT_PROMPT = 13
     ubyte COLOR_ERROR = 10
     str command_line = "?" * 160
@@ -24,8 +24,7 @@ main {
     sub start() {
         cx16.rombank(0)     ; switch to kernal rom bank for faster operation
         init_screen()
-        setup_aliases()     ; TODO move this to the startup/config file
-        print_intro()
+        load_config()
 
         repeat {
             txt.color(COLOR_HIGHLIGHT_PROMPT)
@@ -39,50 +38,8 @@ main {
 
             if input_size!=0 and command_line[0]!=159 {
                 txt.nl()
-                if parse_input(input_size) {
-                    uword aliased_cmd = aliases.lookup(command_word)
-                    if aliased_cmd!=0
-                        command_word = aliased_cmd
-                    uword command_routine = commands.recognized(command_word)
-                    if command_routine!=0 {
-                        if lsb(call(command_routine))!=0   ; indirect JSR, only returning a byte in this case
-                            err.clear()
-                        else if not err.error_status
-                            err.set("Unspecified error")
-                    } else {
-                        ; see if there is an external shell command in the SHELL-CMDS subdirectory that matches
-                        diskio.list_filename = petscii:"//shell-cmds/:"
-                        void string.copy(command_word, &diskio.list_filename+14)
-                        if diskio.load(diskio.list_filename, 0)!=0
-                            void run_external_command()
-                        else {
-                            if command_line==".." {
-                                txt.print("cd into directory. ")
-                                command_arguments_ptr = ".."
-                                command_arguments_size = string.length(command_arguments_ptr)
-                                void disk_commands.cmd_cd()
-                            } else {
-                                ; see if there is a program file that matches
-                                uword real_filename_ptr = file_lookup_matching(command_line, true)
-                                if real_filename_ptr!=0 {
-                                    command_word = real_filename_ptr
-                                    if is_directory(command_word) {
-                                        txt.print("cd into directory. ")
-                                        command_arguments_ptr = command_word
-                                        command_arguments_size = string.length(command_arguments_ptr)
-                                        void disk_commands.cmd_cd()
-                                    } else if not err.error_status {
-                                        run_file(command_word, false)
-                                    }
-                                }
-                                else
-                                    err.set("Invalid command")
-                            }
-                        }
-                    }
-                } else {
+                if not process_command(input_size)
                     err.set("Invalid input")
-                }
             }
         }
     }
@@ -90,20 +47,84 @@ main {
     sub init_screen() {
         txt.color2(COLOR_NORMAL, COLOR_BACKGROUND)
         cx16.VERA_DC_BORDER = COLOR_BACKGROUND
-        txt.clear_screen()
         txt.iso()
+        txt.clear_screen()
     }
 
-    sub setup_aliases() {
-        void aliases.add("dir","ls")
-        void aliases.add("type","cat")
-        void aliases.add("del","rm")
-        void aliases.add("ren","mv")
-        void aliases.add("copy","cp")
-        void aliases.add("basic","exit")
-        void aliases.add("vi","nano")
-        void aliases.add("pico","nano")
-        void aliases.add("edit","nano")
+    sub load_config() {
+        str configfile = petscii:"//shell-cmds/:config.sh"
+        const uword script_buffer = $0400
+        cx16.r0 = diskio.load_raw(configfile, script_buffer)            ; TODO be smarter to not overwrite basic memory if script > 1kb
+        if cx16.r0!=0 {
+            @(cx16.r0)=0
+            uword script_ptr = script_buffer
+            do {
+                ubyte eol_index = string.find(script_ptr, '\n')
+                if_cs {
+                    script_ptr[eol_index] = 0
+                    command_line = script_ptr
+                    if not process_command(eol_index) {
+                        err.set("error in config script")
+                        break
+                    }
+                    script_ptr += eol_index + 1
+                } else {
+                    break
+                }
+            } until @(script_ptr)==0
+        } else {
+            diskio.send_command(petscii:"i")
+        }
+    }
+
+    sub process_command(ubyte input_size) -> bool {
+        if input_size==0
+            return true
+        if not parse_input(input_size)
+            return false
+        if command_word[0]=='#'
+            return true     ; whole line is a comment
+        uword aliased_cmd = aliases.lookup(command_word)
+        if aliased_cmd!=0
+            command_word = aliased_cmd
+        uword command_routine = commands.recognized(command_word)
+        if command_routine!=0 {
+            if lsb(call(command_routine))!=0   ; indirect JSR, only returning a byte in this case
+                err.clear()
+            else if not err.error_status
+                err.set("Unspecified error")
+        } else {
+            ; see if there is an external shell command in the SHELL-CMDS subdirectory that matches
+            diskio.list_filename = petscii:"//shell-cmds/:"
+            void string.copy(command_word, &diskio.list_filename+14)
+            if diskio.load(diskio.list_filename, 0)!=0
+                void run_external_command()
+            else {
+                if command_line==".." {
+                    txt.print("cd into directory. ")
+                    command_arguments_ptr = ".."
+                    command_arguments_size = string.length(command_arguments_ptr)
+                    void disk_commands.cmd_cd()
+                } else {
+                    ; see if there is a program file that matches
+                    uword real_filename_ptr = file_lookup_matching(command_line, true)
+                    if real_filename_ptr!=0 {
+                        command_word = real_filename_ptr
+                        if is_directory(command_word) {
+                            txt.print("cd into directory. ")
+                            command_arguments_ptr = command_word
+                            command_arguments_size = string.length(command_arguments_ptr)
+                            void disk_commands.cmd_cd()
+                        } else if not err.error_status {
+                            run_file(command_word, false)
+                        }
+                    }
+                    else
+                        err.set("Invalid command")
+                }
+            }
+        }
+        return true
     }
 
     sub keystroke_handler() -> ubyte {
@@ -216,24 +237,6 @@ main {
         void string.upper(command_word)      ; for ISO charset, this actually does a *lower*casing instead.
 
         return length>0
-    }
-
-    sub print_intro() {
-        txt.color2(COLOR_NORMAL, COLOR_BACKGROUND)
-        txt.clear_screen()
-
-        txt.color(COLOR_HIGHLIGHT_PROMPT)
-        txt.print("\r  Commander-X16 SHELL v")
-        txt.print(main.extcommand_shell_version.version_string)
-        txt.color(COLOR_NORMAL)
-        txt.print(" - https://github.com/irmen/cx16shell\r\r")
-
-        if diskio.f_open(misc_commands.motd_file) {
-            diskio.f_close()
-            void misc_commands.cmd_motd()
-        } else {
-            diskio.send_command(petscii:"i")
-        }
     }
 
     sub file_lookup_matching(uword filename_ptr, bool only_programs) -> uword {
@@ -392,7 +395,7 @@ main {
     }
 
     sub extcommand_shell_version() -> str {
-        str version_string="1.2"
+        str version_string="1.3"
         return version_string
     }
 }
@@ -404,7 +407,6 @@ commands {
         "unalias", &misc_commands.cmd_unalias,
         "exit", &misc_commands.cmd_exit,
         "mon", &misc_commands.cmd_mon,
-        "motd", &misc_commands.cmd_motd,
         "num", &misc_commands.cmd_printnumber,
         "run", &misc_commands.cmd_run,
         "nano", &misc_commands.cmd_edit,

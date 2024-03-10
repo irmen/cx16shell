@@ -6,8 +6,6 @@
 
 misc_commands {
 
-    str motd_file = petscii:"//shell-cmds/:motd.txt"
-
     sub cmd_exit() -> bool {
         txt.color2(1, 6)
         txt.iso_off()
@@ -40,15 +38,49 @@ misc_commands {
         if main.command_arguments_size!=0 {
             while string.isspace(@(main.command_arguments_ptr))
                 main.command_arguments_ptr++
-            txt.print(main.command_arguments_ptr)
+            while @(main.command_arguments_ptr)!=0 {
+                when @(main.command_arguments_ptr) {
+                    '\\' -> {
+                        main.command_arguments_ptr++
+                        when @(main.command_arguments_ptr) {
+                            '\\' -> txt.chrout('\\')
+                            '"' -> txt.chrout('"')
+                            's' -> txt.spc()
+                            'n' -> txt.nl()
+                            'b' -> txt.bell()
+                            'x' -> {
+                                str hex = "??"
+                                main.command_arguments_ptr++
+                                hex[0] = @(main.command_arguments_ptr)
+                                main.command_arguments_ptr++
+                                hex[1] = @(main.command_arguments_ptr)
+                                txt.chrout(conv.hex2uword(hex) as ubyte)
+                            }
+                            0 -> return true
+                            else -> txt.chrout(@(main.command_arguments_ptr))
+                        }
+                    }
+                    0 -> break
+                    '"' -> { /* quotes need to be escaped */ }
+                    else -> txt.chrout(@(main.command_arguments_ptr))
+                }
+                main.command_arguments_ptr++
+            }
         }
+        txt.nl()
         return true
     }
 
     sub cmd_color() -> bool {
         if main.command_arguments_size==0 {
-            err.no_args("textcolor,bgcolor,bordercolor")
-            return false
+            txt.print("Current: text=")
+            txt.print_ub(main.COLOR_NORMAL)
+            txt.print(" bg=")
+            txt.print_ub(main.COLOR_BACKGROUND)
+            txt.print(" border=")
+            txt.print_ub(cx16.VERA_DC_BORDER)
+            txt.nl()
+            return true
         }
 
         ubyte txtcol = conv.str2ubyte(main.command_arguments_ptr) & 15
@@ -71,8 +103,14 @@ misc_commands {
 
     sub cmd_highlight_color() -> bool {
         if main.command_arguments_size==0 {
-            err.no_args("strongcolor,promptcolor,errcolor")
-            return false
+            txt.print("Current: highlight=")
+            txt.print_ub(main.COLOR_HIGHLIGHT)
+            txt.print(" prompt=")
+            txt.print_ub(main.COLOR_HIGHLIGHT_PROMPT)
+            txt.print(" error=")
+            txt.print_ub(main.COLOR_ERROR)
+            txt.nl()
+            return true
         }
 
         ubyte strcol = conv.str2ubyte(main.command_arguments_ptr) & 15
@@ -98,34 +136,6 @@ misc_commands {
             return false
         }
 
-        txt.print("H: ")
-        txt.color(main.COLOR_HIGHLIGHT)
-        txt.print_ub(main.COLOR_HIGHLIGHT)
-        txt.color(main.COLOR_NORMAL)
-        txt.print("->")
-        txt.color(strcol)
-        txt.print_ub(strcol)
-        txt.color(main.COLOR_NORMAL)
-
-        txt.print("\rP: ")
-        txt.color(main.COLOR_HIGHLIGHT_PROMPT)
-        txt.print_ub(main.COLOR_HIGHLIGHT_PROMPT)
-        txt.color(main.COLOR_NORMAL)
-        txt.print("->")
-        txt.color(prptcol)
-        txt.print_ub(prptcol)
-        txt.color(main.COLOR_NORMAL)
-
-        txt.print("\rE: ")
-        txt.color(main.COLOR_ERROR)
-        txt.print_ub(main.COLOR_ERROR)
-        txt.color(main.COLOR_NORMAL)
-        txt.print("->")
-        txt.color(errcol)
-        txt.print_ub(errcol)
-        txt.color(main.COLOR_NORMAL)
-
-
         main.COLOR_HIGHLIGHT = strcol
         main.COLOR_HIGHLIGHT_PROMPT = prptcol
         main.COLOR_ERROR = errcol
@@ -135,12 +145,7 @@ misc_commands {
 
     sub cmd_mode() -> bool {
         if main.command_arguments_size==0 {
-            void cx16.get_screen_mode()
-            %asm {{
-                sta  cx16.r2L
-                stx  cx16.r3L
-                sty  cx16.r4L
-            }}
+            get_active_mode()
             txt.print("Active screen mode: ")
             txt.print_ub(cx16.r2L)
             txt.print(" (")
@@ -155,12 +160,24 @@ misc_commands {
                 err.set("Invalid mode (0-11)")
                 return false
             }
-            void cx16.screen_mode(cx16.r15L, false)
-            main.init_screen()
+            get_active_mode()
+            if cx16.r2L != cx16.r15L {
+                void cx16.screen_mode(cx16.r15L, false)
+                main.init_screen()
+            }
             return true
         } else {
             err.set("Invalid mode (0-11)")
             return false
+        }
+
+        sub get_active_mode() {
+            void cx16.get_screen_mode()
+            %asm {{
+                sta  cx16.r2L
+                stx  cx16.r3L
+                sty  cx16.r4L
+            }}
         }
     }
 
@@ -200,15 +217,6 @@ misc_commands {
         }
     }
 
-    sub cmd_motd() -> bool {
-        txt.color(main.COLOR_HIGHLIGHT)
-        txt.print("Message Of The Day (motd.txt):\r")
-        txt.color(main.COLOR_NORMAL)
-        main.command_arguments_ptr = &motd_file
-        main.command_arguments_size = string.length(motd_file)
-        return disk_commands.cmd_cat()
-    }
-
     sub cmd_help() -> bool {
         txt.color(main.COLOR_HIGHLIGHT)
         txt.print("Builtin Commands:\r")
@@ -239,12 +247,14 @@ misc_commands {
         ; activate rom based x16edit, see https://github.com/stefan-b-jakobsson/x16-edit/tree/master/docs
         ubyte x16edit_bank = cx16.search_x16edit()
         if x16edit_bank<255 {
-            sys.enable_caseswitch()     ; workaround for character set issue in X16Edit 0.7.1
             ;; void cx16.screen_mode(0, false)   ; back to 80x60 mode?
-            txt.iso_off()
             ubyte filename_length = 0
-            if main.command_arguments_ptr!=0
+            if main.command_arguments_ptr!=0 {
                 filename_length = main.command_arguments_size
+                if not string.endswith(main.command_arguments_ptr, ".sh")
+                    txt.iso_off()
+            } else
+                txt.iso_off()
             ubyte old_bank = cx16.getrombank()
             cx16.rombank(x16edit_bank)
             cx16.x16edit_loadfile_options(1, 255, main.command_arguments_ptr,
@@ -254,7 +264,6 @@ misc_commands {
                 mkword(0,0))
             cx16.rombank(0)
             main.init_screen()
-            sys.disable_caseswitch()
             return true
         } else {
             err.set("no x16edit found in rom")

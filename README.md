@@ -27,23 +27,30 @@ Type "help" at the prompt to get a list of the built-in commands.
 | command                | explanation                                                                                 |
 |------------------------|---------------------------------------------------------------------------------------------|
 | help                   | show short list of commands                                                                 |
-| motd                   | show the contents of the "motd.txt" file if it exists in SHELL-CMDS                         |
-| basic , exit           | return back to Basic prompt                                                                 |
+| alias                  | create a new command alias                                                                  | 
+| unalias                | remove an existing command alias                                                            | 
+| exit                   | return back to Basic prompt                                                                 |
+| mon                    | enter the machine code monitor program                                                      |
 | num                    | print number in various bases, accepts $hex, %binary and normal decimal                     |
 | run  ,<br/> *filename* | loads and executes the given file. You can omit any .PRG suffix and is case insensitive.    |
-| vi , ed                | uses X16Edit (in Rom or on disk) to edit the given text file  (see note below)              |       
+| nano                   | uses X16Edit (in Rom or on disk) to edit the given text file  (see note below)              |       
+| mem                    | show some memory information                                                                |       
+| cls                    | clear the screen                                                                            |       
+| echo                   | print something to the screen. Accepts some escaped characters and \xAB to print char $AB   |       
+| mode                   | change screen mode                                                                          |
+| color                  | change main screen colors                                                                   |
+| hicolor                | change highlight screen colors                                                              |
 | ls                     | shows files on disk. You can provide an optional pattern to match such as *.ASM or H???.TXT |
 | cat                    | prints the contents of the given text file on the screen                                    |       
-| rm , del               | remove given file from the disk                                                             |       
-| mv , ren               | rename given file to given new filename                                                     |
+| rm                     | remove given file from the disk                                                             |       
+| mv                     | rename given file to given new filename                                                     |
 | cp                     | copy given file to new file                                                                 |
-| pwd                    | show current drive information                                                              |       
 | cd                     | change current working directory                                                            |
+| pwd                    | show current drive information                                                              |       
 | mkdir                  | create a new directory                                                                      |       
 | rmdir                  | remove existing directory                                                                   |       
 | relabel                | change disk name                                                                            |       
 | drive                  | change current drive                                                                        |       
-| mem                    | show some memory information                                                                |       
 
 You can also type the name of an "external command" program, located in the SHELL-CMDS subdirectory.
 Finally you can simply type the name of a program to launch (no file extension required, case-insensitive).
@@ -52,6 +59,13 @@ Finally you can simply type the name of a program to launch (no file extension r
 
 You can use tab for filename completion (case-sensitive).
 
+## Startup config script
+
+If a "config.sh" script file exists in the SHELL-CMDS subdirectory, this will be loaded and executed
+at startup. Every line will be executed as a shell command. Empty lines or lines starting with a '#' will be skipped.
+
+The default config.sh file contains a bunch of command aliases, sets the screen mode and changes the color scheme,
+and prints a welcome message. You can change the script however you like, just remember that it is saved in ISO character encoding.
 
 ## External commands
 
@@ -92,6 +106,5 @@ The "ext-command.p8" source file contains a piece of example Prog8 source code o
 - typing a filename with a known image suffix should launch the 'view' program automatically
 - do the same for sound files including zsm / zcm
 - new memory layout? Shell program at the top of memory (say $6000-$9f00) so that you can load regular programs at $0801? What about the external commands? No longer forced to start at $4000 but just regular programs?
-- vi should launch the external xvi program if it exists (needs the previous change)
 
 ...
