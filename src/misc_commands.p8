@@ -1,41 +1,14 @@
 %import textio
 %import errors
 %import conv
+%import aliases
 %encoding iso
 
 misc_commands {
 
-    uword[] commands_table = [
-        "help", &cmd_help,
-        "basic", &cmd_basic,
-        "exit", &cmd_basic,
-        "mon", &cmd_mon,
-        "motd", &cmd_motd,
-        "num", &cmd_printnumber,
-        "run", &cmd_run,
-        "vi", &cmd_edit,
-        "pico", &cmd_edit,
-        "nano", &cmd_edit,
-        "mem", &cmd_mem,
-        "cls", &cmd_cls,
-        "echo", &cmd_echo,
-        "mode", &cmd_mode,
-        "color", &cmd_color,
-        "hicolor", &cmd_highlight_color
-    ]
-
     str motd_file = petscii:"//shell-cmds/:motd.txt"
 
-    sub recognized(str cmdword, ubyte length) -> uword {
-        ubyte idx
-        for idx in 0 to len(commands_table)-1 step 2 {
-            if string.compare(cmdword, commands_table[idx])==0
-                return commands_table[idx+1]
-        }
-        return 0
-    }
-
-    sub cmd_basic() -> bool {
+    sub cmd_exit() -> bool {
         txt.color2(1, 6)
         txt.iso_off()
         sys.exit(0)
@@ -44,7 +17,7 @@ misc_commands {
 
     sub cmd_run() -> bool {
         if main.command_arguments_size==0 {
-            err.set("Missing arg: filename")
+            err.no_args("filename")
             return false
         }
 
@@ -74,7 +47,7 @@ misc_commands {
 
     sub cmd_color() -> bool {
         if main.command_arguments_size==0 {
-            err.set("Missing args: textcolor,bgcolor,bordercolor")
+            err.no_args("textcolor,bgcolor,bordercolor")
             return false
         }
 
@@ -98,7 +71,7 @@ misc_commands {
 
     sub cmd_highlight_color() -> bool {
         if main.command_arguments_size==0 {
-            err.set("Missing args: strongcolor,promptcolor,errcolor")
+            err.no_args("strongcolor,promptcolor,errcolor")
             return false
         }
 
@@ -208,7 +181,7 @@ misc_commands {
 
     sub cmd_printnumber() -> bool {
         if main.command_arguments_size==0 {
-            err.set("Missing arg: number (can use % and $ prefixes too)")
+            err.no_args("number (can use % and $ prefixes too)")
             return false
         }
 
@@ -241,16 +214,16 @@ misc_commands {
         txt.print("Builtin Commands:\r")
         txt.color(main.COLOR_NORMAL)
         ubyte idx
-        for idx in 0 to len(misc_commands.commands_table)-1 step 2 {
-            txt.print(misc_commands.commands_table[idx])
+        for idx in 0 to len(commands.commands_table)-1 step 2 {
+            txt.print(commands.commands_table[idx])
             txt.spc()
             txt.spc()
         }
-        txt.nl()
-        for idx in 0 to len(disk_commands.commands_table)-1 step 2 {
-            txt.print(disk_commands.commands_table[idx])
-            txt.spc()
-            txt.spc()
+        if aliases.num_aliases!=0 {
+            txt.color(main.COLOR_HIGHLIGHT)
+            txt.print("\rAliases:\r")
+            txt.color(main.COLOR_NORMAL)
+            aliases.print_list()
         }
         txt.color(main.COLOR_HIGHLIGHT)
         txt.print("\rCommands on disk:\r")
@@ -294,6 +267,31 @@ misc_commands {
         txt.print("(use 'G' without args, to return directly back to the shell)\r")
         cx16.monitor()
         txt.nl()
+        return true
+    }
+
+    sub cmd_alias() -> bool {
+        if main.command_arguments_size==0 {
+            aliases.print_table()
+            return true
+        }
+        ubyte equals_idx = string.find(main.command_arguments_ptr, '=')
+        if_cs {
+            uword def_ptr = main.command_arguments_ptr + equals_idx + 1
+            main.command_arguments_ptr[equals_idx] = 0
+            return aliases.add(main.command_arguments_ptr, def_ptr)
+        }
+        err.no_args("alias=command")
+        return false
+
+    }
+
+    sub cmd_unalias() -> bool {
+        if main.command_arguments_size==0 {
+            err.no_args("alias")
+            return false
+        }
+        aliases.remove(main.command_arguments_ptr)
         return true
     }
 }

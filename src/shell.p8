@@ -22,8 +22,9 @@ main {
 
 
     sub start() {
-        cx16.rombank(0)     ; switch to kernal rom for faster operation
+        cx16.rombank(0)     ; switch to kernal rom bank for faster operation
         init_screen()
+        setup_aliases()     ; TODO move this to the startup/config file
         print_intro()
 
         repeat {
@@ -39,9 +40,10 @@ main {
             if input_size!=0 and command_line[0]!=159 {
                 txt.nl()
                 if parse_input(input_size) {
-                    uword command_routine = disk_commands.recognized(command_line, command_word_size)
-                    if command_routine==0
-                        command_routine = misc_commands.recognized(command_line, command_word_size)
+                    uword aliased_cmd = aliases.lookup(command_word)
+                    if aliased_cmd!=0
+                        command_word = aliased_cmd
+                    uword command_routine = commands.recognized(command_word)
                     if command_routine!=0 {
                         if lsb(call(command_routine))!=0   ; indirect JSR, only returning a byte in this case
                             err.clear()
@@ -90,6 +92,18 @@ main {
         cx16.VERA_DC_BORDER = COLOR_BACKGROUND
         txt.clear_screen()
         txt.iso()
+    }
+
+    sub setup_aliases() {
+        void aliases.add("dir","ls")
+        void aliases.add("type","cat")
+        void aliases.add("del","rm")
+        void aliases.add("ren","mv")
+        void aliases.add("copy","cp")
+        void aliases.add("basic","exit")
+        void aliases.add("vi","nano")
+        void aliases.add("pico","nano")
+        void aliases.add("edit","nano")
     }
 
     sub keystroke_handler() -> ubyte {
@@ -380,5 +394,45 @@ main {
     sub extcommand_shell_version() -> str {
         str version_string="1.2"
         return version_string
+    }
+}
+
+commands {
+    uword[] commands_table = [
+        "help", &misc_commands.cmd_help,
+        "alias", &misc_commands.cmd_alias,
+        "unalias", &misc_commands.cmd_unalias,
+        "exit", &misc_commands.cmd_exit,
+        "mon", &misc_commands.cmd_mon,
+        "motd", &misc_commands.cmd_motd,
+        "num", &misc_commands.cmd_printnumber,
+        "run", &misc_commands.cmd_run,
+        "nano", &misc_commands.cmd_edit,
+        "mem", &misc_commands.cmd_mem,
+        "cls", &misc_commands.cmd_cls,
+        "echo", &misc_commands.cmd_echo,
+        "mode", &misc_commands.cmd_mode,
+        "color", &misc_commands.cmd_color,
+        "hicolor", &misc_commands.cmd_highlight_color,
+        "ls", &disk_commands.cmd_ls,
+        "cat", &disk_commands.cmd_cat,
+        "rm", &disk_commands.cmd_rm,
+        "mv", &disk_commands.cmd_rename,
+        "cp", &disk_commands.cmd_copy,
+        "cd", &disk_commands.cmd_cd,
+        "pwd", &disk_commands.cmd_pwd,
+        "mkdir", &disk_commands.cmd_mkdir,
+        "rmdir", &disk_commands.cmd_rmdir,
+        "relabel", &disk_commands.cmd_relabel,
+        "drive", &disk_commands.cmd_drive
+    ]
+
+    sub recognized(str cmdword) -> uword {
+        ubyte idx
+        for idx in 0 to len(commands_table)-1 step 2 {
+            if string.compare(cmdword, commands_table[idx])==0
+                return commands_table[idx+1]
+        }
+        return 0
     }
 }

@@ -15,7 +15,7 @@ emu:  all
 	mcopy -D o motd.txt x:SHELL-CMDS/motd.txt
 	PULSE_LATENCY_MSEC=20 x16emu -sdcard ~/cx16sdcard.img -scale 2 -quality best -run -prg shell.prg -rtc -debug
 
-shell.prg: src/shell.p8 src/errors.p8 src/disk_commands.p8 src/misc_commands.p8
+shell.prg: src/shell.p8 src/aliases.p8 src/errors.p8 src/disk_commands.p8 src/misc_commands.p8
 	p8compile $< -target cx16 -sourcelines
 
 ext-command.prg: externalcommands/example/ext-command.p8 externalcommands/shellroutines.p8
