@@ -53,27 +53,8 @@ main {
 
     sub load_config() {
         str configfile = petscii:"//shell-cmds/:config.sh"
-        const uword script_buffer = $0400
-        cx16.r0 = diskio.load_raw(configfile, script_buffer)            ; TODO be smarter to not overwrite basic memory if script > 1kb
-        if cx16.r0!=0 {
-            @(cx16.r0)=0
-            @(cx16.r0+1)=0
-            uword script_ptr = script_buffer
-            do {
-                ubyte eol_index = string.find(script_ptr, '\n')
-                if_cc
-                    eol_index = string.length(script_ptr)       ; last line without \n at the end
-                script_ptr[eol_index] = 0
-                command_line = script_ptr
-                if not process_command(eol_index) {
-                    err.set("error in config script")
-                    break
-                }
-                script_ptr += eol_index + 1
-            } until @(script_ptr)==0
-        } else {
+        if not execute_script(configfile)
             diskio.send_command(petscii:"i")
-        }
     }
 
     sub process_command(ubyte input_size) -> bool {
@@ -96,34 +77,52 @@ main {
             ; see if there is an external shell command in the SHELL-CMDS subdirectory that matches
             diskio.list_filename = petscii:"//shell-cmds/:"
             void string.copy(command_word, &diskio.list_filename+14)
-            if diskio.load(diskio.list_filename, 0)!=0
-                void run_external_command()
-            else {
-                if command_line==".." {
-                    txt.print("cd into directory. ")
-                    command_arguments_ptr = ".."
-                    command_arguments_size = string.length(command_arguments_ptr)
-                    void disk_commands.cmd_cd()
-                } else {
-                    ; see if there is a program file that matches
-                    uword real_filename_ptr = file_lookup_matching(command_line, true)
-                    if real_filename_ptr!=0 {
-                        command_word = real_filename_ptr
-                        if is_directory(command_word) {
-                            txt.print("cd into directory. ")
-                            command_arguments_ptr = command_word
-                            command_arguments_size = string.length(command_arguments_ptr)
-                            void disk_commands.cmd_cd()
-                        } else if not err.error_status {
-                            run_file(command_word, false)
-                        }
+            if file_exists(diskio.list_filename) {
+                if string.endswith(diskio.list_filename, ".sh") or string.endswith(diskio.list_filename, petscii:".sh")
+                    run_file(diskio.list_filename, false)
+                else
+                    run_external_shell_command(diskio.list_filename)
+                return true
+            }
+
+            if command_line==".." {
+                txt.print("cd into directory. ")
+                command_arguments_ptr = ".."
+                command_arguments_size = string.length(command_arguments_ptr)
+                void disk_commands.cmd_cd()
+            } else {
+                ; see if there is a program file that matches
+                uword real_filename_ptr = file_lookup_matching(command_line, true)
+                if real_filename_ptr!=0 {
+                    command_word = real_filename_ptr
+                    if is_directory(command_word) {
+                        txt.print("cd into directory. ")
+                        command_arguments_ptr = command_word
+                        command_arguments_size = string.length(command_arguments_ptr)
+                        void disk_commands.cmd_cd()
+                    } else if not err.error_status {
+                        run_file(command_word, false)
                     }
-                    else
-                        err.set("Invalid command")
                 }
+                else
+                    err.set("Invalid command")
             }
         }
         return true
+    }
+
+    sub is_program_file(str name) -> bool {
+        if string.endswith(name, ".prg")
+            return true
+        return not string.contains(name, '.')
+    }
+
+    sub file_exists(str name) -> bool {
+        if diskio.f_open(name) {
+            diskio.f_close()
+            return true
+        }
+        return false
     }
 
     sub keystroke_handler() -> ubyte {
@@ -246,7 +245,7 @@ main {
             while diskio.lf_next_entry() {
                 command_word = diskio.list_filename
                 ubyte disk_name_length = string.lower(command_word)
-                bool has_prg_suffix = string.endswith(command_word, petscii:".prg")
+                bool has_prg_suffix = string.endswith(command_word, petscii:".prg") or string.endswith(command_word, petscii:".sh")
                 bool has_no_suffix = false
                 void string.find(command_word, '.')
                 if_cc
@@ -290,6 +289,11 @@ main {
     }
 
     sub run_file(uword filename_ptr, bool via_basic_load) {
+        if string.endswith(filename_ptr, ".sh") or string.endswith(filename_ptr, petscii:".sh") {       ; improve this check...?
+            void execute_script(filename_ptr)
+            return
+        }
+
         if via_basic_load {
             ; to avoid character translation issues, we remain in ISO charset mode to perform the actual LOAD.
             ; only right before issuing the RUN command we switch back to petscii mode.
@@ -316,10 +320,20 @@ main {
         }
     }
 
-    sub run_external_command() -> bool {
+    sub run_external_shell_command(str filename) {
+
+        if not is_program_file(filename) {
+            err.set("Not a program")
+            return
+        }
+
+        if diskio.load(filename, 0)==0 {
+            err.set(diskio.status())
+            return
+        }
+
         ; load the external command program that has already been loaded to $4000
         ; setup the 'shell bios' jump table
-
         const uword JUMPTABLE_TOP = $0800
         uword[] vectors = [
             ; NOTE:
@@ -354,7 +368,30 @@ main {
         cx16.r1 = call($4000)
         rrestore()
         diskio.drivenumber = sys.pop()
-        return cx16.r1L != 0
+    }
+
+    sub execute_script(str scriptname) -> bool {
+        const uword script_buffer = $0400
+        cx16.r0 = diskio.load_raw(scriptname, script_buffer)            ; TODO be smarter to not overwrite basic memory if script > 1kb
+        if cx16.r0!=0 {
+            @(cx16.r0)=0
+            @(cx16.r0+1)=0
+            uword script_ptr = script_buffer
+            do {
+                ubyte eol_index = string.find(script_ptr, '\n')
+                if_cc
+                    eol_index = string.length(script_ptr)       ; last line without \n at the end
+                script_ptr[eol_index] = 0
+                command_line = script_ptr
+                if not process_command(eol_index) {
+                    err.set("error in config script")
+                    return false
+                }
+                script_ptr += eol_index + 1
+            } until @(script_ptr)==0
+            return true
+        }
+        return false
     }
 
     sub print_uw_right(uword value) {
@@ -394,7 +431,7 @@ main {
     }
 
     sub extcommand_shell_version() -> str {
-        str version_string="1.3"
+        str version_string="1.4"
         return version_string
     }
 }

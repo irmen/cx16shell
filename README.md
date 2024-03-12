@@ -59,13 +59,19 @@ Finally you can simply type the name of a program to launch (no file extension r
 
 You can use tab for filename completion (case-sensitive).
 
-## Startup config script
+## Startup config script and running user scripts
 
 If a "config.sh" script file exists in the SHELL-CMDS subdirectory, this will be loaded and executed
 at startup. Every line will be executed as a shell command. Empty lines or lines starting with a '#' will be skipped.
-
 The default config.sh file contains a bunch of command aliases, sets the screen mode and changes the color scheme,
-and prints a welcome message. You can change the script however you like, just remember that it is saved in ISO character encoding.
+and prints a welcome message. You can change the script however you like.
+
+Actually, any file ending with ".sh" is treated as a shell-script, in ISO character encoding,
+that contains lines with shell instructions. You can execute it just by typing its full name.
+
+NOTE: currently the length of a script is limited to 1 KB (not enforced). If your script exceeds this
+it will overwrite program memory when loaded and cause havoc on the system.
+
 
 ## External commands
 
@@ -102,7 +108,8 @@ The "ext-command.p8" source file contains a piece of example Prog8 source code o
 
 ## Todo
 
-- add a command / support for executing .sh shell scripts manually (like the config.sh script now does automatically)
+- add bunch of escape chars to echo command to print the shell's txt/highlight colors (maybe also any arbitrary color?)
+- load .sh scripts in a ram bank instead of golden ram to avoid program corruption when script > 1KB
 - add a (external) 'view' command to view images (make it part of the imageviewer project)
 - typing a filename with a known image suffix should launch the 'view' program automatically
 - do the same for sound files including zsm / zcm
