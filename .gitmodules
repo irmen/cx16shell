@@ -1,3 +1,6 @@
 [submodule "externalcommands/neofetch"]
 	path = externalcommands/neofetch
 	url = https://github.com/adiee5/cx16-neofetch
+[submodule "externalcommands/imageviewer"]
+	path = externalcommands/imageviewer
+	url = https://github.com/irmen/cx16imageviewer.git

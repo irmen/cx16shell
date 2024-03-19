@@ -28,8 +28,7 @@ time.prg: externalcommands/time.p8 externalcommands/shellroutines.p8
 	p8compile $< -target cx16
 
 view.prg: externalcommands/view.p8 externalcommands/shellroutines.p8
-	# TODO include the imageviewer sources via a git submodule, like neofetch
-	p8compile $< -target cx16 -srcdirs ~/Projects/cx16/imageviewer/src
+	p8compile $< -target cx16 -srcdirs externalcommands/imageviewer/src
 
 zip: all
 	rm -f shell.zip
