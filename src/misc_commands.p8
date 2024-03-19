@@ -74,9 +74,9 @@ misc_commands {
     sub cmd_color() -> bool {
         if main.command_arguments_size==0 {
             txt.print("Current: text=")
-            txt.print_ub(main.COLOR_NORMAL)
+            txt.print_ub(main.text_colors[main.TXT_COLOR_NORMAL])
             txt.print(" bg=")
-            txt.print_ub(main.COLOR_BACKGROUND)
+            txt.print_ub(main.text_colors[main.TXT_COLOR_BACKGROUND])
             txt.print(" border=")
             txt.print_ub(cx16.VERA_DC_BORDER)
             txt.nl()
@@ -93,10 +93,10 @@ misc_commands {
             return false
         }
 
-        main.COLOR_NORMAL = txtcol
-        main.COLOR_BACKGROUND = bgcol
+        main.text_colors[main.TXT_COLOR_NORMAL] = txtcol
+        main.text_colors[main.TXT_COLOR_BACKGROUND] = bgcol
         cx16.VERA_DC_BORDER = conv.str2ubyte(main.command_arguments_ptr)
-        txt.color2(main.COLOR_NORMAL, main.COLOR_BACKGROUND)
+        txt.color2(main.text_colors[main.TXT_COLOR_NORMAL], main.text_colors[main.TXT_COLOR_BACKGROUND])
         txt.clear_screen()
         return true
     }
@@ -104,11 +104,11 @@ misc_commands {
     sub cmd_highlight_color() -> bool {
         if main.command_arguments_size==0 {
             txt.print("Current: highlight=")
-            txt.print_ub(main.COLOR_HIGHLIGHT)
+            txt.print_ub(main.text_colors[main.TXT_COLOR_HIGHLIGHT])
             txt.print(" prompt=")
-            txt.print_ub(main.COLOR_HIGHLIGHT_PROMPT)
+            txt.print_ub(main.text_colors[main.TXT_COLOR_HIGHLIGHT_PROMPT])
             txt.print(" error=")
-            txt.print_ub(main.COLOR_ERROR)
+            txt.print_ub(main.text_colors[main.TXT_COLOR_ERROR])
             txt.nl()
             return true
         }
@@ -116,7 +116,7 @@ misc_commands {
         ubyte strcol = conv.str2ubyte(main.command_arguments_ptr) & 15
         main.command_arguments_ptr += cx16.r15 + 1
         
-        if strcol==main.COLOR_BACKGROUND {
+        if strcol==main.text_colors[main.TXT_COLOR_BACKGROUND] {
             err.set("Highlight and bg color are the same")
             return false
         }
@@ -126,19 +126,19 @@ misc_commands {
 
         ubyte errcol = conv.str2ubyte(main.command_arguments_ptr)
 
-        if errcol==main.COLOR_BACKGROUND {
+        if errcol==main.text_colors[main.TXT_COLOR_BACKGROUND] {
             err.set("Error and bg color are the same")
             return false
         }
 
-        if errcol==main.COLOR_NORMAL {
+        if errcol==main.text_colors[main.TXT_COLOR_NORMAL] {
             err.set("Error and text color are the same")
             return false
         }
 
-        main.COLOR_HIGHLIGHT = strcol
-        main.COLOR_HIGHLIGHT_PROMPT = prptcol
-        main.COLOR_ERROR = errcol
+        main.text_colors[main.TXT_COLOR_HIGHLIGHT] = strcol
+        main.text_colors[main.TXT_COLOR_HIGHLIGHT_PROMPT] = prptcol
+        main.text_colors[main.TXT_COLOR_ERROR] = errcol
         return true
     }
 
@@ -218,9 +218,9 @@ misc_commands {
     }
 
     sub cmd_help() -> bool {
-        txt.color(main.COLOR_HIGHLIGHT)
+        txt.color(main.text_colors[main.TXT_COLOR_HIGHLIGHT])
         txt.print("Builtin Commands:\r")
-        txt.color(main.COLOR_NORMAL)
+        txt.color(main.text_colors[main.TXT_COLOR_NORMAL])
         ubyte idx
         for idx in 0 to len(commands.commands_table)-1 step 2 {
             txt.print(commands.commands_table[idx])
@@ -228,14 +228,14 @@ misc_commands {
             txt.spc()
         }
         if aliases.num_aliases!=0 {
-            txt.color(main.COLOR_HIGHLIGHT)
+            txt.color(main.text_colors[main.TXT_COLOR_HIGHLIGHT])
             txt.print("\rAliases:\r")
-            txt.color(main.COLOR_NORMAL)
+            txt.color(main.text_colors[main.TXT_COLOR_NORMAL])
             aliases.print_list()
         }
-        txt.color(main.COLOR_HIGHLIGHT)
+        txt.color(main.text_colors[main.TXT_COLOR_HIGHLIGHT])
         txt.print("\rCommands on disk:\r")
-        txt.color(main.COLOR_NORMAL)
+        txt.color(main.text_colors[main.TXT_COLOR_NORMAL])
         txt.print("Type the name of an external command program located in 'SHELL-CMDS'\r  subdirectory (see documentation).\r")
         txt.print("Or just type name of program to launch (no suffix req'd, case insensitive).\r")
         txt.print("Typing the name of a directory moves into it.\r")
@@ -260,7 +260,7 @@ misc_commands {
             cx16.x16edit_loadfile_options(1, 255, main.command_arguments_ptr,
                 mkword(%00000011, filename_length),         ; auto-indent and word-wrap enable
                 mkword(80, 4),          ; wrap and tabstop
-                mkword(main.COLOR_BACKGROUND<<4 | main.COLOR_NORMAL, diskio.drivenumber),
+                mkword(main.text_colors[main.TXT_COLOR_BACKGROUND]<<4 | main.text_colors[main.TXT_COLOR_NORMAL], diskio.drivenumber),
                 mkword(0,0))
             cx16.rombank(0)
             main.init_screen()

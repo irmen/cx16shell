@@ -9,9 +9,9 @@ disk_commands {
     sub cmd_ls() -> bool {
         ubyte num_files = 0
         if diskio.lf_start_list(main.command_arguments_ptr) {
-            txt.color(main.COLOR_HIGHLIGHT)
+            txt.color(main.text_colors[main.TXT_COLOR_HIGHLIGHT])
             txt.print(" Blocks  Filename\r")
-            txt.color(main.COLOR_NORMAL)
+            txt.color(main.text_colors[main.TXT_COLOR_NORMAL])
             while diskio.lf_next_entry() {
                 num_files++
                 txt.spc()
@@ -25,17 +25,17 @@ disk_commands {
                 txt.print(diskio.list_filename)
                 txt.nl()
                 if cbm.STOP2() {
-                    txt.color(main.COLOR_HIGHLIGHT)
+                    txt.color(main.text_colors[main.TXT_COLOR_HIGHLIGHT])
                     txt.print("Break\r")
-                    txt.color(main.COLOR_NORMAL)
+                    txt.color(main.text_colors[main.TXT_COLOR_NORMAL])
                     break
                 }
             }
             diskio.lf_end_list()
             if num_files == 0 {
-                txt.color(main.COLOR_HIGHLIGHT)
+                txt.color(main.text_colors[main.TXT_COLOR_HIGHLIGHT])
                 txt.print("No files\r")
-                txt.color(main.COLOR_NORMAL)
+                txt.color(main.text_colors[main.TXT_COLOR_NORMAL])
             }
             return true
         }
@@ -50,9 +50,9 @@ disk_commands {
         }
         void string.find(main.command_arguments_ptr, '*')
         if_cs {
-            ;txt.color(main.COLOR_HIGHLIGHT)
+            ;txt.color(main.text_colors[main.TXT_COLOR_HIGHLIGHT])
             ;txt.print("Has * wildcard. Sure y/n? ")
-            ;txt.color(main.COLOR_NORMAL)
+            ;txt.color(main.text_colors[main.TXT_COLOR_NORMAL])
             ;ubyte answer = c64.CHRIN()
             ;txt.nl()
             ;if answer == 'y' {
@@ -88,9 +88,9 @@ disk_commands {
     }
 
     sub print_disk_status() {
-        txt.color(main.COLOR_HIGHLIGHT)
+        txt.color(main.text_colors[main.TXT_COLOR_HIGHLIGHT])
         txt.print(diskio.status())
-        txt.color(main.COLOR_NORMAL)
+        txt.color(main.text_colors[main.TXT_COLOR_NORMAL])
         txt.nl()
     }
 
@@ -105,11 +105,11 @@ disk_commands {
             repeat {
                 void diskio.f_readline(main.command_line)
                 line++
-                txt.color(main.COLOR_HIGHLIGHT)
+                txt.color(main.text_colors[main.TXT_COLOR_HIGHLIGHT])
                 txt.print_uw(line)
                 txt.column(5)
                 txt.print(": ")
-                txt.color(main.COLOR_NORMAL)
+                txt.color(main.text_colors[main.TXT_COLOR_NORMAL])
                 txt.print(main.command_line)
                 txt.nl()
                 if cbm.READST() & 64 !=0 {
@@ -132,9 +132,9 @@ disk_commands {
             err.set("Has no args")
             return false
         }
-        txt.color(main.COLOR_HIGHLIGHT)
+        txt.color(main.text_colors[main.TXT_COLOR_HIGHLIGHT])
         txt.print("Drive number: ")
-        txt.color(main.COLOR_NORMAL)
+        txt.color(main.text_colors[main.TXT_COLOR_NORMAL])
         txt.print_ub(diskio.drivenumber)
         txt.nl()
 
@@ -189,9 +189,9 @@ io_error:
 
         sub process_line(uword lineptr, bool diskname) {
             if diskname {
-                txt.color(main.COLOR_HIGHLIGHT)
+                txt.color(main.text_colors[main.TXT_COLOR_HIGHLIGHT])
                 txt.print("Disk name: ")
-                txt.color(main.COLOR_NORMAL)
+                txt.color(main.text_colors[main.TXT_COLOR_NORMAL])
             }
             repeat {
                 cx16.r0L=@(lineptr)
@@ -201,13 +201,13 @@ io_error:
                 lineptr++
             }
             if diskname {
-                txt.color(main.COLOR_HIGHLIGHT)
+                txt.color(main.text_colors[main.TXT_COLOR_HIGHLIGHT])
                 txt.print("\rCurrent dir: ")
-                txt.color(main.COLOR_NORMAL)
+                txt.color(main.text_colors[main.TXT_COLOR_NORMAL])
             } else if @(lineptr-1)!='/' {
-                txt.color(main.COLOR_HIGHLIGHT)
+                txt.color(main.text_colors[main.TXT_COLOR_HIGHLIGHT])
                 txt.print(" in ")
-                txt.color(main.COLOR_NORMAL)
+                txt.color(main.text_colors[main.TXT_COLOR_NORMAL])
             }
         }
     }

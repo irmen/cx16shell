@@ -108,11 +108,12 @@ The "ext-command.p8" source file contains a piece of example Prog8 source code o
 
 ## Todo
 
+- add a (external) 'view' command to view images (make it part of the imageviewer project)
+- include the imageviewer sources via a git submodule, like neofetch
+- fix the viewer screen mode on exit, should be the same as it was before
+- expose {set_text}color routine in shell jump table?
 - add bunch of escape chars to echo command to print the shell's txt/highlight colors (maybe also any arbitrary color?)
 - load .sh scripts in a ram bank instead of golden ram to avoid program corruption when script > 1KB
-- add a (external) 'view' command to view images (make it part of the imageviewer project)
-- typing a filename with a known image suffix should launch the 'view' program automatically
-- do the same for sound files including zsm / zcm
 - new memory layout? Shell program at the top of memory (say $6000-$9f00) so that you can load regular programs at $0801? What about the external commands? No longer forced to start at $4000 but just regular programs?
 
 ...

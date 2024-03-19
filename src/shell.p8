@@ -9,11 +9,13 @@
 %option no_sysinit
 
 main {
-    ubyte COLOR_NORMAL = 1
-    ubyte COLOR_BACKGROUND = 6
-    ubyte COLOR_HIGHLIGHT = 3
-    ubyte COLOR_HIGHLIGHT_PROMPT = 13
-    ubyte COLOR_ERROR = 10
+    ubyte[5] text_colors = [1, 6, 3, 13, 10]
+    const ubyte TXT_COLOR_NORMAL = 0
+    const ubyte TXT_COLOR_BACKGROUND = 1
+    const ubyte TXT_COLOR_HIGHLIGHT = 2
+    const ubyte TXT_COLOR_HIGHLIGHT_PROMPT = 3
+    const ubyte TXT_COLOR_ERROR = 4
+
     str command_line = "?" * 160
     str command_word = "?" * 64
     ubyte command_word_size
@@ -27,10 +29,10 @@ main {
         load_config()
 
         repeat {
-            txt.color(COLOR_HIGHLIGHT_PROMPT)
+            txt.color(text_colors[TXT_COLOR_HIGHLIGHT_PROMPT])
             txt.nl()
             txt.print("$ ")
-            txt.color(COLOR_NORMAL)
+            txt.color(text_colors[TXT_COLOR_NORMAL])
             err.clear()
 
             cx16.set_chrin_keyhandler(0, &keystroke_handler)
@@ -45,8 +47,8 @@ main {
     }
 
     sub init_screen() {
-        txt.color2(COLOR_NORMAL, COLOR_BACKGROUND)
-        cx16.VERA_DC_BORDER = COLOR_BACKGROUND
+        txt.color2(text_colors[TXT_COLOR_NORMAL], text_colors[TXT_COLOR_BACKGROUND])
+        cx16.VERA_DC_BORDER = text_colors[TXT_COLOR_BACKGROUND]
         txt.iso()
         txt.clear_screen()
     }
@@ -308,9 +310,9 @@ main {
                 cx16.kbdbuf_put(cx16.r0L)
             sys.exit(0)
         } else {
-            txt.color(main.COLOR_HIGHLIGHT)
+            txt.color(text_colors[TXT_COLOR_HIGHLIGHT])
             txt.print("Running: ")
-            txt.color(main.COLOR_NORMAL)
+            txt.color(text_colors[TXT_COLOR_NORMAL])
             txt.print(filename_ptr)
             txt.nl()
             ; TODO run command via a trampoline function that returns and reloads the shell afterwards
@@ -360,13 +362,15 @@ main {
             jumptable += 3
         }
 
-        sys.push(diskio.drivenumber)     ; only variable in ZP that we need to save
-        rsave()
+        ; --- save shell variables that we don't want to have destroyed ----
+        sys.push(diskio.drivenumber)
+
         ; call the routine with the input registers
         romsub $4000 = external_command() -> ubyte @A
         cx16.set_program_args(command_arguments_ptr, command_arguments_size)
         cx16.r1 = call($4000)
-        rrestore()
+
+        ; --- restore shell variables ---
         diskio.drivenumber = sys.pop()
     }
 
@@ -421,13 +425,7 @@ main {
     }
 
     sub extcommand_get_colors() -> uword {
-        ubyte[5] colors
-        colors[0] = main.COLOR_NORMAL
-        colors[1] = main.COLOR_BACKGROUND
-        colors[2] = main.COLOR_HIGHLIGHT
-        colors[3] = main.COLOR_HIGHLIGHT_PROMPT
-        colors[4] = main.COLOR_ERROR
-        return &colors
+        return &main.text_colors
     }
 
     sub extcommand_shell_version() -> str {
