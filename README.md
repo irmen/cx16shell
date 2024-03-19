@@ -108,7 +108,6 @@ The "ext-command.p8" source file contains a piece of example Prog8 source code o
 
 ## Todo
 
-- fix the viewer screen mode on exit, should be the same as it was before
 - expose {set_text}color routine + expose iso_to_lower_petscii  in shell jump table? 
 - add bunch of escape chars to echo command to print the shell's txt/highlight colors (maybe also any arbitrary color?)
 - load .sh scripts in a ram bank instead of golden ram to avoid program corruption when script > 1KB

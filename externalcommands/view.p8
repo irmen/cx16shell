@@ -8,9 +8,10 @@
 
 main $4000 {
     %option force_output
+    uword colors
 
     sub start() {
-        uword colors = shell.get_text_colors()
+        colors = shell.get_text_colors()
         txt.color(colors[2])
         shell.print("Image viewer for Commander X16.\rSupported formats: ")
         txt.color(colors[3])
@@ -41,10 +42,19 @@ main $4000 {
         if loader.attempt_load(args, true) {
             txt.waitkey()
             loader.restore_screen_mode()
+            ; colors and text mode are wrong, fix this back up
+            init_screen()
             sys.exit(0)
         }
         else
             sys.exit(1)
+    }
+
+    sub init_screen() {
+        txt.color2(colors[0], colors[1])
+        cx16.VERA_DC_BORDER = colors[1]
+        txt.iso()
+        txt.clear_screen()
     }
 
     sub rfind(uword stringptr, ubyte char) -> ubyte {
