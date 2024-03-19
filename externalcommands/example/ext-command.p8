@@ -13,7 +13,9 @@ main $4000 {
 
 
     sub start()  {
+        shell.txt_color(shell.TXT_COLOR_HIGHLIGHT)
         shell.print("This is an external command program!\r")
+        shell.txt_color(shell.TXT_COLOR_NORMAL)
 
         str args = "?" * 40
         cx16.get_program_args(args, len(args), false)

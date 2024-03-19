@@ -48,6 +48,15 @@ misc_commands {
                             's' -> txt.spc()
                             'n' -> txt.nl()
                             'b' -> txt.bell()
+                            'c' -> {
+                                main.command_arguments_ptr++
+                                cx16.r0L = @(main.command_arguments_ptr)-'0'
+                                if cx16.r0L >= 5 {
+                                    err.set("invalid txt color number")
+                                    return false
+                                }
+                                main.txt_color(cx16.r0L)
+                            }
                             'x' -> {
                                 str hex = "??"
                                 main.command_arguments_ptr++
@@ -218,9 +227,9 @@ misc_commands {
     }
 
     sub cmd_help() -> bool {
-        txt.color(main.text_colors[main.TXT_COLOR_HIGHLIGHT])
+        main.txt_color(main.TXT_COLOR_HIGHLIGHT)
         txt.print("Builtin Commands:\r")
-        txt.color(main.text_colors[main.TXT_COLOR_NORMAL])
+        main.txt_color(main.TXT_COLOR_NORMAL)
         ubyte idx
         for idx in 0 to len(commands.commands_table)-1 step 2 {
             txt.print(commands.commands_table[idx])
@@ -228,14 +237,14 @@ misc_commands {
             txt.spc()
         }
         if aliases.num_aliases!=0 {
-            txt.color(main.text_colors[main.TXT_COLOR_HIGHLIGHT])
+            main.txt_color(main.TXT_COLOR_HIGHLIGHT)
             txt.print("\rAliases:\r")
-            txt.color(main.text_colors[main.TXT_COLOR_NORMAL])
+            main.txt_color(main.TXT_COLOR_NORMAL)
             aliases.print_list()
         }
-        txt.color(main.text_colors[main.TXT_COLOR_HIGHLIGHT])
+        main.txt_color(main.TXT_COLOR_HIGHLIGHT)
         txt.print("\rCommands on disk:\r")
-        txt.color(main.text_colors[main.TXT_COLOR_NORMAL])
+        main.txt_color(main.TXT_COLOR_NORMAL)
         txt.print("Type the name of an external command program located in 'SHELL-CMDS'\r  subdirectory (see documentation).\r")
         txt.print("Or just type name of program to launch (no suffix req'd, case insensitive).\r")
         txt.print("Typing the name of a directory moves into it.\r")

@@ -12,27 +12,27 @@ main $4000 {
 
     sub start() {
         colors = shell.get_text_colors()
-        txt.color(colors[2])
+        shell.txt_color(shell.TXT_COLOR_HIGHLIGHT)
         shell.print("Image viewer for Commander X16.\rSupported formats: ")
-        txt.color(colors[3])
+        shell.txt_color(shell.TXT_COLOR_HIGHLIGHT_PROMPT)
         for cx16.r0 in loader.known_extensions {
             shell.print(cx16.r0)
             shell.chrout(' ')
         }
         shell.chrout('\r')
-        txt.color(colors[0])
+        shell.txt_color(shell.TXT_COLOR_NORMAL)
 
         str args = "?" * 40
         cx16.get_program_args(args, len(args), false)
         if args[0]==0 {
-            txt.color(colors[4])
+            shell.txt_color(shell.TXT_COLOR_ERROR)
             shell.err_set("Missing arguments: filename")
             sys.exit(1)
         }
 
         uword extension = &args + rfind(args, '.')
         if not loader.is_known_extension(extension) {
-            void iso_to_lowercase_petscii(args)
+            shell.iso_to_lower_petscii(args)
             if not loader.is_known_extension(extension) {
                 shell.err_set("Invalid file extension")
                 sys.exit(1)
@@ -40,7 +40,7 @@ main $4000 {
         }
 
         if loader.attempt_load(args, true) {
-            txt.waitkey()
+            void txt.waitkey()
             loader.restore_screen_mode()
             ; colors and text mode are wrong, fix this back up
             init_screen()
@@ -64,17 +64,6 @@ main $4000 {
                 return i
         }
         return 0
-    }
-
-    sub iso_to_lowercase_petscii(uword str_ptr) -> ubyte {
-        ubyte length=0
-        while @(str_ptr)!=0 {
-            if @(str_ptr) >= 'a' and @(str_ptr) <= 'z'
-                @(str_ptr) -= 32
-            str_ptr++
-            length++
-        }
-        return length
     }
 
     sub load_error(uword what, uword filenameptr) {

@@ -10,16 +10,16 @@ err {
 
     sub no_args(str message) {
         error_status = true
-        txt.color(main.text_colors[main.TXT_COLOR_ERROR])
+        main.txt_color(main.TXT_COLOR_ERROR)
         txt.print("Missing arguments: ")
         set(message)
     }
 
     sub set(str message) {
         error_status = true
-        txt.color(main.text_colors[main.TXT_COLOR_ERROR])
+        main.txt_color(main.TXT_COLOR_ERROR)
         txt.print(message)
         txt.nl()
-        txt.color(main.text_colors[main.TXT_COLOR_NORMAL])
+        main.txt_color(main.TXT_COLOR_NORMAL)
     }
 }

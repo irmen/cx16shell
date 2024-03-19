@@ -16,7 +16,9 @@ main $4000 {
         str[13] months = [0, "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
         str[8] days = ["", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
+        shell.txt_color(shell.TXT_COLOR_HIGHLIGHT)
         shell.print("Current date and time (from RTC clock):\r")
+        shell.txt_color(shell.TXT_COLOR_NORMAL)
         ; romsub $ff50 = clock_get_date_time()  clobbers(A, X, Y)  -> uword @R0, uword @R1, uword @R2, uword @R3   ; result registers see clock_set_date_time()
         void cx16.clock_get_date_time()      ; uword yearmonth @R0, uword dayhours @R1, uword minsecs @R2, uword jiffiesweekday @R3
         uword year = 1900 + cx16.r0L

@@ -29,10 +29,10 @@ main {
         load_config()
 
         repeat {
-            txt.color(text_colors[TXT_COLOR_HIGHLIGHT_PROMPT])
+            txt_color(TXT_COLOR_HIGHLIGHT_PROMPT)
             txt.nl()
             txt.print("$ ")
-            txt.color(text_colors[TXT_COLOR_NORMAL])
+            txt_color(TXT_COLOR_NORMAL)
             err.clear()
 
             cx16.set_chrin_keyhandler(0, &keystroke_handler)
@@ -310,9 +310,9 @@ main {
                 cx16.kbdbuf_put(cx16.r0L)
             sys.exit(0)
         } else {
-            txt.color(text_colors[TXT_COLOR_HIGHLIGHT])
+            txt_color(TXT_COLOR_HIGHLIGHT)
             txt.print("Running: ")
-            txt.color(text_colors[TXT_COLOR_NORMAL])
+            txt_color(TXT_COLOR_NORMAL)
             txt.print(filename_ptr)
             txt.nl()
             ; TODO run command via a trampoline function that returns and reloads the shell afterwards
@@ -341,6 +341,8 @@ main {
             ; NOTE:
             ;  - do NOT change the order of the vectors.
             ;  - only add new vectors AT THE START of the list (so existing ones stay on the same address)
+            &main.iso_to_lowercase_petscii,
+            &main.txt_color,
             &main.extcommand_shell_version,
             &main.extcommand_get_colors,
             &cbm.CHROUT,
@@ -431,6 +433,10 @@ main {
     sub extcommand_shell_version() -> str {
         str version_string="1.4"
         return version_string
+    }
+
+    sub txt_color(ubyte colortype) {
+        txt.color(text_colors[colortype])
     }
 }
 

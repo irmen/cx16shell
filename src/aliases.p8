@@ -31,11 +31,11 @@ aliases {
     }
 
     sub print_table() {
-        txt.color(main.text_colors[main.TXT_COLOR_HIGHLIGHT])
+        main.txt_color(main.TXT_COLOR_HIGHLIGHT)
         txt.print("Alias")
         txt.column(10)
         txt.print("Command\r")
-        txt.color(main.text_colors[main.TXT_COLOR_NORMAL])
+        main.txt_color(main.TXT_COLOR_NORMAL)
         cx16.r0 = &alias_names
         cx16.r1 = &alias_defs
         repeat num_aliases {
