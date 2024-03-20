@@ -55,7 +55,7 @@ Type "help" at the prompt to get a list of the built-in commands.
 You can also type the name of an "external command" program, located in the SHELL-CMDS subdirectory.
 Finally you can simply type the name of a program to launch (no file extension required, case-insensitive).
 
-"time" (and "date") and "neofetch" are available as some potentially useful external commands.
+"time" (and "date"), "view" and "neofetch" are available as some potentially useful external commands.
 
 You can use tab for filename completion (case-sensitive).
 
@@ -68,6 +68,7 @@ and prints a welcome message. You can change the script however you like.
 
 Actually, any file ending with ".sh" is treated as a shell-script, in ISO character encoding,
 that contains lines with shell instructions. You can execute it just by typing its full name.
+Scripts existing in the SHELL-CMDS directory will be executed first.
 
 NOTE: currently the length of a script is limited to 1 KB (not enforced). If your script exceeds this
 it will overwrite program memory when loaded and cause havoc on the system.
