@@ -32,11 +32,8 @@ main $4000 {
 
         uword extension = &args + rfind(args, '.')
         if not loader.is_known_extension(extension) {
-            shell.iso_to_lower_petscii(args)
-            if not loader.is_known_extension(extension) {
-                shell.err_set("Invalid file extension")
-                sys.exit(1)
-            }
+            shell.err_set("Invalid file extension")
+            sys.exit(1)
         }
 
         if loader.attempt_load(args, true) {

@@ -2,7 +2,6 @@
 ; definitions for the callback routines the Shell provides for external commands.
 
 shell {
-    romsub $07d6 = iso_to_lower_petscii(uword iso_string @AY)
     romsub $07d9 = txt_color(ubyte colortype @A) clobbers(A)       ; activate one of the 5 color types (constants defined below)
     romsub $07dc = version() -> uword @AY               ; returns pointer to string with shell's version
     romsub $07df = get_text_colors() -> uword @AY       ; returns address of array of 5 text color bytes (text, background, highlight, prompt, error)
