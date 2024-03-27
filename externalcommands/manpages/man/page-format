@@ -20,8 +20,8 @@ Here's a list of all formater flags:
 @hDirectives@n are a kind of function, that do special things (more special than a formater flag). Here's a list of all Directives:
 
 @h@@#READ:@ppage@n - Aborts reading the current page and instead switches to different page. 
-@h@@#ALIAS:@ppage@n - Similar to above, but displays a hardcoded alias info before proceding to read the specified file.
-@h@@#PAUSE@n - Pauses printing of the document. It's not really necesarry to use it, since @hman@n automatically pauses the display when it detects, that the screenful has been printed. 
+@h@@#ALIAS:@ppage@n - Similar to above, but displays a hardcoded alias info before proceeding to read the specified file.
+@h@@#PAUSE@n - Pauses printing of the document. It's not really necessary to use it, since @hman@n automatically pauses the display when it detects, that the screenful has been printed. 
 @h@@#CHARCODE:@pchar@n - Prints the hex value of a specified character. It's only really useful for debugging purposes
 
 @hNOTE:@n One can just use the first letter of the directive's name, as the parser only looks at the first letter of the directive name and for the localisation of @p:@n signifying the beginning of the argument.
