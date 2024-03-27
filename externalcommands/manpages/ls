@@ -1,0 +1,13 @@
+@hls@n displays contents of the current directory
+
+@eSYNTAX:
+@p$@n ls @p[pattern]
+
+@eEXAMPLES:
+@p$@n ls
+  @hlists all files in the current directory
+
+@p$@n ls *.sh
+  @hlists all shell scripts in the current directory
+
+@hNOTE:@n Unlike a @hPOSIX@n compliant @hls@n, @eyou can't display contents of subdirectories@n with this command. Instead, you need to @pcd@n into the subdirectory and then run @pls@n. This is a case due to a limimited file IO API provided by CX16.
