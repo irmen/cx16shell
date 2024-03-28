@@ -405,7 +405,8 @@ main $4000{
             }
         }
         shell.chrout('\r')
-        while pwdptr>$a000 {
+        pwdptr--
+        while pwdptr>=$a000 {
             while @(pwdptr)!=0 and pwdptr>=$a000{
                 pwdptr--
             }
