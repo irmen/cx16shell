@@ -4,5 +4,6 @@
 *.asm
 *.vice-mon-list
 SHELL-CMDS
+SHELL-FILES
 # for local batch scripts used by windows contributors
 compile.bat

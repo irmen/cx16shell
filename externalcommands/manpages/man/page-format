@@ -1,0 +1,28 @@
+Pages in @hman@n are text files encoded in ISO-8859-15 encoding (ASCII-only UTF-8 is also acceptable). Files have to be either @pLF@n or @pCR@n - @pCRLF@n will generate @etwo@n line breaks!
+
+In addition to normal text, page files also contain so-called @hFormater Flags@n. They are sequences of characters, that start with @p@@@n symbol.
+
+Here's a list of all formater flags:
+
+@h@@N@n   - Sets the color to normal text color
+@h@@B@n   - Sets the color to background color @b@xAD@n
+@h@@H@n   - Sets the color to @hHighlight@n color
+@h@@P@n   - Sets the color to @pprompt highlight@n color
+@h@@E@n   - Sets the color to @eerror highlight@n color
+@h@@C?@n  - Sets the color to an explicit color. @p?@n specifies a Hex digit representing the color. Here are the colors available in your pallete:
+@c0@@C0 @c1@@C1 @c2@@C2 @c3@@C3 @c4@@C4 @c5@@C5 @c6@@C6 @c7@@C7 @c8@@C8 @c9@@C9 @ca@@CA @cb@@CB @cc@@CC @cd@@CD @ce@@CE @cf@@CF
+
+@h@@X??@n - Lets you insert any character. In place of @p??@n you need to specify the hex code of the character you want to insert. For example @p@@xA3@n = @p@xa3@n. It always requires 2 digits.
+@h@@@@@n   - Inserts @@
+@h@@;@n   - Starts a comment. @;SPY'S SAPPING MY SENTRY!! (ToT)
+@h@@#@n   - Executes a @hDiretive@n. It can only be used at the beginning of a line. 
+
+@hDirectives@n are a kind of function, that do special things (more special than a formater flag). Here's a list of all Directives:
+
+@h@@#READ:@ppage@n - Aborts reading the current page and instead switches to different page. 
+@h@@#ALIAS:@ppage@n - Similar to above, but displays a hardcoded alias info before proceeding to read the specified file.
+@h@@#PAUSE@n - Pauses printing of the document. It's not really necessary to use it, since @hman@n automatically pauses the display when it detects, that the screenful has been printed. 
+@h@@#CHARCODE:@pchar@n - Prints the hex value of a specified character. It's only really useful for debugging purposes
+
+@hNOTE:@n One can just use the first letter of the directive's name, as the parser only looks at the first letter of the directive name and for the localisation of @p:@n signifying the beginning of the argument.
+

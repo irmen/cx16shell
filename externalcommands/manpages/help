@@ -1,0 +1,3 @@
+@hhelp@n command displays all available built-in commands and user-defined aliasses. However, it doesn't display available external commands.
+
+@hNOTE:@n If you were looking for a help on the @hman@n command itself, please type @pman man@n instead.

@@ -1,0 +1,29 @@
+The @hman@n command is used to view documentation about specified topic (usually an internal command or a program).
+
+@eSYNTAX:@n
+@p$@n man @p<<@nlist@p> [pagename]> | <pagename[@n/@psubpage]>@n
+
+Replace @hpagename@n with a name of a manpage. Usually, this name should more or less be just a name of the command. 
+
+One can run @pman list@n subcommand to list all available pages. One can provide a page name to display all available subpages of that page. 
+
+@eEXAMPLES:@n
+@p$@n man ls
+  @hDisplays the contents of "ls" page. If "ls" is a directory, it will try to display ls/1 page or fail if ls/1 file doesn't exist.
+
+@p$@n man list
+  @hLists out all available pages.
+
+@p$@n man list man
+  @hLists out subpages of "man". If "man" is not a directory, command will fail.
+
+@p$@n man man/page-format
+  @hDisplays a subpage "page-format" of "man".
+
+@p$@n man shell/config
+@p$@n man shell/conf
+@p$@n man shell/5
+@p$@n man shell/cfgs
+@p$@n man shell/configs
+  @hAll of the above are automatically treated as aliases of "shell/cfg" unless those files actually exist. This will work with any page, that has "cfg" subpage
+

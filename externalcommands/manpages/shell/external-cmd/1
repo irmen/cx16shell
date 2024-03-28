@@ -1,0 +1,2 @@
+@hExternal commands@n are a special kind of programs, that are designed to be ran from the @hSHELL@n. They're located at the @p/SHELL-FILES/commands/@n directory. 
+An external command can be executed by typing its name to the command prompt. 

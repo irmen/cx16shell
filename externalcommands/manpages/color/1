@@ -1,0 +1,10 @@
+@hcolor@n command can be used to change text an background colors of the @hSHELL@n program.
+
+@eSYNTAX:
+@p$@n color @p[txtcolor@n,@pbgcolor@n,@pbordercolor]@n
+
+Run the command without the arguments to view the current color values. You can run the command with arguments to change the colors. All 3 arguments have to be provided
+
+@hNOTE:@n Command will @enot@n parse correctly if you put spaces after commas.@; Actually, you don't need to use commas - you can use spaces instead as a separator, or any kind of non-digit character.
+
+@#r:color/palette
