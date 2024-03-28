@@ -27,3 +27,4 @@ One can run @pman list@n subcommand to list all available pages. One can provide
 @p$@n man shell/configs
   @hAll of the above are automatically treated as aliases of "shell/cfg" unless those files actually exist. This will work with any page, that has "cfg" subpage
 
+@pman system created by Adiee5. licensed under MIT@n

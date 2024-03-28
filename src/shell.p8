@@ -449,7 +449,7 @@ commands {
         "mon", &misc_commands.cmd_mon,
         "num", &misc_commands.cmd_printnumber,
         "run", &misc_commands.cmd_run,
-        "nano", &misc_commands.cmd_edit,
+        "nano", &misc_commands.cmd_nano,
         "mem", &misc_commands.cmd_mem,
         "cls", &misc_commands.cmd_cls,
         "echo", &misc_commands.cmd_echo,

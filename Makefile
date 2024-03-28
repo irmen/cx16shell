@@ -15,6 +15,7 @@ emu:  all
 	mcopy -D o view.prg x:SHELL-FILES/commands/VIEW
 	mcopy -D o man.prg x:SHELL-FILES/commands/MAN
 	mcopy -s -D o externalcommands/manpages x:SHELL-FILES/
+	mcopy -s -D o externalcommands/neofetch/manpage.txt x:SHELL-FILES/manpages/neofetch
 	mcopy -D o config.sh motd.txt x:SHELL-FILES/
 	PULSE_LATENCY_MSEC=20 x16emu -sdcard ~/cx16sdcard.img -scale 2 -quality best -run -prg shell.prg -rtc -debug
 
@@ -47,5 +48,6 @@ zip: all
 	cp view.prg SHELL-FILES/commands/VIEW
 	cp man.prg SHELL-FILES/commands/MAN
 	cp -r externalcommands/manpages SHELL-FILES/
+	cp externalcommands/neofetch/manpage.txt SHELL-FILES/manpages/neofetch
 	cp config.sh motd.txt SHELL-FILES/
 	7z a -sdel shell.zip SHELL.PRG SHELL-FILES

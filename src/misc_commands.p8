@@ -252,7 +252,7 @@ misc_commands {
         return true
     }
 
-    sub cmd_edit() -> bool {
+    sub cmd_nano() -> bool {
         ; activate rom based x16edit, see https://github.com/stefan-b-jakobsson/x16-edit/tree/master/docs
         ubyte x16edit_bank = cx16.search_x16edit()
         if x16edit_bank<255 {
@@ -260,7 +260,7 @@ misc_commands {
             ubyte filename_length = 0
             if main.command_arguments_ptr!=0 {
                 filename_length = main.command_arguments_size
-                if not string.endswith(main.command_arguments_ptr, ".sh")
+                if string.endswith(main.command_arguments_ptr, ".basload")
                     txt.iso_off()
             } else
                 txt.iso_off()

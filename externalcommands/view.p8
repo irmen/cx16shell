@@ -31,6 +31,12 @@ main $4000 {
         }
 
         uword extension = &args + rfind(args, '.')
+
+        if ".txt"==extension or ".bas"==extension {
+            shell.err_set("Can't view text files, use 'nano' to view those")
+            sys.exit(1)
+        }
+
         if not loader.is_known_extension(extension) {
             shell.err_set("Invalid file extension")
             sys.exit(1)

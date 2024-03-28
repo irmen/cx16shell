@@ -107,7 +107,6 @@ The "ext-command.p8" source file contains a piece of example Prog8 source code o
 ## Todo
 
 - need more manpages written.
-- the view command could print a helpful error message if you try to use it on a .txt or .bas file?
 - add a 'play' external command for .zsm and .zcm files (using zsmkit)
 - load .sh scripts in a ram bank instead of golden ram to avoid program corruption when script > 1KB
 - new memory layout? Shell program at the top of memory (say $6000-$9f00) so that you can load regular programs at $0801? What about the external commands? No longer forced to start at $4000 but just regular programs?
