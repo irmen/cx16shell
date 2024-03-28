@@ -262,8 +262,7 @@ misc_commands {
                 filename_length = main.command_arguments_size
                 if string.endswith(main.command_arguments_ptr, ".basload")
                     txt.iso_off()
-            } else
-                txt.iso_off()
+            }
             ubyte old_bank = cx16.getrombank()
             cx16.rombank(x16edit_bank)
             cx16.x16edit_loadfile_options(1, 255, main.command_arguments_ptr,
