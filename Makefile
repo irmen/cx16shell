@@ -1,18 +1,21 @@
 .PHONY:  all clean emu
 
-all:  shell.prg ext-command.prg neofetch.prg time.prg view.prg
+all:  shell.prg ext-command.prg neofetch.prg time.prg view.prg man.prg
 
 clean:
 	rm -f *.prg *.asm *.vice-*
 
 emu:  all
-	mmd -D s x:SHELL-CMDS || true
 	mcopy -D o shell.prg x:SHELL
-	mcopy -D o ext-command.prg x:SHELL-CMDS/EXT-COMMAND
-	mcopy -D o neofetch.prg x:SHELL-CMDS/NEOFETCH
-	mcopy -D o time.prg x:SHELL-CMDS/TIME
-	mcopy -D o view.prg x:SHELL-CMDS/VIEW
-	mcopy -D o config.sh motd.txt x:SHELL-CMDS/
+	mmd -D s x:SHELL-FILES || true
+	mmd -D s x:SHELL-FILES/commands || true
+	mcopy -D o ext-command.prg x:SHELL-FILES/commands/EXT-COMMAND
+	mcopy -D o neofetch.prg x:SHELL-FILES/commands/NEOFETCH
+	mcopy -D o time.prg x:SHELL-FILES/commands/TIME
+	mcopy -D o view.prg x:SHELL-FILES/commands/VIEW
+	mcopy -D o man.prg x:SHELL-FILES/commands/MAN
+	mcopy -s -D o externalcommands/manpages x:SHELL-FILES/
+	mcopy -D o config.sh motd.txt x:SHELL-FILES/
 	PULSE_LATENCY_MSEC=20 x16emu -sdcard ~/cx16sdcard.img -scale 2 -quality best -run -prg shell.prg -rtc -debug
 
 shell.prg: src/shell.p8 src/aliases.p8 src/errors.p8 src/disk_commands.p8 src/misc_commands.p8
@@ -30,14 +33,19 @@ time.prg: externalcommands/time.p8 externalcommands/shellroutines.p8
 view.prg: externalcommands/view.p8 externalcommands/shellroutines.p8
 	p8compile $< -target cx16 -srcdirs externalcommands/imageviewer/src
 
+man.prg: externalcommands/man.p8 externalcommands/shellroutines.p8
+	p8compile $< -target cx16
+
 zip: all
 	rm -f shell.zip
-	rm -rf SHELL-CMDS
-	mkdir SHELL-CMDS
+	rm -rf SHELL-FILES
 	cp shell.prg SHELL.PRG
-	cp ext-command.prg SHELL-CMDS/EXT-COMMAND
-	cp neofetch.prg SHELL-CMDS/NEOFETCH
-	cp time.prg SHELL-CMDS/TIME
-	cp view.prg SHELL-CMDS/VIEW
-	cp config.sh motd.txt SHELL-CMDS/
-	7z a shell.zip SHELL.PRG SHELL-CMDS
+	mkdir -p SHELL-FILES/commands
+	cp ext-command.prg SHELL-FILES/commands/EXT-COMMAND
+	cp neofetch.prg SHELL-FILES/commands/NEOFETCH
+	cp time.prg SHELL-FILES/commands/TIME
+	cp view.prg SHELL-FILES/commands/VIEW
+	cp man.prg SHELL-FILES/commands/MAN
+	cp -r externalcommands/manpages SHELL-FILES/
+	cp config.sh motd.txt SHELL-FILES/
+	7z a -sdel shell.zip SHELL.PRG SHELL-FILES

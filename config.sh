@@ -23,4 +23,4 @@ echo "  Commander-X16 Shell v1.4 - https://github.com/irmen/cx16shell"
 echo
 
 # Display the Message of the Day.
-cat //shell-cmds/:motd.txt
+cat //shell-files/:motd.txt

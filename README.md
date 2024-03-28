@@ -52,23 +52,22 @@ Type "help" at the prompt to get a list of the built-in commands.
 | relabel                | change disk name                                                                                                                           |       
 | drive                  | change current drive                                                                                                                       |       
 
-You can also type the name of an "external command" program, located in the SHELL-CMDS subdirectory.
+You can also type the name of an "external command" program, located in the "SHELL-FILES/commands" subdirectory.
 Finally you can simply type the name of a program to launch (no file extension required, case-insensitive).
-
-"time" (and "date"), "view" and "neofetch" are available as some potentially useful external commands.
+"man", "time" (and "date"), "view" and "neofetch" are available amongst others, as some potentially useful external commands.
 
 You can use tab for filename completion (case-sensitive).
 
 ## Startup config script and running user scripts
 
-If a "config.sh" script file exists in the SHELL-CMDS subdirectory, this will be loaded and executed
+If a "config.sh" script file exists in the SHELL-FILES subdirectory, this will be loaded and executed
 at startup. Every line will be executed as a shell command. Empty lines or lines starting with a '#' will be skipped.
 The default config.sh file contains a bunch of command aliases, sets the screen mode and changes the color scheme,
 and prints a welcome message. You can change the script however you like.
 
 Actually, any file ending with ".sh" is treated as a shell-script, in ISO character encoding,
 that contains lines with shell instructions. You can execute it just by typing its full name.
-Scripts existing in the SHELL-CMDS directory will be executed first.
+Scripts existing in the "SHELL-FILES/commands" directory will be executed first.
 
 NOTE: currently the length of a script is limited to 1 KB (not enforced). If your script exceeds this
 it will overwrite program memory when loaded and cause havoc on the system.
@@ -80,7 +79,7 @@ The shell can launch 'external commands' much like a Unix shell runs programs fr
 You can write those commands yourself, they have to adhere to the following API.
 
 Command should be assembled from address $4000 and up (to max $9f00).
-They should be stored in the ``SHELL-CMDS`` subdirectory on your sdcard.
+They should be stored in the ``SHELL-FILES/commands`` subdirectory on your sdcard.
 
 Utility routines you can call from your command program::
 
@@ -109,6 +108,8 @@ The "ext-command.p8" source file contains a piece of example Prog8 source code o
 
 ## Todo
 
+- BUG: adding the same alias twice seems to add an empty entry at the end of the aliases list?
+- need more manpages written.
 - the view command could print a helpful error message if you try to use it on a .txt or .bas file?
 - add a 'play' external command for .zsm and .zcm files (using zsmkit)
 - load .sh scripts in a ram bank instead of golden ram to avoid program corruption when script > 1KB

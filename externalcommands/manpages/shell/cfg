@@ -1,1 +1,1 @@
-THe @hSHELL@n program can be confugured with a @p/SHELL-FILES/config.sh@n file. It's a regular @hshell script@n, that's executed while @hSHELL@n is booting.
+THe @hSHELL@n program can be configured with a @p/SHELL-FILES/config.sh@n file. It's a regular @hshell script@n, that's executed while @hSHELL@n is booting.

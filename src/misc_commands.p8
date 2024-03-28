@@ -245,7 +245,7 @@ misc_commands {
         main.txt_color(main.TXT_COLOR_HIGHLIGHT)
         txt.print("\rCommands on disk:\r")
         main.txt_color(main.TXT_COLOR_NORMAL)
-        txt.print("Type the name of an external command program located in 'SHELL-CMDS'\r  subdirectory (see documentation).\r")
+        txt.print("Type the name of an external command program located in 'SHELL-FILES'\r  subdirectory (see documentation).\r")
         txt.print("Or just type name of program to launch (no suffix req'd, case insensitive).\r")
         txt.print("Typing the name of a directory moves into it.\r")
         txt.print("Filename tab-completion is active (case sensitive).\r")

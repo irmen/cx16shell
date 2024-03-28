@@ -54,7 +54,7 @@ main {
     }
 
     sub load_config() {
-        str configfile = petscii:"//shell-cmds/:config.sh"
+        str configfile = petscii:"//shell-files/:config.sh"
         if not execute_script(configfile)
             diskio.send_command(petscii:"i")
     }
@@ -76,9 +76,9 @@ main {
             else if not err.error_status
                 err.set("Unspecified error")
         } else {
-            ; see if there is an external shell command in the SHELL-CMDS subdirectory that matches
-            diskio.list_filename = petscii:"//shell-cmds/:"
-            void string.copy(command_word, &diskio.list_filename+14)
+            ; see if there is an external shell command in the SHELL-FILES/commands subdirectory that matches
+            diskio.list_filename = petscii:"//shell-files/commands/:"
+            void string.copy(command_word, &diskio.list_filename+24)        ; NOTE 24 is the length of "//shell-files/commands/:" !!
             if file_exists(diskio.list_filename) {
                 if string.endswith(diskio.list_filename, ".sh") or string.endswith(diskio.list_filename, petscii:".sh")
                     run_file(diskio.list_filename, false)

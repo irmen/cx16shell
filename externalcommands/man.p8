@@ -236,7 +236,7 @@ main $4000{
         err_msg[17]=0
         ubyte argstart
         bool hasarg=true
-        string.find(dir,':')
+        void string.find(dir,':')
         %asm{{
             bcs +
             stz p8v_hasarg
@@ -465,7 +465,7 @@ screen{
     sub size(){
         ubyte x
         ubyte y
-        cx16.get_screen_mode()
+        void cx16.get_screen_mode()
         %asm{{
             stx p8v_x
             sty p8v_y
