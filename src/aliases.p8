@@ -63,13 +63,13 @@ aliases {
             cx16.r4 = num_aliases*8
             cx16.r5 = &alias_defs + cx16.r4
             cx16.r4 += &alias_names
+            num_aliases++
         } else {
             cx16.r4 = &alias_names + existing_index
             cx16.r5 = &alias_defs + existing_index
         }
         void string.copy(alias, cx16.r4)
         void string.copy(def, cx16.r5)
-        num_aliases++
         return true
     }
 

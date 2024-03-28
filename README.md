@@ -8,9 +8,7 @@ Software License: MIT open source, see file LICENSE.
 
 ## Compiling the shell
 
-You'll need a Prog8 compiler v9.8 or later, to build this from source.
-If the latest official release gives you problems compiling this program, you may have to use
-the git master version that hasn't been officially released yet.
+You'll need a very recent Prog8 compiler to build this from source.
 
 First type ``git submodule update --init`` to fetch the external modules. 
 Then just type ``make`` to compile the shell.
@@ -108,7 +106,6 @@ The "ext-command.p8" source file contains a piece of example Prog8 source code o
 
 ## Todo
 
-- BUG: adding the same alias twice seems to add an empty entry at the end of the aliases list?
 - need more manpages written.
 - the view command could print a helpful error message if you try to use it on a .txt or .bas file?
 - add a 'play' external command for .zsm and .zcm files (using zsmkit)
