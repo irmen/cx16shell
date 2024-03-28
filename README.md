@@ -94,7 +94,7 @@ Utility routines you can call from your command program::
     romsub $07fa = input_chars(uword buffer @ AY) clobbers(A) -> ubyte @Y
     romsub $07fd = err_set(str message @AY) clobbers(Y) -> bool @A
 
-Command receives arguments at $0:BF00 (zero terminated, see  https://github.com/X16Community/x16-docs/blob/master/X16%20Reference%20-%2007%20-%20Memory%20Map.md#bank-0)
+Command receives arguments at $0:BF00 (zero terminated, see  https://github.com/X16Community/x16-docs/blob/66e2cdcf6abaf00da45d0a00b7bed310319586f0/X16%20Reference%20-%2008%20-%20Memory%20Map.md#bank-0)
 (you can use the cx16.get_program_args routine to retrieve them)
 Command should return error status in A. You can use the ``err_set()`` routine to set a specific error message for the shell.
 Command CAN use the *free* zero page locations.
