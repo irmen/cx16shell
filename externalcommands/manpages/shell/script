@@ -1,0 +1,3 @@
+@hShell scripts@n are files, that are a stream of @hSHELL@n commands. They're distinguished from regular files by the @p.sh@n suffix.
+
+Individual commands are separated by line breaks. Line breaks have to be @pLF@n. One can insert @hcomments@n to the script by strarting a line with @p#@n
