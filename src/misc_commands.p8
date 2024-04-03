@@ -200,7 +200,8 @@ misc_commands {
         txt.chrout('=')
         txt.print_uw(cx16.numbanks() * $0008)
         txt.print("KB\rMemTop: ")
-        txt.print_uwhex(cbm.MEMTOP(0, true), true)
+        cx16.r0, void = cbm.MEMTOP(0, true)
+        txt.print_uwhex(cx16.r0, true)
         txt.nl()
         return true
     }

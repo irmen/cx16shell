@@ -24,7 +24,8 @@ disk_commands {
                 txt.spc()
                 txt.print(diskio.list_filename)
                 txt.nl()
-                if cbm.STOP2() {
+                void cbm.STOP()
+                if_z {
                     main.txt_color(main.TXT_COLOR_HIGHLIGHT)
                     txt.print("Break\r")
                     main.txt_color(main.TXT_COLOR_NORMAL)
@@ -115,7 +116,8 @@ disk_commands {
                 if cbm.READST() & 64 !=0 {
                     break
                 }
-                if cbm.STOP2() {
+                void cbm.STOP()
+                if_z {
                     err.set("break")
                     break
                 }
