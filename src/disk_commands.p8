@@ -75,7 +75,8 @@ disk_commands {
         }
 
         uword newfilename
-        ubyte space_idx = string.find(main.command_arguments_ptr, ' ')
+        ubyte space_idx
+        space_idx,void = string.find(main.command_arguments_ptr, ' ')
         if_cs {
             newfilename = main.command_arguments_ptr + space_idx + 1
             main.command_arguments_ptr[space_idx] = 0
@@ -268,7 +269,8 @@ io_error:
         }
 
         uword newfilename
-        ubyte space_idx = string.find(main.command_arguments_ptr, ' ')
+        ubyte space_idx
+        space_idx,void = string.find(main.command_arguments_ptr, ' ')
         if_cs {
             newfilename = main.command_arguments_ptr + space_idx + 1
             main.command_arguments_ptr[space_idx] = 0

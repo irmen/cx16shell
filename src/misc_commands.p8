@@ -293,7 +293,8 @@ misc_commands {
             aliases.print_table()
             return true
         }
-        ubyte equals_idx = string.find(main.command_arguments_ptr, '=')
+        ubyte equals_idx
+        equals_idx,void = string.find(main.command_arguments_ptr, '=')
         if_cs {
             uword def_ptr = main.command_arguments_ptr + equals_idx + 1
             main.command_arguments_ptr[equals_idx] = 0

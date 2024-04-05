@@ -224,7 +224,8 @@ main {
             cmd_ptr = &command_line
         }
 
-        ubyte space_idx = string.find(cmd_ptr, ' ')
+        ubyte space_idx
+        space_idx,void = string.find(cmd_ptr, ' ')
         if_cs {
             cmd_ptr[space_idx] = 0
             command_arguments_ptr = cmd_ptr + space_idx + 1
@@ -384,7 +385,8 @@ main {
             @(cx16.r0+1)=0
             uword script_ptr = script_buffer
             do {
-                ubyte eol_index = string.find(script_ptr, '\n')
+                ubyte eol_index
+                eol_index,void = string.find(script_ptr, '\n')
                 if_cc
                     eol_index = string.length(script_ptr)       ; last line without \n at the end
                 script_ptr[eol_index] = 0

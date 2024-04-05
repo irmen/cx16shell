@@ -39,7 +39,7 @@ main $4000{
             while string.isspace(@(doc.name)){
                 doc.name++
             }
-            cx16.r0L=string.find(doc.name,' ')
+            cx16.r0L,void=string.find(doc.name,' ')
             if_cc{
                 shell.err_set("No argument provided.\rType a page name or type \"list\" to show all available pages.")
                 sys.exit(1)
