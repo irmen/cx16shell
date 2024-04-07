@@ -17,7 +17,6 @@ main $4000{
         ;shell.print_ub(doc.path_prefix_len)
 
         screen.size()
-        ;shell.print_ub(screen.size.x)
 
         str line="\x00"+"?"*254
         ubyte[6] temp
@@ -143,12 +142,7 @@ main $4000{
                 }
                 shell.chrout(i)
                 if string.isspace(i){
-                    %asm{{
-                        sec
-                        jsr cbm.PLOT
-                        iny
-                        sty p8v_temp
-                    }}
+                    temp[0] = txt.get_column()+1
                     temp[3]=i_no+1
 
                     while temp[0]<=screen.size.x{
@@ -235,14 +229,9 @@ main $4000{
         str err_msg="Directive error: \x00"+("?"*45)
         err_msg[17]=0
         ubyte argstart
-        bool hasarg=true
-        void string.find(dir,':')
-        %asm{{
-            bcs +
-            stz p8v_hasarg
-        +   sta p8v_argstart
-            inc p8v_argstart
-        }}
+        bool hasarg
+        argstart, hasarg = string.find(dir,':')
+        argstart++
         while string.isspace(@(dir+argstart)){
             argstart++
         }
@@ -306,11 +295,9 @@ main $4000{
             shell.print("\x01Press any key to continue\x01")
             cbm.CLRCHN()
             cbm.kbdbuf_clear()
-            %asm {{
-            -   jsr cbm.GETIN
-                beq -
-                ;jsr p8b_shell.p8s_print_ubhex
-            }}
+            while cbm.GETIN2()==0 {
+                ; wait for key
+            }
             diskio.reset_read_channel()
             shell.chrout('\r')
         }
@@ -372,12 +359,7 @@ main $4000{
         while diskio.lf_next_entry(){
             if (diskio.list_filename == "." or diskio.list_filename == "..") continue
             main.start.temp[1]=0
-            %asm{{
-                sec
-                jsr cbm.PLOT
-                iny
-                sty p8b_main.p8s_start.p8v_temp
-            }}
+            main.start.temp[0]=txt.get_column()+1
             if (string.length(diskio.list_filename)>screen.size.x-main.start.temp[0]) {
                 shell.chrout('\r')
             }
@@ -465,11 +447,7 @@ screen{
     sub size(){
         ubyte x
         ubyte y
-        void cx16.get_screen_mode()
-        %asm{{
-            stx p8v_x
-            sty p8v_y
-        }}
+        x,y = cbm.SCREEN()
     }
     uword shellcolors
 }
