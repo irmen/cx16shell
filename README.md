@@ -107,7 +107,8 @@ The "ext-command.p8" source file contains a piece of example Prog8 source code o
 
 ## Todo
 
-- add a 'dos' command to send instructions over the dos command channel directly, and without args, read+display the dos status message.
+- make the 'help' command list out the available commands more nicely (table columns?)
+- add an option to 'echo' to not output a newline at the end.
 - need more manpages written.
 - add a 'play' external command for .zsm and .zcm files (using zsmkit)
 - load .sh scripts in a ram bank instead of golden ram to avoid program corruption when script > 1KB

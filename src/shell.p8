@@ -433,7 +433,7 @@ main {
     }
 
     sub extcommand_shell_version() -> str {
-        str version_string="1.4"
+        str version_string="1.5"
         return version_string
     }
 
@@ -458,6 +458,7 @@ commands {
         "mode", &misc_commands.cmd_mode,
         "color", &misc_commands.cmd_color,
         "hicolor", &misc_commands.cmd_highlight_color,
+        "shellver", &misc_commands.cmd_shellver,
         "ls", &disk_commands.cmd_ls,
         "cat", &disk_commands.cmd_cat,
         "rm", &disk_commands.cmd_rm,
@@ -468,7 +469,8 @@ commands {
         "mkdir", &disk_commands.cmd_mkdir,
         "rmdir", &disk_commands.cmd_rmdir,
         "relabel", &disk_commands.cmd_relabel,
-        "drive", &disk_commands.cmd_drive
+        "drive", &disk_commands.cmd_drive,
+        "dos", &disk_commands.cmd_dos
     ]
 
     sub recognized(str cmdword) -> uword {

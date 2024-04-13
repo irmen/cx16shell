@@ -310,4 +310,14 @@ io_error:
         }
     }
 
+    sub cmd_dos() -> bool {
+        if main.command_arguments_size!=0 {
+            if @(main.command_arguments_ptr)=='"'
+                main.command_arguments_ptr++
+            diskio.send_command(main.command_arguments_ptr)
+        }
+        txt.print(diskio.status())
+        txt.nl()
+        return true
+    }
 }

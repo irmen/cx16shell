@@ -6,6 +6,13 @@
 
 misc_commands {
 
+    sub cmd_shellver() -> bool {
+        txt.print("Commander-X16 Shell v")
+        txt.print(main.extcommand_shell_version())
+        txt.print(" - https://github.com/irmen/cx16shell\r")
+        return true
+    }
+
     sub cmd_exit() -> bool {
         txt.color2(1, 6)
         txt.iso_off()
@@ -246,7 +253,7 @@ misc_commands {
         main.txt_color(main.TXT_COLOR_HIGHLIGHT)
         txt.print("\rCommands on disk:\r")
         main.txt_color(main.TXT_COLOR_NORMAL)
-        txt.print("Type the name of an external command program located in 'SHELL-FILES'\r  subdirectory (see documentation).\r")
+        txt.print("Type the name of a command program located in the 'SHELL-FILES/commands'\r  subdirectory (see documentation).\r")
         txt.print("Or just type name of program to launch (no suffix req'd, case insensitive).\r")
         txt.print("Typing the name of a directory moves into it.\r")
         txt.print("Filename tab-completion is active (case sensitive).\r")

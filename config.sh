@@ -19,7 +19,7 @@ alias edit=nano
 alias date=time
 
 echo
-echo "  Commander-X16 Shell v1.4 - https://github.com/irmen/cx16shell"
+shellver
 echo
 
 # Display the Message of the Day.
