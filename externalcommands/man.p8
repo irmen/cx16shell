@@ -1,5 +1,6 @@
 %import shellroutines
 %import diskio
+%import textio
 %import conv
 %import emudbg
 %launcher none

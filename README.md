@@ -81,6 +81,7 @@ They should be stored in the ``SHELL-FILES/commands`` subdirectory on your sdcar
 
 Utility routines you can call from your command program::
 
+    romsub $07d9 = txt_color(ubyte colortype @A) clobbers(A)       ; activate one of the 5 color types (constants defined below)
     romsub $07dc = version() -> uword @AY               ; returns pointer to string with shell's version
     romsub $07df = get_text_colors() -> uword @AY       ; returns address of array of 5 text color bytes (text, background, highlight, prompt, error)
     romsub $07e2 = chrout(ubyte character @A)
@@ -92,7 +93,7 @@ Utility routines you can call from your command program::
     romsub $07f4 = print_uwhex(uword value @ AY, bool prefix @ Pc) clobbers(A,Y)
     romsub $07f7 = print_uwbin(uword value @ AY, bool prefix @ Pc) clobbers(A,Y)
     romsub $07fa = input_chars(uword buffer @ AY) clobbers(A) -> ubyte @Y
-    romsub $07fd = err_set(str message @AY) clobbers(Y) -> bool @A
+    romsub $07fd = err_set(str message @AY) clobbers(A,Y)
 
 Command receives arguments at $0:BF00 (zero terminated, see  https://github.com/X16Community/x16-docs/blob/66e2cdcf6abaf00da45d0a00b7bed310319586f0/X16%20Reference%20-%2008%20-%20Memory%20Map.md#bank-0)
 (you can use the cx16.get_program_args routine to retrieve them)
