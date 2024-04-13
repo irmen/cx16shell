@@ -21,19 +21,27 @@ main {
     ubyte command_word_size
     uword command_arguments_ptr
     ubyte command_arguments_size
+    uword old_NMI
 
 
     sub start() {
         cx16.rombank(0)     ; switch to kernal rom bank for faster operation
         init_screen()
         load_config()
+        old_NMI=cx16.NMINV
 
+        the_loop:
         repeat {
             txt_color(TXT_COLOR_HIGHLIGHT_PROMPT)
             txt.nl()
             txt.print("$ ")
             txt_color(TXT_COLOR_NORMAL)
             err.clear()
+            
+            cx16.NMINV=&main.nmi_handler
+
+            ; Used only in the `nmi_handler()`. 816 stack stuff don't need to be handled, because 65c816 in "native" mode uses a different NMI vector and we don't touch that.
+            ubyte stackptr = sysext.getstackptr()
 
             cx16.set_chrin_keyhandler(0, &keystroke_handler)
             ubyte input_size = txt.input_chars(command_line)
@@ -298,6 +306,7 @@ main {
         }
 
         if via_basic_load {
+            cx16.NMINV=main.old_NMI
             ; to avoid character translation issues, we remain in ISO charset mode to perform the actual LOAD.
             ; only right before issuing the RUN command we switch back to petscii mode.
             txt.color2(1,6)     ; default white on blue
@@ -440,6 +449,15 @@ main {
     sub txt_color(ubyte colortype) {
         txt.color(text_colors[colortype])
     }
+
+    sub nmi_handler() {;forcefully kills the running process and returns to the shell prompt. 
+        cbm.CLRCHN()
+        cbm.CLALL()
+        main.txt_color(main.TXT_COLOR_ERROR)
+        txt.print("Received a Kill process signal...")
+        sysext.setstackptr(main.start.stackptr)
+        goto main.start.the_loop
+    }
 }
 
 commands {
@@ -480,5 +498,17 @@ commands {
                 return commands_table[idx+1]
         }
         return 0
+    }
+}
+sysext{
+    inline asmsub getstackptr()->ubyte @X{
+        %asm{{
+            tsx
+        }}
+    }
+    inline asmsub setstackptr(ubyte stackptr @X){
+        %asm{{
+            txs
+        }}
     }
 }
