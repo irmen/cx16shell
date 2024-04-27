@@ -107,9 +107,10 @@ The "ext-command.p8" source file contains a piece of example Prog8 source code o
 
 ## Todo
 
+- add a routine to shell functions to query the configured current drive number.
 - fix the nmi zp variable to survive after calling external programs (put it in array so it stays out of ZP?)
 - make the 'help' command list out the available commands more nicely (table columns?)
-- add an option to 'echo' to not output a newline at the end.
+- add an option to 'echo' to not output a newline at the end.  ( \; inspired by basic?)
 - need more manpages written.
 - add a 'play' external command for .zsm and .zcm files (using zsmkit)
 - load .sh scripts in a ram bank instead of golden ram to avoid program corruption when script > 1KB
