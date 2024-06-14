@@ -239,11 +239,16 @@ misc_commands {
         main.txt_color(main.TXT_COLOR_HIGHLIGHT)
         txt.print("Builtin Commands:\r")
         main.txt_color(main.TXT_COLOR_NORMAL)
+        ubyte column = 0
         ubyte idx
         for idx in 0 to len(commands.commands_table)-1 step 2 {
+            txt.column(2+column)
             txt.print(commands.commands_table[idx])
-            txt.spc()
-            txt.spc()
+            column += 10
+            if column > 50 {
+                txt.nl()
+                column = 0
+            }
         }
         if aliases.num_aliases!=0 {
             main.txt_color(main.TXT_COLOR_HIGHLIGHT)

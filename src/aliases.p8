@@ -20,10 +20,15 @@ aliases {
     sub print_list() {
         cx16.r0 = &alias_names
         cx16.r1 = &alias_defs
+        ubyte column = 0
         repeat num_aliases {
+            txt.column(2+column)
             txt.print(cx16.r0)
-            txt.spc()
-            txt.spc()
+            column+=10
+            if column>50 {
+                txt.nl()
+                column=0
+            }
             cx16.r0+=8
             cx16.r1+=8
         }
