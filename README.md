@@ -108,7 +108,6 @@ The "ext-command.p8" source file contains a piece of example Prog8 source code o
 
 ## Todo
 
-- fix the nmi zp variable to survive after calling external programs (put it in array so it stays out of ZP?)
 - make the 'help' command list out the available commands more nicely (table columns?)
 - add an option to 'echo' to not output a newline at the end.  ( \; inspired by basic?)
 - need more manpages written.

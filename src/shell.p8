@@ -21,7 +21,7 @@ main {
     ubyte command_word_size
     uword command_arguments_ptr
     ubyte command_arguments_size
-    uword old_NMI
+    uword @nozp old_NMI             ; not in zeropage, it must be retained through external commands
 
 
     sub start() {
