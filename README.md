@@ -81,6 +81,7 @@ They should be stored in the ``SHELL-FILES/commands`` subdirectory on your sdcar
 
 Utility routines you can call from your command program::
 
+    romsub $07d6 = drive_number() -> ubyte @A
     romsub $07d9 = txt_color(ubyte colortype @A) clobbers(A)       ; activate one of the 5 color types (constants defined below)
     romsub $07dc = version() -> uword @AY               ; returns pointer to string with shell's version
     romsub $07df = get_text_colors() -> uword @AY       ; returns address of array of 5 text color bytes (text, background, highlight, prompt, error)
@@ -107,7 +108,6 @@ The "ext-command.p8" source file contains a piece of example Prog8 source code o
 
 ## Todo
 
-- add a routine to shell functions to query the configured current drive number.
 - fix the nmi zp variable to survive after calling external programs (put it in array so it stays out of ZP?)
 - make the 'help' command list out the available commands more nicely (table columns?)
 - add an option to 'echo' to not output a newline at the end.  ( \; inspired by basic?)

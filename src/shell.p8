@@ -351,7 +351,7 @@ main {
             ; NOTE:
             ;  - do NOT change the order of the vectors.
             ;  - only add new vectors AT THE START of the list (so existing ones stay on the same address)
-            &main.iso_to_lowercase_petscii,
+            &main.extcommand_drive_number,
             &main.txt_color,
             &main.extcommand_shell_version,
             &main.extcommand_get_colors,
@@ -442,8 +442,12 @@ main {
     }
 
     sub extcommand_shell_version() -> str {
-        str version_string="1.5"
+        str version_string="1.6-dev"
         return version_string
+    }
+
+    sub extcommand_drive_number() -> ubyte {
+        return diskio.drivenumber
     }
 
     sub txt_color(ubyte colortype) {
