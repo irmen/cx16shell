@@ -73,6 +73,7 @@ misc_commands {
                                 hex[1] = @(main.command_arguments_ptr)
                                 txt.chrout(conv.hex2uword(hex) as ubyte)
                             }
+                            ';' -> return true
                             0 -> return true
                             else -> txt.chrout(@(main.command_arguments_ptr))
                         }
