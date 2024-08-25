@@ -28,7 +28,7 @@ main {
         cx16.rombank(0)     ; switch to kernal rom bank for faster operation
         init_screen()
         load_config()
-        old_NMI=cx16.NMINV
+        old_NMI=cbm.NMINV
 
         the_loop:
         repeat {
@@ -38,7 +38,7 @@ main {
             txt_color(TXT_COLOR_NORMAL)
             err.clear()
             
-            cx16.NMINV=&main.nmi_handler
+            cbm.NMINV=&main.nmi_handler
 
             ; Used only in the `nmi_handler()`. 816 stack stuff don't need to be handled, because 65c816 in "native" mode uses a different NMI vector and we don't touch that.
             ubyte stackptr = sysext.getstackptr()
@@ -306,7 +306,7 @@ main {
         }
 
         if via_basic_load {
-            cx16.NMINV=main.old_NMI
+            cbm.NMINV=main.old_NMI
             ; to avoid character translation issues, we remain in ISO charset mode to perform the actual LOAD.
             ; only right before issuing the RUN command we switch back to petscii mode.
             txt.color2(1,6)     ; default white on blue

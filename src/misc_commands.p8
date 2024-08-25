@@ -14,7 +14,7 @@ misc_commands {
     }
 
     sub cmd_exit() -> bool {
-        cx16.NMINV=main.old_NMI
+        cbm.NMINV=main.old_NMI
         txt.color2(1, 6)
         txt.iso_off()
         sys.exit(0)

@@ -19,7 +19,7 @@ main $4000 {
             shell.print(cx16.r0)
             shell.chrout(' ')
         }
-        shell.chrout('\r')
+        shell.print("\rPress a key to exit viewer. Press 'b' to save image as BMX format.\r")
         shell.txt_color(shell.TXT_COLOR_NORMAL)
 
         str args = "?" * 40
@@ -43,7 +43,9 @@ main $4000 {
         }
 
         if loader.attempt_load(args, true) {
-            void txt.waitkey()
+            if txt.waitkey()=='b' {
+                loader.save_as_bmx(args)
+            }
             loader.restore_screen_mode()
             ; colors and text mode are wrong, fix this back up
             init_screen()
