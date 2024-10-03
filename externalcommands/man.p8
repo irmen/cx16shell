@@ -9,7 +9,7 @@
 %encoding iso
 %address $4000
 
-main $4000{
+main {
     sub start(){
         shell.chrout('\r')
         ;doc.path_prefix_len = string.length(doc.path);having a constant value'd be probably way better. 
