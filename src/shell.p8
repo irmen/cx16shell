@@ -76,7 +76,7 @@ main {
             return true     ; whole line is a comment
         uword aliased_cmd = aliases.lookup(command_word)
         if aliased_cmd!=0
-            command_word = aliased_cmd
+            void string.copy(aliased_cmd, command_word)
         uword command_routine = commands.recognized(command_word)
         if command_routine!=0 {
             if lsb(call(command_routine))!=0   ; indirect JSR, only returning a byte in this case
@@ -104,7 +104,7 @@ main {
                 ; see if there is a program file that matches
                 uword real_filename_ptr = file_lookup_matching(command_line, true)
                 if real_filename_ptr!=0 {
-                    command_word = real_filename_ptr
+                    void string.copy(real_filename_ptr, command_word)
                     if is_directory(command_word) {
                         txt.print("cd into directory. ")
                         command_arguments_ptr = command_word
@@ -399,7 +399,7 @@ main {
                 if_cc
                     eol_index = string.length(script_ptr)       ; last line without \n at the end
                 script_ptr[eol_index] = 0
-                command_line = script_ptr
+                void string.copy(script_ptr, command_line)
                 if not process_command(eol_index) {
                     err.set("error in config script")
                     return false
