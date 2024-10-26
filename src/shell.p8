@@ -442,7 +442,7 @@ main {
     }
 
     sub extcommand_shell_version() -> str {
-        str version_string="1.6-dev"
+        str version_string="1.6"
         return version_string
     }
 
@@ -504,7 +504,8 @@ commands {
         return 0
     }
 }
-sysext{
+
+sysext {
     inline asmsub getstackptr()->ubyte @X{
         %asm{{
             tsx
