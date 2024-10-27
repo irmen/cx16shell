@@ -218,11 +218,13 @@ main {
             jmp cbm.CHROUT
         }}
     }
+
     asmsub colorchar(ubyte txtcol @X)-> ubyte @A{
         %asm{{
             lda color_to_charcode,x
             rts
         color_to_charcode	.byte  $90, $05, $1c, $9f, $9c, $1e, $1f, $9e, $81, $95, $96, $97, $98, $99, $9a, $9b
+            ; !notreached!
         }}
     }
 
