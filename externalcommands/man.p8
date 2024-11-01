@@ -240,7 +240,7 @@ main {
         }
         when dir[0]{
             'R','r'-> switch_file(dir+argstart)
-            'A','a' -> alias(dir+argstart)
+            'A','a' -> aliascmd(dir+argstart)
             'P','p' -> pause()
             'C','c' -> {
                 shell.print_ubhex(@(dir+argstart),true)
@@ -274,7 +274,7 @@ main {
             
         }
 
-        sub alias(str file){
+        sub aliascmd(str file){
             color(screen.shellcolors[2])
             shell.print(doc.name)
             color(screen.shellcolors[0])

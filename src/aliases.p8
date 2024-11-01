@@ -53,17 +53,17 @@ aliases {
         }
     }
 
-    sub add(str alias, str def) -> bool {
+    sub add(str aliasname, str def) -> bool {
         if num_aliases==MAX_ALIASES {
             err.set("no more slots")
             return false
         }
-        if string.length(alias)>7 or string.length(def)>7 {
+        if string.length(aliasname)>7 or string.length(def)>7 {
             err.set("alias or def too long (max 7)")
             return false
         }
 
-        ubyte existing_index = find_alias(alias)        ; returns 255 if not found
+        ubyte existing_index = find_alias(aliasname)        ; returns 255 if not found
         if existing_index==255 {
             cx16.r4 = num_aliases*8
             cx16.r5 = &alias_defs + cx16.r4
@@ -73,13 +73,13 @@ aliases {
             cx16.r4 = &alias_names + existing_index
             cx16.r5 = &alias_defs + existing_index
         }
-        void string.copy(alias, cx16.r4)
+        void string.copy(aliasname, cx16.r4)
         void string.copy(def, cx16.r5)
         return true
     }
 
-    sub remove(str alias) {
-        ubyte existing_index = find_alias(alias)
+    sub remove(str aliasname) {
+        ubyte existing_index = find_alias(aliasname)
         if existing_index==255
             return  ; not found
         ; move all aliases 1 up in the table
@@ -92,11 +92,11 @@ aliases {
         alias_defs[num_aliases*8]=0
     }
 
-    sub find_alias(str alias) -> ubyte {
+    sub find_alias(str aliasname) -> ubyte {
         cx16.r4 = &alias_names
         cx16.r5L = 0
         while(@(cx16.r4)!=0) {
-            if string.compare(cx16.r4, alias)==0
+            if string.compare(cx16.r4, aliasname)==0
                 return cx16.r5L
             cx16.r4 += 8
             cx16.r5L += 8
