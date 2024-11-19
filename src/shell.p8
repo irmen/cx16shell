@@ -378,7 +378,7 @@ main {
         sys.push(diskio.drivenumber)
 
         ; call the routine with the input registers
-        romsub $4000 = external_command() -> ubyte @A
+        extsub $4000 = external_command() -> ubyte @A
         cx16.set_program_args(command_arguments_ptr, command_arguments_size)
         cx16.r1 = call($4000)
 

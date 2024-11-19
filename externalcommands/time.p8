@@ -19,7 +19,7 @@ main {
         shell.txt_color(shell.TXT_COLOR_HIGHLIGHT)
         shell.print("Current date and time (from RTC clock):\r")
         shell.txt_color(shell.TXT_COLOR_NORMAL)
-        ; romsub $ff50 = clock_get_date_time()  clobbers(A, X, Y)  -> uword @R0, uword @R1, uword @R2, uword @R3   ; result registers see clock_set_date_time()
+        ; extsub $ff50 = clock_get_date_time()  clobbers(A, X, Y)  -> uword @R0, uword @R1, uword @R2, uword @R3   ; result registers see clock_set_date_time()
         void cx16.clock_get_date_time()      ; uword yearmonth @R0, uword dayhours @R1, uword minsecs @R2, uword jiffiesweekday @R3
         uword year = 1900 + cx16.r0L
         ubyte month = cx16.r0H
