@@ -1,6 +1,6 @@
 %import textio
 %import diskio
-%import string
+%import strings
 %import errors
 %import disk_commands
 %import misc_commands
@@ -76,7 +76,7 @@ main {
             return true     ; whole line is a comment
         uword aliased_cmd = aliases.lookup(command_word)
         if aliased_cmd!=0
-            void string.copy(aliased_cmd, command_word)
+            void strings.copy(aliased_cmd, command_word)
         uword command_routine = commands.recognized(command_word)
         if command_routine!=0 {
             if lsb(call(command_routine))!=0   ; indirect JSR, only returning a byte in this case
@@ -86,9 +86,9 @@ main {
         } else {
             ; see if there is an external shell command in the SHELL-FILES/commands subdirectory that matches
             diskio.list_filename = petscii:"//shell-files/commands/:"
-            void string.copy(command_word, &diskio.list_filename+24)        ; NOTE 24 is the length of "//shell-files/commands/:" !!
+            void strings.copy(command_word, &diskio.list_filename+24)        ; NOTE 24 is the length of "//shell-files/commands/:" !!
             if file_exists(diskio.list_filename) {
-                if string.endswith(diskio.list_filename, ".sh") or string.endswith(diskio.list_filename, petscii:".sh")
+                if strings.endswith(diskio.list_filename, ".sh") or strings.endswith(diskio.list_filename, petscii:".sh")
                     run_file(diskio.list_filename, false)
                 else
                     run_external_shell_command(diskio.list_filename)
@@ -98,17 +98,17 @@ main {
             if command_line==".." {
                 txt.print("cd into directory. ")
                 command_arguments_ptr = ".."
-                command_arguments_size = string.length(command_arguments_ptr)
+                command_arguments_size = strings.length(command_arguments_ptr)
                 void disk_commands.cmd_cd()
             } else {
                 ; see if there is a program file that matches
                 uword real_filename_ptr = file_lookup_matching(command_line, true)
                 if real_filename_ptr!=0 {
-                    void string.copy(real_filename_ptr, command_word)
+                    void strings.copy(real_filename_ptr, command_word)
                     if is_directory(command_word) {
                         txt.print("cd into directory. ")
                         command_arguments_ptr = command_word
-                        command_arguments_size = string.length(command_arguments_ptr)
+                        command_arguments_size = strings.length(command_arguments_ptr)
                         void disk_commands.cmd_cd()
                     } else if not err.error_status {
                         run_file(command_word, false)
@@ -122,9 +122,9 @@ main {
     }
 
     sub is_program_file(str name) -> bool {
-        if string.endswith(name, ".prg")
+        if strings.endswith(name, ".prg")
             return true
-        return not string.contains(name, '.')
+        return not strings.contains(name, '.')
     }
 
     sub file_exists(str name) -> bool {
@@ -155,7 +155,7 @@ main {
                 ; process TAB
                 uword cmd = grab_cmdline()
                 if cmd!=0 and cmd[0]!=0 {
-                    ubyte length = string.length(cmd)
+                    ubyte length = strings.length(cmd)
                     uword filename = tabcomplete(cmd, length)
                     if filename!=0 {
                         txt.print(filename+length)
@@ -172,7 +172,7 @@ main {
             if diskio.lf_start_list(prefix) {
                 if diskio.lf_next_entry() {
                     diskio.lf_end_list()
-                    void string.copy(diskio.list_filename, &tabcomplete_buffer)
+                    void strings.copy(diskio.list_filename, &tabcomplete_buffer)
                     return &tabcomplete_buffer
                 }
                 diskio.lf_end_list()
@@ -228,12 +228,12 @@ main {
             length--
         }
         if cmd_ptr!=command_line {
-            void string.copy(cmd_ptr, command_line)
+            void strings.copy(cmd_ptr, command_line)
             cmd_ptr = &command_line
         }
 
         ubyte space_idx
-        space_idx,void = string.find(cmd_ptr, ' ')
+        space_idx,void = strings.find(cmd_ptr, ' ')
         if_cs {
             cmd_ptr[space_idx] = 0
             command_arguments_ptr = cmd_ptr + space_idx + 1
@@ -242,8 +242,8 @@ main {
             command_arguments_ptr = 0
             command_arguments_size = 0
         }
-        command_word_size = string.copy(cmd_ptr, command_word)
-        void string.upper(command_word)      ; for ISO charset, this actually does a *lower*casing instead.
+        command_word_size = strings.copy(cmd_ptr, command_word)
+        void strings.upper(command_word)      ; for ISO charset, this actually does a *lower*casing instead.
 
         return length>0
     }
@@ -255,26 +255,26 @@ main {
         if diskio.lf_start_list(0) {
             while diskio.lf_next_entry() {
                 command_word = diskio.list_filename
-                ubyte disk_name_length = string.lower(command_word)
-                bool has_prg_suffix = string.endswith(command_word, petscii:".prg") or string.endswith(command_word, petscii:".sh")
+                ubyte disk_name_length = strings.lower(command_word)
+                bool has_prg_suffix = strings.endswith(command_word, petscii:".prg") or strings.endswith(command_word, petscii:".sh")
                 bool has_no_suffix = false
-                void string.find(command_word, '.')
+                void strings.find(command_word, '.')
                 if_cc
                     has_no_suffix = true
                 if not only_programs or has_no_suffix or has_prg_suffix {
-                    if string.compare(command_word, filename_ptr)==0 {
+                    if strings.compare(command_word, filename_ptr)==0 {
                         diskio.lf_end_list()
                         return diskio.list_filename
                     }
                     if has_prg_suffix {
                         command_word[disk_name_length-4] = 0
-                        if string.compare(command_word, filename_ptr)==0 {
+                        if strings.compare(command_word, filename_ptr)==0 {
                             diskio.lf_end_list()
                             return diskio.list_filename
                         }
                         command_word[disk_name_length-4] = '.'
                     }
-                } else if only_programs and string.compare(command_word, filename_ptr)==0 {
+                } else if only_programs and strings.compare(command_word, filename_ptr)==0 {
                     diskio.lf_end_list()
                     err.set("Not a program")
                     return 0
@@ -300,7 +300,7 @@ main {
     }
 
     sub run_file(uword filename_ptr, bool via_basic_load) {
-        if string.endswith(filename_ptr, ".sh") or string.endswith(filename_ptr, petscii:".sh") {       ; improve this check...?
+        if strings.endswith(filename_ptr, ".sh") or strings.endswith(filename_ptr, petscii:".sh") {       ; improve this check...?
             void execute_script(filename_ptr)
             return
         }
@@ -395,11 +395,11 @@ main {
             uword script_ptr = script_buffer
             do {
                 ubyte eol_index
-                eol_index,void = string.find(script_ptr, '\n')
+                eol_index,void = strings.find(script_ptr, '\n')
                 if_cc
-                    eol_index = string.length(script_ptr)       ; last line without \n at the end
+                    eol_index = strings.length(script_ptr)       ; last line without \n at the end
                 script_ptr[eol_index] = 0
-                void string.copy(script_ptr, command_line)
+                void strings.copy(script_ptr, command_line)
                 if not process_command(eol_index) {
                     err.set("error in config script")
                     return false
@@ -498,7 +498,7 @@ commands {
     sub recognized(str cmdword) -> uword {
         ubyte idx
         for idx in 0 to len(commands_table)-1 step 2 {
-            if string.compare(cmdword, commands_table[idx])==0
+            if strings.compare(cmdword, commands_table[idx])==0
                 return commands_table[idx+1]
         }
         return 0

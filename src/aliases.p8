@@ -1,3 +1,4 @@
+%import strings
 %import textio
 %encoding iso
 
@@ -58,7 +59,7 @@ aliases {
             err.set("no more slots")
             return false
         }
-        if string.length(aliasname)>7 or string.length(def)>7 {
+        if strings.length(aliasname)>7 or strings.length(def)>7 {
             err.set("alias or def too long (max 7)")
             return false
         }
@@ -73,8 +74,8 @@ aliases {
             cx16.r4 = &alias_names + existing_index
             cx16.r5 = &alias_defs + existing_index
         }
-        void string.copy(aliasname, cx16.r4)
-        void string.copy(def, cx16.r5)
+        void strings.copy(aliasname, cx16.r4)
+        void strings.copy(def, cx16.r5)
         return true
     }
 
@@ -96,7 +97,7 @@ aliases {
         cx16.r4 = &alias_names
         cx16.r5L = 0
         while(@(cx16.r4)!=0) {
-            if string.compare(cx16.r4, aliasname)==0
+            if strings.compare(cx16.r4, aliasname)==0
                 return cx16.r5L
             cx16.r4 += 8
             cx16.r5L += 8

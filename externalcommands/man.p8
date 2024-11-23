@@ -1,6 +1,7 @@
 %import shellroutines
 %import diskio
 %import textio
+%import strings
 %import conv
 %import emudbg
 %launcher none
@@ -12,7 +13,7 @@
 main {
     sub start(){
         shell.chrout('\r')
-        ;doc.path_prefix_len = string.length(doc.path);having a constant value'd be probably way better. 
+        ;doc.path_prefix_len = strings.length(doc.path);having a constant value'd be probably way better. 
         ;i guess we could turn it into constant once the ultimate location for documents will be decided upon
 
         ;shell.print_ub(doc.path_prefix_len)
@@ -24,52 +25,52 @@ main {
 
         screen.shellcolors = shell.get_text_colors()
         cx16.rambank(0)
-        if string.length(doc.name)==0{
+        if strings.length(doc.name)==0{
             shell.err_set("No argument provided.\rType a page name or type \"list\" to show all available pages.")
             sys.exit(1)
         }
-        while string.isspace(@(doc.name)){
+        while strings.isspace(@(doc.name)){
             doc.name++
         }
-        ;shell.print_ub(string.length(doc.name))
+        ;shell.print_ub(strings.length(doc.name))
 
         ; Added in case x16edit pager mode actually becomes a thing (currently, it's silently ignored by the man)
-        if string.startswith(doc.name,"-P"){
+        if strings.startswith(doc.name,"-P"){
             doc.name+=2
-            while string.isspace(@(doc.name)){
+            while strings.isspace(@(doc.name)){
                 doc.name++
             }
-            cx16.r0L,void=string.find(doc.name,' ')
+            cx16.r0L,void=strings.find(doc.name,' ')
             if_cc{
                 shell.err_set("No argument provided.\rType a page name or type \"list\" to show all available pages.")
                 sys.exit(1)
             }
             doc.name+=cx16.r0L
-            while string.isspace(@(doc.name)){
+            while strings.isspace(@(doc.name)){
                 doc.name++
             }
         }
-        if string.startswith(doc.name,"list"){
+        if strings.startswith(doc.name,"list"){
             if doc.name[4]==0{
                 list()
             }
             else{
                 doc.name+=4
-                while string.isspace(@(doc.name)){
+                while strings.isspace(@(doc.name)){
                     doc.name++
                 }
-                void string.append(doc.path,doc.name)
+                void strings.append(doc.path,doc.name)
                 list()
             }
             sys.exit(0)
         }
-        void string.append(doc.path,doc.name)
+        void strings.append(doc.path,doc.name)
         
         if ((not diskio.f_open(doc.path)) and (not checkspecial())){
             ;shell.print(diskio.status())
-            void string.append(line, "Page \"")
-            void string.append(line, doc.name)
-            void string.append(line, "\" doesn't exist.")
+            void strings.append(line, "Page \"")
+            void strings.append(line, doc.name)
+            void strings.append(line, "\" doesn't exist.")
             shell.err_set(line)
             sys.exit(1)
         }
@@ -90,10 +91,10 @@ main {
                     ';' -> continue
                 }
             }
-            for i_no in 0 to string.length(line){
+            for i_no in 0 to strings.length(line){
                 i=line[i_no] ; theoretically wastes cpu cycles, but i really didn't want to rewrite 
                 ;everything after i've switched from 
-                ;`for i in line` to `for i_no in 0 to string.length(line)`
+                ;`for i in line` to `for i_no in 0 to strings.length(line)`
 
                 if mode & parser_modes.HEX_CHAR !=0 {
                     if mode & parser_modes.EXTENDED !=0 {
@@ -142,12 +143,12 @@ main {
                     continue
                 }
                 shell.chrout(i)
-                if string.isspace(i){
+                if strings.isspace(i){
                     temp[0] = txt.get_column()+1
                     temp[3]=i_no+1
 
                     while temp[0]<=screen.size.x{
-                        if string.isspace(line[temp[3]]) or line[temp[3]]==0{
+                        if strings.isspace(line[temp[3]]) or line[temp[3]]==0{
                             break
                         }
                         if not line[temp[3]]=='@'{
@@ -233,9 +234,9 @@ main {
         err_msg[17]=0
         ubyte argstart
         bool hasarg
-        argstart, hasarg = string.find(dir,':')
+        argstart, hasarg = strings.find(dir,':')
         argstart++
-        while string.isspace(@(dir+argstart)){
+        while strings.isspace(@(dir+argstart)){
             argstart++
         }
         when dir[0]{
@@ -252,25 +253,25 @@ main {
         }
         sub switch_file(str file) {
             if not hasarg{
-                void string.append(err_msg, "incorrect syntax (lack of ?")
-                err_msg[string.length(err_msg)-1]=main.colorchar(screen.shellcolors[2])
-                void string.append(err_msg, ":?)")
-                err_msg[string.length(err_msg)-2]=main.colorchar(screen.shellcolors[4])
+                void strings.append(err_msg, "incorrect syntax (lack of ?")
+                err_msg[strings.length(err_msg)-1]=main.colorchar(screen.shellcolors[2])
+                void strings.append(err_msg, ":?)")
+                err_msg[strings.length(err_msg)-2]=main.colorchar(screen.shellcolors[4])
                 shell.err_set(err_msg)
                 return
             }
             diskio.f_close()
             doc.path[doc.path_prefix_len]=0
-            void string.append(doc.path,file)
+            void strings.append(doc.path,file)
             if ((not diskio.f_open(doc.path)) and (not checkspecial())){
-                void string.append(err_msg,"Page \"")
-                void string.append(err_msg,file)
-                void string.append(err_msg,"\" couldn't be loaded")
+                void strings.append(err_msg,"Page \"")
+                void strings.append(err_msg,file)
+                void strings.append(err_msg,"\" couldn't be loaded")
                 shell.err_set(err_msg)
                 sys.exit(1)
             }
             doc.name=$bf00
-            void string.copy(file,doc.name)
+            void strings.copy(file,doc.name)
             
         }
 
@@ -287,10 +288,10 @@ main {
         }
 
         sub incorrect(){
-            void string.copy("...\x00",dir+10)
-            void string.append(err_msg,"\"")
-            void string.append(err_msg,dir)
-            void string.append(err_msg,"\" is not a correct directive")
+            void strings.copy("...\x00",dir+10)
+            void strings.append(err_msg,"\"")
+            void strings.append(err_msg,dir)
+            void strings.append(err_msg,"\" is not a correct directive")
             shell.err_set(err_msg)
             return
         }
@@ -363,7 +364,7 @@ main {
             if (diskio.list_filename == "." or diskio.list_filename == "..") continue
             main.start.temp[1]=0
             main.start.temp[0]=txt.get_column()+1
-            if (string.length(diskio.list_filename)>screen.size.x-main.start.temp[0]) {
+            if (strings.length(diskio.list_filename)>screen.size.x-main.start.temp[0]) {
                 shell.chrout('\r')
             }
             
@@ -379,13 +380,13 @@ main {
                 color(screen.shellcolors[2])
                 shell.print("(index)")
                 color(screen.shellcolors[0])
-                main.start.temp[1]=string.length("(index)")
+                main.start.temp[1]=strings.length("(index)")
             }
             ubyte spcs=10
-            while (string.length(diskio.list_filename)+main.start.temp[1])>spcs{
+            while (strings.length(diskio.list_filename)+main.start.temp[1])>spcs{
                 spcs*=2
             }
-            repeat ((spcs-1)-(string.length(diskio.list_filename)+main.start.temp[1]))+1{
+            repeat ((spcs-1)-(strings.length(diskio.list_filename)+main.start.temp[1]))+1{
                 shell.chrout(' ')
             }
         }
@@ -401,36 +402,36 @@ main {
     }
     
     sub checkspecial() -> bool{
-        if string.endswith(doc.path,"/"){
-            doc.path[string.length(doc.path)-1]=0
+        if strings.endswith(doc.path,"/"){
+            doc.path[strings.length(doc.path)-1]=0
             if diskio.f_open(doc.path){
                 return true
             }
         }
         
-        if string.endswith(doc.path,"cfgs"){
-            doc.path[string.length(doc.path)-1]=0
+        if strings.endswith(doc.path,"cfgs"){
+            doc.path[strings.length(doc.path)-1]=0
         }
-        else if string.endswith(doc.path,"5"){
-            doc.path[string.length(doc.path)-1]=0
-            void string.append(doc.path,"cfg")
+        else if strings.endswith(doc.path,"5"){
+            doc.path[strings.length(doc.path)-1]=0
+            void strings.append(doc.path,"cfg")
         }
-        else if string.endswith(doc.path,"configs"){
-            doc.path[string.length(doc.path)-7]=0
-            void string.append(doc.path,"cfg")
+        else if strings.endswith(doc.path,"configs"){
+            doc.path[strings.length(doc.path)-7]=0
+            void strings.append(doc.path,"cfg")
         }
-        else if string.endswith(doc.path,"config"){
-            doc.path[string.length(doc.path)-6]=0
-            void string.append(doc.path,"cfg")
+        else if strings.endswith(doc.path,"config"){
+            doc.path[strings.length(doc.path)-6]=0
+            void strings.append(doc.path,"cfg")
         }
-        else if string.endswith(doc.path,"conf"){
-            doc.path[string.length(doc.path)-4]=0
-            void string.append(doc.path,"cfg")
+        else if strings.endswith(doc.path,"conf"){
+            doc.path[strings.length(doc.path)-4]=0
+            void strings.append(doc.path,"cfg")
         }
         if diskio.f_open(doc.path){
             return true
         }
-        void string.append(doc.path,"/1")
+        void strings.append(doc.path,"/1")
         if (diskio.f_open(doc.path)) return true
         else return false
     }

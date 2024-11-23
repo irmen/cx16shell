@@ -1,5 +1,5 @@
 %import textio
-%import string
+%import strings
 %import diskio
 %import conv
 %import errors
@@ -49,7 +49,7 @@ disk_commands {
             err.no_args("filename")
             return false
         }
-        void string.find(main.command_arguments_ptr, '*')
+        void strings.find(main.command_arguments_ptr, '*')
         if_cs {
             ;main.txt_color(main.TXT_COLOR_HIGHLIGHT)
             ;txt.print("Has * wildcard. Sure y/n? ")
@@ -76,7 +76,7 @@ disk_commands {
 
         uword newfilename
         ubyte space_idx
-        space_idx,void = string.find(main.command_arguments_ptr, ' ')
+        space_idx,void = strings.find(main.command_arguments_ptr, ' ')
         if_cs {
             newfilename = main.command_arguments_ptr + space_idx + 1
             main.command_arguments_ptr[space_idx] = 0
@@ -241,7 +241,7 @@ io_error:
             return false
         }
 
-        void string.find(main.command_arguments_ptr, '*')
+        void strings.find(main.command_arguments_ptr, '*')
         if_cs {
             err.set("Refused to act on * wildcard")
             return false
@@ -270,15 +270,15 @@ io_error:
 
         uword newfilename
         ubyte space_idx
-        space_idx,void = string.find(main.command_arguments_ptr, ' ')
+        space_idx,void = strings.find(main.command_arguments_ptr, ' ')
         if_cs {
             newfilename = main.command_arguments_ptr + space_idx + 1
             main.command_arguments_ptr[space_idx] = 0
             diskio.list_filename[0] = petscii:'c'
             diskio.list_filename[1] = petscii:':'
-            ubyte length = string.copy(newfilename, &diskio.list_filename+2)
+            ubyte length = strings.copy(newfilename, &diskio.list_filename+2)
             diskio.list_filename[length+2] = petscii:'='
-            void string.copy(main.command_arguments_ptr, &diskio.list_filename+length+3)
+            void strings.copy(main.command_arguments_ptr, &diskio.list_filename+length+3)
             diskio.send_command(diskio.list_filename)
             print_disk_status()
             return true

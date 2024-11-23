@@ -1,5 +1,6 @@
 %import textio
 %import errors
+%import strings
 %import conv
 %import aliases
 %encoding iso
@@ -44,7 +45,7 @@ misc_commands {
 
     sub cmd_echo() -> bool {
         if main.command_arguments_size!=0 {
-            while string.isspace(@(main.command_arguments_ptr))
+            while strings.isspace(@(main.command_arguments_ptr))
                 main.command_arguments_ptr++
             while @(main.command_arguments_ptr)!=0 {
                 when @(main.command_arguments_ptr) {
@@ -275,7 +276,7 @@ misc_commands {
             ubyte filename_length = 0
             if main.command_arguments_ptr!=0 {
                 filename_length = main.command_arguments_size
-                if string.endswith(main.command_arguments_ptr, ".basload")
+                if strings.endswith(main.command_arguments_ptr, ".basload")
                     txt.iso_off()
             }
             ubyte old_bank = cx16.getrombank()
@@ -308,7 +309,7 @@ misc_commands {
             return true
         }
         ubyte equals_idx
-        equals_idx,void = string.find(main.command_arguments_ptr, '=')
+        equals_idx,void = strings.find(main.command_arguments_ptr, '=')
         if_cs {
             uword def_ptr = main.command_arguments_ptr + equals_idx + 1
             main.command_arguments_ptr[equals_idx] = 0
