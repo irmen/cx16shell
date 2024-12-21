@@ -108,6 +108,7 @@ The "ext-command.p8" source file contains a piece of example Prog8 source code o
 
 ## Todo
 
+- once the unzip program fully works, can we have a version for this shell as well?
 - need more manpages written.
 - add a 'play' external command for .zsm and .zcm files (using zsmkit)
 - load .sh scripts in a ram bank instead of golden ram to avoid program corruption when script > 1KB
