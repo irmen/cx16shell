@@ -20,22 +20,22 @@ emu:  all
 	PULSE_LATENCY_MSEC=20 x16emu -sdcard ~/cx16sdcard.img -scale 2 -quality best -run -prg shell.prg -rtc -debug
 
 shell.prg: src/shell.p8 src/aliases.p8 src/errors.p8 src/disk_commands.p8 src/misc_commands.p8
-	p8compile $< -target cx16
+	prog8c $< -target cx16
 
 ext-command.prg: externalcommands/example/ext-command.p8 externalcommands/shellroutines.p8
-	p8compile $< -target cx16 -srcdirs externalcommands
+	prog8c $< -target cx16 -srcdirs externalcommands
 
 neofetch.prg: externalcommands/neofetch/neofetch.p8 externalcommands/shellroutines.p8
-	p8compile $< -target cx16 -srcdirs externalcommands
+	prog8c $< -target cx16 -srcdirs externalcommands
 
 time.prg: externalcommands/time.p8 externalcommands/shellroutines.p8
-	p8compile $< -target cx16
+	prog8c $< -target cx16
 
 view.prg: externalcommands/view.p8 externalcommands/shellroutines.p8
-	p8compile $< -target cx16 -srcdirs externalcommands/imageviewer/src
+	prog8c $< -target cx16 -srcdirs externalcommands/imageviewer/src
 
 man.prg: externalcommands/man.p8 externalcommands/shellroutines.p8
-	p8compile $< -target cx16
+	prog8c $< -target cx16
 
 zip: all
 	rm -f shell.zip
