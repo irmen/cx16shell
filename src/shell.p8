@@ -438,20 +438,20 @@ main {
     }
 
     sub extcommand_get_colors() -> uword {
-        return &main.text_colors
+        return &text_colors
     }
 
     sub extcommand_shell_version() -> str {
-        str version_string="1.6"
-        return version_string
+        return "1.7-dev"
     }
 
     sub extcommand_drive_number() -> ubyte {
         return diskio.drivenumber
     }
 
-    sub txt_color(ubyte colortype) {
-        txt.color(text_colors[colortype])
+    sub txt_color(ubyte @nozp colortype) {
+        ; can't use txt.color because it may clobber a zeropage variable
+        cbm.CHROUT(txt.color_to_charcode[text_colors[colortype]])
     }
 
     sub nmi_handler() {;forcefully kills the running process and returns to the shell prompt. 
