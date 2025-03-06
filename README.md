@@ -12,7 +12,7 @@ You'll need a very recent Prog8 compiler to build this from source.
 
 First type ``git submodule update --init`` to fetch the external modules. 
 Then just type ``make`` to compile the shell.
-Type ``make emu`` to compile, copy everything to the correct folders on the sdcard,
+Type ``make run`` to compile, copy everything to the correct folders on the sdcard,
 and immediately start it in the Commander X16 emulator.
 
 Save SHELL.PRG as AUTOBOOT.X16 to the sd-card to automatically load and run the shell at startup.

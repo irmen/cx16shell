@@ -1,11 +1,15 @@
-.PHONY:  all clean emu
+.PHONY:  all clean run
+
+PROG8C ?= prog8c       # if that fails, try this alternative (point to the correct jar file location): java -jar $(PROG8C).jar
+ZIP ?= zip
+
 
 all:  shell.prg ext-command.prg neofetch.prg time.prg view.prg man.prg
 
 clean:
 	rm -f *.prg *.asm *.vice-*
 
-emu:  all
+run:  all
 	mcopy -D o shell.prg x:SHELL
 	mmd -D s x:SHELL-FILES || true
 	mmd -D s x:SHELL-FILES/commands || true
@@ -20,22 +24,22 @@ emu:  all
 	PULSE_LATENCY_MSEC=20 x16emu -sdcard ~/cx16sdcard.img -scale 2 -quality best -run -prg shell.prg -rtc -debug
 
 shell.prg: src/shell.p8 src/aliases.p8 src/errors.p8 src/disk_commands.p8 src/misc_commands.p8
-	prog8c $< -target cx16
+	$(PROG8C) $< -target cx16
 
 ext-command.prg: externalcommands/example/ext-command.p8 externalcommands/shellroutines.p8
-	prog8c $< -target cx16 -srcdirs externalcommands
+	$(PROG8C) $< -target cx16 -srcdirs externalcommands
 
 neofetch.prg: externalcommands/neofetch/neofetch.p8 externalcommands/shellroutines.p8
-	prog8c $< -target cx16 -srcdirs externalcommands
+	$(PROG8C) $< -target cx16 -srcdirs externalcommands
 
 time.prg: externalcommands/time.p8 externalcommands/shellroutines.p8
-	prog8c $< -target cx16
+	$(PROG8C) $< -target cx16
 
 view.prg: externalcommands/view.p8 externalcommands/shellroutines.p8
-	prog8c $< -target cx16 -srcdirs externalcommands/imageviewer/src
+	$(PROG8C) $< -target cx16 -srcdirs externalcommands/imageviewer/src
 
 man.prg: externalcommands/man.p8 externalcommands/shellroutines.p8
-	prog8c $< -target cx16
+	$(PROG8C) $< -target cx16
 
 zip: all
 	rm -f shell.zip
@@ -50,4 +54,4 @@ zip: all
 	cp -r externalcommands/manpages SHELL-FILES/
 	cp externalcommands/neofetch/manpage.txt SHELL-FILES/manpages/neofetch
 	cp config.sh motd.txt SHELL-FILES/
-	7z a -sdel shell.zip SHELL.PRG SHELL-FILES
+	$(ZIP) -r shell.zip SHELL.PRG SHELL-FILES
