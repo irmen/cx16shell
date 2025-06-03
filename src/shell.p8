@@ -395,7 +395,7 @@ main {
             uword script_ptr = script_buffer
             do {
                 ubyte eol_index
-                eol_index,void = strings.find(script_ptr, '\n')
+                eol_index,void = strings.find_eol(script_ptr)
                 if_cc
                     eol_index = strings.length(script_ptr)       ; last line without \n at the end
                 script_ptr[eol_index] = 0
