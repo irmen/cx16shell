@@ -174,14 +174,17 @@ misc_commands {
             txt.print(")\rCall with mode number to switch modes.\r")
             return true
         }
-        if conv.any2uword(main.command_arguments_ptr)!=0 {
-            if cx16.r15L>11 {
+        uword value
+        ubyte length
+        value, length = conv.any2uword(main.command_arguments_ptr)
+        if length!=0 {
+            if value>11 {
                 err.set("Invalid mode (0-11)")
                 return false
             }
             get_active_mode()
-            if cx16.r2L != cx16.r15L {
-                void cx16.screen_mode(cx16.r15L, false)
+            if cx16.r2L != value {
+                void cx16.screen_mode(lsb(value), false)
                 main.init_screen()
             }
             return true
@@ -221,14 +224,16 @@ misc_commands {
             err.no_args("number (can use % and $ prefixes too)")
             return false
         }
-
-        if conv.any2uword(main.command_arguments_ptr)!=0 {
+        uword value
+        ubyte length
+        value, length = conv.any2uword(main.command_arguments_ptr)
+        if length!=0 {
             txt.spc()
-            txt.print_uw(cx16.r15)
+            txt.print_uw(value)
             txt.nl()
-            txt.print_uwhex(cx16.r15, true)
+            txt.print_uwhex(value, true)
             txt.nl()
-            txt.print_uwbin(cx16.r15, true)
+            txt.print_uwbin(value, true)
             txt.nl()
             return true
         } else {
