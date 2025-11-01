@@ -85,7 +85,7 @@ main {
                 err.set("Unspecified error")
         } else {
             ; see if there is an external shell command in the SHELL-FILES/commands subdirectory that matches
-            diskio.list_filename = petscii:"//shell-files/commands/:"
+            void strings.copy(petscii:"//shell-files/commands/:", diskio.list_filename)
             void strings.copy(command_word, &diskio.list_filename+24)        ; NOTE 24 is the length of "//shell-files/commands/:" !!
             if file_exists(diskio.list_filename) {
                 if strings.endswith(diskio.list_filename, ".sh") or strings.endswith(diskio.list_filename, petscii:".sh")
@@ -254,7 +254,7 @@ main {
         void iso_to_lowercase_petscii(filename_ptr)
         if diskio.lf_start_list(0) {
             while diskio.lf_next_entry() {
-                command_word = diskio.list_filename
+                void strings.copy(diskio.list_filename, command_word)
                 ubyte disk_name_length = strings.lower(command_word)
                 bool has_prg_suffix = strings.endswith(command_word, petscii:".prg") or strings.endswith(command_word, petscii:".sh")
                 bool has_no_suffix = false
