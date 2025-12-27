@@ -4,7 +4,7 @@ PROG8C ?= prog8c       # if that fails, try this alternative (point to the corre
 ZIP ?= zip
 
 
-all:  shell.prg ext-command.prg neofetch.prg time.prg view.prg man.prg
+all:  shell.prg ext-command.prg neofetch.prg time.prg view.prg play.prg man.prg
 
 clean:
 	rm -f *.prg *.asm *.vice-*
@@ -17,6 +17,7 @@ run:  all
 	mcopy -D o neofetch.prg x:SHELL-FILES/commands/NEOFETCH
 	mcopy -D o time.prg x:SHELL-FILES/commands/TIME
 	mcopy -D o view.prg x:SHELL-FILES/commands/VIEW
+	mcopy -D o play.prg x:SHELL-FILES/commands/PLAY
 	mcopy -D o man.prg x:SHELL-FILES/commands/MAN
 	mcopy -s -D o externalcommands/manpages x:SHELL-FILES/
 	mcopy -s -D o externalcommands/neofetch/manpage.txt x:SHELL-FILES/manpages/neofetch
@@ -38,6 +39,9 @@ time.prg: externalcommands/time.p8 externalcommands/shellroutines.p8
 view.prg: externalcommands/view.p8 externalcommands/shellroutines.p8
 	$(PROG8C) $< -target cx16 -srcdirs externalcommands/imageviewer/src
 
+play.prg: externalcommands/play.p8 externalcommands/shellroutines.p8
+	$(PROG8C) $< -target cx16
+
 man.prg: externalcommands/man.p8 externalcommands/shellroutines.p8
 	$(PROG8C) $< -target cx16
 
@@ -50,6 +54,7 @@ zip: all
 	cp neofetch.prg SHELL-FILES/commands/NEOFETCH
 	cp time.prg SHELL-FILES/commands/TIME
 	cp view.prg SHELL-FILES/commands/VIEW
+	cp play.prg SHELL-FILES/commands/PLAY
 	cp man.prg SHELL-FILES/commands/MAN
 	cp -r externalcommands/manpages SHELL-FILES/
 	cp externalcommands/neofetch/manpage.txt SHELL-FILES/manpages/neofetch
