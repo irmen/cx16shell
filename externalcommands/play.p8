@@ -10,36 +10,56 @@
 
 main {
     %option force_output
-    str MUSIC_FILENAME = "?"*40
+    str zsm_filename = "?"*40
     uword vera_rate_hz
     ubyte vera_rate
+
+    const ubyte FT_WAV = 1
+    const ubyte FT_ZSM = 2
 
     sub start() {
         uword colors = shell.get_text_colors()
         shell.txt_color(shell.TXT_COLOR_HIGHLIGHT)
-        shell.print("WAV sound player for Commander X16.\n")
+        shell.print("WAV/ZSM sound player for Commander X16.\n")
         shell.txt_color(shell.TXT_COLOR_HIGHLIGHT_PROMPT)
-        shell.print("Supports uncompressed and IMA-ADPCM wavs.\n\n")
+        shell.print("Supports ZSMs and uncompressed or IMA-ADPCM WAVs.\n\n")
         shell.txt_color(shell.TXT_COLOR_NORMAL)
 
-        cx16.get_program_args(MUSIC_FILENAME, len(MUSIC_FILENAME), false)
-        if MUSIC_FILENAME[0]==0 {
+        cx16.get_program_args(zsm_filename, len(zsm_filename), false)
+        if zsm_filename[0]==0 {
             error("Missing arguments: filename")
         }
 
-        if not strings.endswith(MUSIC_FILENAME, ".wav") {
-            error("Invalid file extension")
+        if strings.endswith(zsm_filename, ".wav") {
+            prepare_wav()
+            shell.txt_color(shell.TXT_COLOR_HIGHLIGHT)
+            shell.print("\nGood file! ")
+            shell.txt_color(shell.TXT_COLOR_NORMAL)
+            shell.print("Playing wav, press STOP to abort. ")
+            interrupts_wav.set_handler()
+            play_wav()
+            interrupts_wav.clear_handler()
+            shell.chrout('\n')
         }
-        
-        prepare_music()
-        shell.txt_color(shell.TXT_COLOR_HIGHLIGHT)
-        shell.print("\nGood file! ")
-        shell.txt_color(shell.TXT_COLOR_NORMAL)
-        shell.print("Playback starts, press STOP to abort. ")
-        interrupts.set_handler()
-        play_stuff()
-        interrupts.clear_handler()
-        shell.chrout('\n')
+        else if strings.endswith(zsm_filename, ".zsm") {
+            if not zsmkit2.load_zsmkit()
+                error("error loading zsmkit2")
+            shell.print("Loading music file ")
+            shell.print(zsm_filename)
+            shell.chrout('\n')
+    		cx16.rambank(zsmkit2.ZSMKitBank+1)
+		    if diskio.load_raw(zsm_filename, $A000)==0
+		        error("load error")
+    		cx16.rambank(zsmkit2.ZSMKitBank)
+    		zsmkit2.zsm_init_engine(&zsmkit2.zsmkit_lowram)
+    		shell.print("Playing music, press STOP to abort. ")
+    		zsmkit2.zsmkit_setisr()
+		    zsmkit2.play_music()
+    		zsmkit2.zsmkit_clearisr()
+        }
+        else
+            error("Invalid file extension")
+
         sys.exit(0)
     }
 
@@ -48,15 +68,15 @@ main {
         sys.exit(1)
     }
 
-    sub prepare_music() {
+    sub prepare_wav() {
         shell.txt_color(shell.TXT_COLOR_HIGHLIGHT_PROMPT)
         shell.print("Checking ")
-        shell.print(MUSIC_FILENAME)
+        shell.print(zsm_filename)
         shell.chrout('\n')
         shell.txt_color(shell.TXT_COLOR_NORMAL)
 
         bool wav_ok = false
-        if diskio.f_open(MUSIC_FILENAME) {
+        if diskio.f_open(zsm_filename) {
             void diskio.f_read(music.buffer, 128)
             wav_ok = wavfile.parse_header(music.buffer)
             diskio.f_close()
@@ -119,10 +139,10 @@ main {
         vera_rate_hz = (vera_rate as float) * vera_freq_factor as uword
     }
 
-    sub play_stuff() {
+    sub play_wav() {
         str progress = "|/-\\"
 
-        if diskio.f_open(MUSIC_FILENAME) {
+        if diskio.f_open(zsm_filename) {
             uword block_size = 1024
             if wavfile.wavefmt==wavfile.WAVE_FORMAT_DVI_ADPCM
                 block_size = wavfile.block_align * 2      ; read 2 adpcm blocks at a time (512 bytes)
@@ -131,9 +151,9 @@ main {
             cx16.VERA_AUDIO_RATE = vera_rate    ; start audio playback
             ubyte progress_count
             repeat {
-                interrupts.wait()
-                if interrupts.aflow {
-                    interrupts.aflow=false
+                interrupts_wav.wait()
+                if interrupts_wav.aflow {
+                    interrupts_wav.aflow=false
                     if not music.load_next_block(block_size)
                         break
                     ; Note: copying the samples into the fifo buffer is done by the aflow interrupt handler itself.
@@ -144,7 +164,7 @@ main {
 
                     void cbm.STOP()
                     if_z {
-                        interrupts.clear_handler()
+                        interrupts_wav.clear_handler()
                         shell.print(" \nbreak\n")
                         break
                     }
@@ -162,7 +182,7 @@ main {
 }
 
 
-interrupts {
+interrupts_wav {
     uword system_irq
     ubyte system_ien
 
@@ -624,4 +644,85 @@ adpcm {
             index_2 = len(t_step)-1
         pstep_2 = t_step[index_2]
     }
+}
+
+zsmkit2 {
+    ; extsubs for ZSMKIT version 2
+
+	const ubyte ZSMKitBank = 1
+	extsub @bank ZSMKitBank $A000 = zsm_init_engine(uword lowram @XY) clobbers(A, X, Y)
+	extsub @bank ZSMKitBank $A003 = zsm_tick(ubyte type @A) clobbers(A, X, Y)
+	extsub $A003 = zsm_tick_isr(ubyte type @A) clobbers(A, X, Y)
+
+	extsub @bank ZSMKitBank $A006 = zsm_play(ubyte prio @X) clobbers(A, X, Y)
+	extsub @bank ZSMKitBank $A009 = zsm_stop(ubyte prio @X) clobbers(A, X, Y)
+	extsub @bank ZSMKitBank $A00C = zsm_rewind(ubyte prio @X) clobbers(A, X, Y)
+	extsub @bank ZSMKitBank $A00F = zsm_close(ubyte prio @X) clobbers(A, X, Y)
+	extsub @bank ZSMKitBank $A012 = zsm_getloop(ubyte prio @X) -> bool @Pc, uword @XY, ubyte @A
+	extsub @bank ZSMKitBank $A015 = zsm_getptr(ubyte prio @X) -> bool @Pc, uword @XY, ubyte @A
+	extsub @bank ZSMKitBank $A018 = zsm_getksptr(ubyte prio @X) clobbers(A) -> uword @XY
+	extsub @bank ZSMKitBank $A01B = zsm_setbank(ubyte prio @X, ubyte bank @A)
+	extsub @bank ZSMKitBank $A01E = zsm_setmem(ubyte prio @X, uword data_ptr @AY) clobbers(A, X, Y)
+	extsub @bank ZSMKitBank $A021 = zsm_setatten(ubyte prio @X, ubyte value @A) clobbers(A, X, Y)
+	extsub @bank ZSMKitBank $A024 = zsm_setcb(ubyte prio @X, uword func_ptr @AY) clobbers(A, X, Y)
+	extsub @bank ZSMKitBank $A027 = zsm_clearcb(ubyte prio @X) clobbers(A, X, Y)
+	extsub @bank ZSMKitBank $A02A = zsm_getstate(ubyte prio @X) clobbers(X) -> bool @Pc, bool @Pz, uword @AY
+	extsub @bank ZSMKitBank $A02D = zsm_setrate(ubyte prio @X, uword rate @AY) clobbers(A, X, Y)
+	extsub @bank ZSMKitBank $A030 = zsm_getrate(ubyte prio @X) clobbers() -> uword @AY
+	extsub @bank ZSMKitBank $A033 = zsm_setloop(ubyte prio @X, bool loop @Pc) clobbers(A, X, Y)
+	extsub @bank ZSMKitBank $A036 = zsm_opmatten(ubyte prio @X, ubyte channel @Y, ubyte value @A) clobbers(A, X, Y)
+	extsub @bank ZSMKitBank $A039 = zsm_psgatten(ubyte prio @X, ubyte channel @Y, ubyte value @A) clobbers(A, X, Y)
+	extsub @bank ZSMKitBank $A03C = zsm_pcmatten(ubyte prio @X, ubyte value @A) clobbers(A, X, Y)
+	extsub @bank ZSMKitBank $A03F = zsm_set_int_rate(ubyte value @A, ubyte frac @Y) clobbers(A, X, Y)
+	extsub @bank ZSMKitBank $A042 = zsm_getosptr(ubyte prio @X) clobbers(A) -> uword @XY
+	extsub @bank ZSMKitBank $A045 = zsm_getpsptr(ubyte prio @X) clobbers(A) -> uword @XY
+	extsub @bank ZSMKitBank $A048 = zcm_setbank(ubyte slot @X, ubyte bank @A)
+	extsub @bank ZSMKitBank $A04B = zcm_setmem(ubyte slot @X, uword data_ptr @AY) clobbers(A)
+	extsub @bank ZSMKitBank $A04E = zcm_play(ubyte slot @X, ubyte volume @A) clobbers(A, X)
+	extsub @bank ZSMKitBank $A051 = zcm_stop() clobbers(A)
+
+	extsub @bank ZSMKitBank $A054 = zsmkit_setisr() clobbers(A)
+	extsub @bank ZSMKitBank $A057 = zsmkit_clearisr() clobbers(A)
+	extsub @bank ZSMKitBank $A05A = zsmkit_version() -> ubyte @A, ubyte @X
+
+	extsub @bank ZSMKitBank $A05D = zsm_set_ondeck_bank(ubyte prio @X, ubyte bank @A)
+	extsub @bank ZSMKitBank $A060 = zsm_set_ondeck_mem(ubyte prio @X, uword data_ptr @AY) clobbers(A, X, Y)
+	extsub @bank ZSMKitBank $A063 = zsm_clear_ondeck(ubyte prio @X) clobbers(A, X, Y)
+	extsub @bank ZSMKitBank $A066 = zsm_midi_init(ubyte iobase @A, bool parallel @X, bool callback @Pc) clobbers(A, X, Y)
+	extsub @bank ZSMKitBank $A069 = zsm_psg_suspend(ubyte channel @Y, bool suspend @Pc) clobbers(A, X, Y)
+	extsub @bank ZSMKitBank $A06C = zsm_opm_suspend(ubyte channel @Y, bool suspend @Pc) clobbers(A, X, Y)
+
+
+	sub load_zsmkit() -> bool {
+        cx16.rambank(ZSMKitBank)
+        return diskio.load_raw(iso:"/SHELL-FILES/commands/ZSMKIT-A000.BIN",$A000)!=0
+	}
+
+	sub play_music() {
+		uword zsmptr
+		ubyte zsmbank
+
+		zsm_setbank(0, ZSMKitBank+1)
+		zsm_setmem(0, $A000)
+
+		zsm_play(0)
+		repeat {
+			sys.waitvsync()
+			void, zsmptr, zsmbank = zsm_getptr(0)
+			shell.print_ubhex(zsmbank, false)
+			shell.print(":")
+			shell.print_uwhex(zsmptr, false)
+			shell.print("\x9d\x9d\x9d\x9d\x9d\x9d\x9d")       ; cursor lefts
+			void cbm.STOP()
+			if_z {
+			    shell.print("\nbreak\n")
+			    break
+			}
+		}
+
+		zsm_stop(0)
+		zcm_stop()
+	}
+
+    ubyte[255] zsmkit_lowram
 }
