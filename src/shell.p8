@@ -26,6 +26,7 @@ main {
 
     sub start() {
         cx16.rombank(0)     ; switch to kernal rom bank for faster operation
+        void diskio.fastmode(3)     ; fast reads and writes
         init_screen()
         load_config()
         old_NMI=cbm.NMINV

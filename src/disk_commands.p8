@@ -300,6 +300,7 @@ io_error:
             8, 9 -> {
                 txt.print("Switching drive.\r")
                 diskio.drivenumber = nr
+                void diskio.fastmode(3)     ; switch this drive to fast reads and writes as well
                 main.command_arguments_size = 0
                 return cmd_pwd()
             }
