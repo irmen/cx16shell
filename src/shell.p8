@@ -352,6 +352,8 @@ main {
             ; NOTE:
             ;  - do NOT change the order of the vectors.
             ;  - only add new vectors AT THE START of the list (so existing ones stay on the same address)
+            &main.extcommand_print_l,
+            &main.extcommand_print_ulhex,
             &main.extcommand_drive_number,
             &main.txt_color,
             &main.extcommand_shell_version,
@@ -448,6 +450,36 @@ main {
 
     sub extcommand_drive_number() -> ubyte {
         return diskio.drivenumber
+    }
+
+    asmsub extcommand_print_l(long value @R0R1_32) clobbers(A,X,Y) {
+        %asm {{
+            lda  cx16.r0
+            sta  txt.print_l.value
+            lda  cx16.r0+1
+            sta  txt.print_l.value+1
+            lda  cx16.r0+2
+            sta  txt.print_l.value+2
+            lda  cx16.r0+3
+            sta  txt.print_l.value+3
+            jmp  txt.print_l
+        }}
+    }
+
+    asmsub extcommand_print_ulhex(long value @R0R1_32, bool prefix @R2) clobbers(A,X,Y) {
+        %asm {{
+            lda  cx16.r2L
+            sta  txt.print_ulhex.prefix
+            lda  cx16.r0
+            sta  txt.print_ulhex.value
+            lda  cx16.r0+1
+            sta  txt.print_ulhex.value+1
+            lda  cx16.r0+2
+            sta  txt.print_ulhex.value+2
+            lda  cx16.r0+3
+            sta  txt.print_ulhex.value+3
+            jmp  txt.print_ulhex
+        }}
     }
 
     sub txt_color(ubyte @nozp colortype) {

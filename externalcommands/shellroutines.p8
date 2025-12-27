@@ -2,6 +2,8 @@
 ; definitions for the callback routines the Shell provides for external commands.
 
 shell {
+    extsub $07d0 = print_l(long value @ R0R1_32) clobbers(A, X, Y)
+    extsub $07d3 = print_ulhex(long value @ R0R1_32, bool prefix @R2) clobbers(A, X, Y)
     extsub $07d6 = drive_number() -> ubyte @A
     extsub $07d9 = txt_color(ubyte colortype @A) clobbers(A)       ; activate one of the 5 color types (constants defined below)
     extsub $07dc = version() -> uword @AY               ; returns pointer to string with shell's version

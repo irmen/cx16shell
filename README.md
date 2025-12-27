@@ -108,6 +108,7 @@ The "ext-command.p8" source file contains a piece of example Prog8 source code o
 
 ## Todo
 
+- fix prog8 issue with print_ulhex (prefix arg should be in A)
 - github issue about folder name upper/lowercase problem
 - once the unzip program fully works, can we have a version for this shell as well?
 - need more manpages written.

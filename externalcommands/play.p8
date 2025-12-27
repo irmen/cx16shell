@@ -1,7 +1,6 @@
 %import strings
 %import diskio
 %import floats
-%import textio
 %import shellroutines
 %launcher none
 %option no_sysinit
@@ -89,7 +88,7 @@ main {
         cx16.r0 = duration as uword
         if wavfile.wavefmt==wavfile.WAVE_FORMAT_DVI_ADPCM
             cx16.r0 *= 4    ; adpcm is 1:4 compression
-        txt.print_uw(cx16.r0)
+        shell.print_uw(cx16.r0)
         shell.print(" seconds\n")
 
         if wavfile.nchannels>2 or
@@ -218,7 +217,6 @@ interrupts {
     }
 
 }
-
 
 music {
     long disk_read_bytes
@@ -486,7 +484,6 @@ wavfile {
         return true
     }
 }
-
 
 adpcm {
 
