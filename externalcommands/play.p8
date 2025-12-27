@@ -10,7 +10,7 @@
 
 main {
     %option force_output
-    str zsm_filename = "?"*40
+    str music_filename = "?"*40
     uword vera_rate_hz
     ubyte vera_rate
 
@@ -20,41 +20,39 @@ main {
     sub start() {
         uword colors = shell.get_text_colors()
         shell.txt_color(shell.TXT_COLOR_HIGHLIGHT)
-        shell.print("WAV/ZSM sound player for Commander X16.\n")
+        shell.print("WAV/ZSM/ZCM sound player for Commander X16.\n")
         shell.txt_color(shell.TXT_COLOR_HIGHLIGHT_PROMPT)
-        shell.print("Supports ZSMs and uncompressed or IMA-ADPCM WAVs.\n\n")
+        shell.print("Supports ZSMs/ZCMs and uncompressed or IMA-ADPCM WAVs.\n\n")
         shell.txt_color(shell.TXT_COLOR_NORMAL)
 
-        cx16.get_program_args(zsm_filename, len(zsm_filename), false)
-        if zsm_filename[0]==0 {
+        cx16.get_program_args(music_filename, len(music_filename), false)
+        if music_filename[0]==0 {
             error("Missing arguments: filename")
         }
 
-        if strings.endswith(zsm_filename, ".wav") {
+        if strings.endswith(music_filename, ".wav") or strings.endswith(music_filename, ".WAV") {
             prepare_wav()
-            shell.txt_color(shell.TXT_COLOR_HIGHLIGHT)
-            shell.print("\nGood file! ")
-            shell.txt_color(shell.TXT_COLOR_NORMAL)
-            shell.print("Playing wav, press STOP to abort. ")
+            shell.chrout('\n')
+            shell.print("Playing, press STOP to abort. ")
             interrupts_wav.set_handler()
             play_wav()
             interrupts_wav.clear_handler()
             shell.chrout('\n')
         }
-        else if strings.endswith(zsm_filename, ".zsm") {
-            if not zsmkit2.load_zsmkit()
-                error("error loading zsmkit2")
-            shell.print("Loading music file ")
-            shell.print(zsm_filename)
-            shell.chrout('\n')
-    		cx16.rambank(zsmkit2.ZSMKitBank+1)
-		    if diskio.load_raw(zsm_filename, $A000)==0
-		        error("load error")
-    		cx16.rambank(zsmkit2.ZSMKitBank)
-    		zsmkit2.zsm_init_engine(&zsmkit2.zsmkit_lowram)
-    		shell.print("Playing music, press STOP to abort. ")
+        else if strings.endswith(music_filename, ".zsm") or strings.endswith(music_filename, ".ZSM") {
+            load_zsm_or_zcm()
+    		shell.print("Playing, press STOP to abort. ")
     		zsmkit2.zsmkit_setisr()
 		    zsmkit2.play_music()
+    		zsmkit2.zsmkit_clearisr()
+        }
+        else if strings.endswith(music_filename, ".zcm") or strings.endswith(music_filename, ".ZCM") {
+            load_zsm_or_zcm()
+            print_zcm_info()
+            shell.chrout('\n')
+    		shell.print("Playing, press STOP to abort. ")
+    		zsmkit2.zsmkit_setisr()
+		    zsmkit2.play_digi()
     		zsmkit2.zsmkit_clearisr()
         }
         else
@@ -68,15 +66,56 @@ main {
         sys.exit(1)
     }
 
+    sub load_zsm_or_zcm() {
+        ; first load zsmkit player blob
+        if not zsmkit2.load_zsmkit()
+            error("error loading zsmkit2")
+        zsmkit2.zsm_init_engine(&zsmkit2.zsmkit_lowram)
+
+        shell.txt_color(shell.TXT_COLOR_HIGHLIGHT_PROMPT)
+        shell.print("Loading ")
+        shell.print(music_filename)
+        shell.chrout('\n')
+        shell.txt_color(shell.TXT_COLOR_NORMAL)
+        cx16.rambank(zsmkit2.ZSMKitBank+1)
+        if diskio.load_raw(music_filename, $A000)==0
+            error("load error")
+        cx16.rambank(zsmkit2.ZSMKitBank+1)
+    }
+
+    sub print_zcm_info() {
+        ^^zsmkit2.ZCMHeader header = $a000
+        long size = mklong2(header.size_hi as uword, header.size_lo)
+        ubyte bits = if header.vera_cfg & (1 << 5)!=0 then 16 else 8
+        ubyte channels = if header.vera_cfg & (1 << 4)!=0 then 2 else 1
+        ubyte volume = header.vera_cfg & 15
+        shell.print("     size: ")
+        shell.print_l(size)
+        shell.print("\n     rate: ")
+        float rate = header.vera_rate as float * main.calculate_vera_rate.vera_freq_factor
+        shell.print_uw(rate as uword)
+        shell.print("\n     bits: ")
+        shell.print_ub(bits)
+        shell.print("\n channels: ")
+        shell.print_ub(channels)
+        shell.print("\n   volume: ")
+        shell.print_ub(volume)
+        float bytes_per_sample = bits as float / 8.0
+        float duration = size as float / (channels as float) / rate / bytes_per_sample
+        shell.print("\n duration: ")
+        shell.print_uw(duration as uword)
+        shell.print(" seconds\n")
+    }
+
     sub prepare_wav() {
         shell.txt_color(shell.TXT_COLOR_HIGHLIGHT_PROMPT)
         shell.print("Checking ")
-        shell.print(zsm_filename)
+        shell.print(music_filename)
         shell.chrout('\n')
         shell.txt_color(shell.TXT_COLOR_NORMAL)
 
         bool wav_ok = false
-        if diskio.f_open(zsm_filename) {
+        if diskio.f_open(music_filename) {
             void diskio.f_read(music.buffer, 128)
             wav_ok = wavfile.parse_header(music.buffer)
             diskio.f_close()
@@ -86,17 +125,17 @@ main {
 
         calculate_vera_rate()
 
-        shell.print(" wav format: ")
+        shell.print("           format: ")
         shell.print_ub(wavfile.wavefmt)
-        shell.print("\n channels: ")
+        shell.print("\n         channels: ")
         shell.print_ub(wavfile.nchannels)
-        shell.print("\n sample rate: ")
+        shell.print("\n      sample rate: ")
         shell.print_uw(wavfile.sample_rate)
-        shell.print(" Hz\n vera rate: ")
+        shell.print(" Hz\n        vera rate: ")
         shell.print_ub(vera_rate)
         shell.print(" = ")
         shell.print_uw(vera_rate_hz)
-        shell.print(" Hz\n bits per sample: ")
+        shell.print(" Hz\n  bits per sample: ")
         shell.print_uw(wavfile.bits_per_sample)
         if wavfile.wavefmt==wavfile.WAVE_FORMAT_DVI_ADPCM {
             shell.print("\n adpcm block size: ")
@@ -104,7 +143,7 @@ main {
         }
         float bytes_per_sample = wavfile.bits_per_sample as float / 8.0
         float duration = wavfile.data_size as float / (wavfile.nchannels as float) / (wavfile.sample_rate as float) / bytes_per_sample
-        shell.print("\n duration: ")
+        shell.print("\n         duration: ")
         cx16.r0 = duration as uword
         if wavfile.wavefmt==wavfile.WAVE_FORMAT_DVI_ADPCM
             cx16.r0 *= 4    ; adpcm is 1:4 compression
@@ -142,7 +181,7 @@ main {
     sub play_wav() {
         str progress = "|/-\\"
 
-        if diskio.f_open(zsm_filename) {
+        if diskio.f_open(music_filename) {
             uword block_size = 1024
             if wavfile.wavefmt==wavfile.WAVE_FORMAT_DVI_ADPCM
                 block_size = wavfile.block_align * 2      ; read 2 adpcm blocks at a time (512 bytes)
@@ -721,8 +760,32 @@ zsmkit2 {
 		}
 
 		zsm_stop(0)
+	}
+
+	sub play_digi() {
+		zcm_setbank(1, ZSMKitBank+1)
+		zcm_setmem(1, $A000)
+		zcm_play(1, 12)
+		repeat {
+		    ; there is no indication of end of playback, so user has to STOP it manually
+			sys.waitvsync()
+			void cbm.STOP()
+			if_z {
+			    shell.print("\nbreak\n")
+			    break
+			}
+		}
 		zcm_stop()
 	}
 
     ubyte[255] zsmkit_lowram
+
+    struct ZCMHeader {
+        uword address
+        ubyte bank
+        uword size_lo
+        ubyte size_hi
+        ubyte vera_cfg
+        ubyte vera_rate
+    }
 }

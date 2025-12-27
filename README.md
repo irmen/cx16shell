@@ -52,8 +52,13 @@ Type "help" at the prompt to get a list of the built-in commands.
 
 You can also type the name of an "external command" program, located in the "SHELL-FILES/commands" subdirectory.
 Finally you can simply type the name of a program to launch (no file extension required, case-insensitive).
-"man", "time" (and "date"), "view" and "neofetch" are available amongst others, as some potentially useful external commands.
-
+Supplied external commands:
+- man  (manuals)
+- time  (display time)
+- view  (image viewer)
+- play  (sound and music player)
+- neofetch  (system information)
+ 
 You can use tab for filename completion (case-sensitive).
 
 ## Startup config script and running user scripts
@@ -81,6 +86,8 @@ They should be stored in the ``SHELL-FILES/commands`` subdirectory on your sdcar
 
 Utility routines you can call from your command program::
 
+    extsub $07d0 = print_l(long value @ R0R1_32) clobbers(A, X, Y)
+    extsub $07d3 = print_ulhex(long value @ R0R1_32, bool prefix @A) clobbers(A, X, Y)
     extsub $07d6 = drive_number() -> ubyte @A
     extsub $07d9 = txt_color(ubyte colortype @A) clobbers(A)       ; activate one of the 5 color types (constants defined below)
     extsub $07dc = version() -> uword @AY               ; returns pointer to string with shell's version
@@ -108,11 +115,9 @@ The "ext-command.p8" source file contains a piece of example Prog8 source code o
 
 ## Todo
 
-- fix prog8 issue with print_ulhex (prefix arg should be in A)
 - github issue about folder name upper/lowercase problem
-- once the unzip program fully works, can we have a version for this shell as well?
+- once the unzip and xar programs fully work, can we have a version for this shell as well?
 - need more manpages written.
-- add a 'play' external command for .zsm and .zcm files (using zsmkit)
 - load .sh scripts in a ram bank instead of golden ram to avoid program corruption when script > 1KB
 - new memory layout? Shell program at the top of memory (say $6000-$9f00) so that you can load regular programs at $0801? What about the external commands? No longer forced to start at $4000 but just regular programs?
 

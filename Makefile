@@ -18,7 +18,7 @@ run:  all
 	mcopy -D o time.prg x:SHELL-FILES/commands/TIME
 	mcopy -D o view.prg x:SHELL-FILES/commands/VIEW
 	mcopy -D o play.prg x:SHELL-FILES/commands/PLAY
-	mcopy -D o ZSMKIT-A000.BIN x:SHELL-FILES/commands/ZSMKIT-A000.BIN
+	mcopy -D o ZSMKIT-A000.BIN x:SHELL-FILES/commands/
 	mcopy -D o man.prg x:SHELL-FILES/commands/MAN
 	mcopy -s -D o externalcommands/manpages x:SHELL-FILES/
 	mcopy -s -D o externalcommands/neofetch/manpage.txt x:SHELL-FILES/manpages/neofetch
@@ -56,7 +56,7 @@ zip: all
 	cp time.prg SHELL-FILES/commands/TIME
 	cp view.prg SHELL-FILES/commands/VIEW
 	cp play.prg SHELL-FILES/commands/PLAY
-	cp ZSMKIT-A000.BIN SHELL-FILES/commands/ZSMKIT-A000.BIN
+	cp ZSMKIT-A000.BIN SHELL-FILES/commands/
 	cp man.prg SHELL-FILES/commands/MAN
 	cp -r externalcommands/manpages SHELL-FILES/
 	cp externalcommands/neofetch/manpage.txt SHELL-FILES/manpages/neofetch

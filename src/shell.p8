@@ -445,7 +445,7 @@ main {
     }
 
     sub extcommand_shell_version() -> str {
-        return "1.7-dev"
+        return "1.7"
     }
 
     sub extcommand_drive_number() -> ubyte {
@@ -466,9 +466,8 @@ main {
         }}
     }
 
-    asmsub extcommand_print_ulhex(long value @R0R1_32, bool prefix @R2) clobbers(A,X,Y) {
+    asmsub extcommand_print_ulhex(long value @R0R1_32, bool prefix @A) clobbers(A,X,Y) {
         %asm {{
-            lda  cx16.r2L
             sta  txt.print_ulhex.prefix
             lda  cx16.r0
             sta  txt.print_ulhex.value
