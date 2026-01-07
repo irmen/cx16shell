@@ -452,7 +452,7 @@ main {
         return diskio.drivenumber
     }
 
-    asmsub extcommand_print_l(long value @R0R1_32) clobbers(A,X,Y) {
+    asmsub extcommand_print_l(long value @R0R1) clobbers(A,X,Y) {
         %asm {{
             lda  cx16.r0
             sta  txt.print_l.value
@@ -466,7 +466,7 @@ main {
         }}
     }
 
-    asmsub extcommand_print_ulhex(long value @R0R1_32, bool prefix @A) clobbers(A,X,Y) {
+    asmsub extcommand_print_ulhex(long value @R0R1, bool prefix @A) clobbers(A,X,Y) {
         %asm {{
             sta  txt.print_ulhex.prefix
             lda  cx16.r0

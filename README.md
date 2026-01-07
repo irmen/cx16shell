@@ -115,6 +115,8 @@ The "ext-command.p8" source file contains a piece of example Prog8 source code o
 
 ## Todo
 
+- ls <directory> should list files in that directory (support multiple levels deep)
+- ls should display file sizes in bytes instead of blocks?  (or is that too slow, requires opening every file?)
 - github issue about folder name upper/lowercase problem
 - once the unzip and xar programs fully work, can we have a version for this shell as well?
 - need more manpages written.
