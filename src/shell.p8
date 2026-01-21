@@ -159,7 +159,8 @@ main {
                     ubyte length = strings.length(cmd)
                     uword filename = tabcomplete(cmd, length)
                     if filename!=0 {
-                        txt.print(filename+length)
+                        repeat length txt.chrout(157)     ; cursor left
+                        txt.print(filename)
                     }
                 }
             }
@@ -168,10 +169,12 @@ main {
         }
 
         sub tabcomplete(str prefix, ubyte prefixlen) -> uword {
+            ; TODO use CBM DOS native prefix matching routine for efficiency
             prefix[prefixlen] = '*'
             prefix[prefixlen+1] = 0
+            strings.lower_iso(prefix)
             if diskio.lf_start_list(prefix) {
-                if diskio.lf_next_entry() {
+                if diskio.lf_next_entry_nocase() {
                     diskio.lf_end_list()
                     void strings.copy(diskio.list_filename, &tabcomplete_buffer)
                     return &tabcomplete_buffer
@@ -252,12 +255,13 @@ main {
     sub file_lookup_matching(uword filename_ptr, bool only_programs) -> uword {
         ; we re-use command_word variable as storage for processing the filenames read from disk.
         ; note that this also returns a success for directory names, not just file names.
-        void iso_to_lowercase_petscii(filename_ptr)
+        ; The match is done case-insensitively, in ISO charset.
+        strings.lower_iso(filename_ptr)
         if diskio.lf_start_list(0) {
-            while diskio.lf_next_entry() {
+            while diskio.lf_next_entry_nocase() {
                 void strings.copy(diskio.list_filename, command_word)
-                ubyte disk_name_length = strings.lower(command_word)
-                bool has_prg_suffix = strings.endswith(command_word, petscii:".prg") or strings.endswith(command_word, petscii:".sh")
+                ubyte disk_name_length = strings.lower_iso(command_word)
+                bool has_prg_suffix = strings.endswith(command_word, ".prg") or strings.endswith(command_word, ".sh")
                 bool has_no_suffix = false
                 void strings.find(command_word, '.')
                 if_cc
@@ -287,17 +291,6 @@ main {
             err.set(diskio.status())
             return 0
         }
-    }
-
-    sub iso_to_lowercase_petscii(uword str_ptr) -> ubyte {
-        ubyte length=0
-        while @(str_ptr)!=0 {
-            if @(str_ptr) >= 'a' and @(str_ptr) <= 'z'
-                @(str_ptr) -= 32
-            str_ptr++
-            length++
-        }
-        return length
     }
 
     sub run_file(uword filename_ptr, bool via_basic_load) {
@@ -428,7 +421,7 @@ main {
 
     sub is_directory(str filename) -> bool {
         if diskio.lf_start_list(filename) {
-            while diskio.lf_next_entry() {
+            while diskio.lf_next_entry_nocase() {
                 if diskio.list_filename==filename {
                     bool is_dir = diskio.list_filetype==petscii:"dir"
                     diskio.lf_end_list()
@@ -445,7 +438,7 @@ main {
     }
 
     sub extcommand_shell_version() -> str {
-        return "1.7"
+        return "1.8-dev"
     }
 
     sub extcommand_drive_number() -> ubyte {

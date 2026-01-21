@@ -8,38 +8,127 @@
 disk_commands {
     sub cmd_ls() -> bool {
         ubyte num_files = 0
-        if diskio.lf_start_list(main.command_arguments_ptr) {
-            main.txt_color(main.TXT_COLOR_HIGHLIGHT)
-            txt.print(" Blocks  Filename\r")
-            main.txt_color(main.TXT_COLOR_NORMAL)
-            while diskio.lf_next_entry() {
-                num_files++
-                txt.spc()
-                txt.spc()
-                if diskio.list_filetype == petscii:"dir"
-                    txt.print("[dir]")
-                else
-                    main.print_uw_right(diskio.list_blocks)
-                txt.spc()
-                txt.spc()
-                txt.print(diskio.list_filename)
-                txt.nl()
-                void cbm.STOP()
-                if_z {
-                    main.txt_color(main.TXT_COLOR_HIGHLIGHT)
-                    txt.print("Break\r")
-                    main.txt_color(main.TXT_COLOR_NORMAL)
+        if main.command_arguments_ptr!=0
+            strings.lower_iso(main.command_arguments_ptr)
+
+        cbm.SETNAM(3, petscii:"$=l")
+        cbm.SETLFS(12, diskio.drivenumber, 0)
+        void cbm.OPEN()          ; open 12,8,0,"$=l"
+        if_cs
+            goto io_error
+        void cbm.CHKIN(12)        ; use #12 as input channel
+        if_cs
+            goto io_error
+
+        repeat 7   void cbm.CHRIN()     ; skip the 4 prologue bytes and 2 size bytes of the header line and the first quote
+
+        while cbm.CHRIN()!=0 {
+            ; skip until the next 0-byte
+        }
+
+        repeat {
+            void cbm.STOP()
+            if_z {
+                main.txt_color(main.TXT_COLOR_HIGHLIGHT)
+                txt.print("Break\r")
+                main.txt_color(main.TXT_COLOR_NORMAL)
+                break
+            }
+
+            ; skip 2 bytes + 2 bytes (size in Kb)
+            repeat 4  cbm.CHRIN()
+            while cbm.CHRIN()!='"' {
+                if cbm.READST()!=0
+                    goto end
+                ; read until the first quote
+            }
+
+            ; store filename
+            cx16.r1 = &diskio.list_filename
+            repeat {
+                cx16.r0L = cbm.CHRIN()
+                if cx16.r0L=='"' {
+                    @(cx16.r1) = 0
                     break
                 }
+                @(cx16.r1) = cx16.r0L
+                cx16.r1++
             }
-            diskio.lf_end_list()
-            if num_files == 0 {
-                main.txt_color(main.TXT_COLOR_HIGHLIGHT)
-                txt.print("No files\r")
-                main.txt_color(main.TXT_COLOR_NORMAL)
+
+            if main.command_arguments_ptr==0 or strings.pattern_match_nocase(diskio.list_filename, main.command_arguments_ptr, true) {
+                do {
+                    cx16.r15L = cbm.CHRIN()
+                } until cx16.r15L!=' '      ; skip blanks up to 3 chars entry type
+                diskio.list_filetype[0] = cx16.r15L
+                diskio.list_filetype[1] = cbm.CHRIN()
+                diskio.list_filetype[2] = cbm.CHRIN()
+
+                if diskio.list_filetype[0]!=petscii:'d' {
+                    ; normal file, read the rest of the line
+                    repeat 25  void cbm.CHRIN()
+                    str hexsize = "????????"
+                    for cx16.r0L in 0 to 7 {
+                        hexsize[cx16.r0L] = cbm.CHRIN()
+                    }
+                    cx16.r0 = conv.str_l(conv.hex2long(hexsize))
+                    repeat 10-strings.length(cx16.r0) txt.spc()
+                    txt.print(cx16.r0)
+                    txt.spc()
+                    txt.spc()
+                } else {
+                    txt.print("     (dir)  ")
+                }
+                txt.print(diskio.list_filename)
+                txt.nl()
             }
-            return true
+
+            while cbm.CHRIN()!=0 {
+                ; skip everything up to the next 0 byte
+            }
         }
+
+end:
+        cbm.CLRCHN()
+        cbm.CLOSE(12)
+        return true
+
+
+;        if diskio.lf_start_list(main.command_arguments_ptr) {
+;            main.txt_color(main.TXT_COLOR_HIGHLIGHT)
+;            txt.print(" Blocks  Filename\r")
+;            main.txt_color(main.TXT_COLOR_NORMAL)
+;            while diskio.lf_next_entry_nocase() {
+;                num_files++
+;                txt.spc()
+;                txt.spc()
+;                if diskio.list_filetype == petscii:"dir"
+;                    txt.print("[dir]")
+;                else
+;                    main.print_uw_right(diskio.list_blocks)
+;                txt.spc()
+;                txt.spc()
+;                txt.print(diskio.list_filename)
+;                txt.nl()
+;                void cbm.STOP()
+;                if_z {
+;                    main.txt_color(main.TXT_COLOR_HIGHLIGHT)
+;                    txt.print("Break\r")
+;                    main.txt_color(main.TXT_COLOR_NORMAL)
+;                    break
+;                }
+;            }
+;            diskio.lf_end_list()
+;            if num_files == 0 {
+;                main.txt_color(main.TXT_COLOR_HIGHLIGHT)
+;                txt.print("No files\r")
+;                main.txt_color(main.TXT_COLOR_NORMAL)
+;            }
+;            return true
+;        }
+
+io_error:
+        cbm.CLRCHN()
+        cbm.CLOSE(12)
         err.set("IO error")
         return false
     }

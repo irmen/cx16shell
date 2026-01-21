@@ -8,7 +8,7 @@ Software License: MIT open source, see file LICENSE.
 
 ## Compiling the shell
 
-You'll need a very recent Prog8 compiler (11.4 or newer) to build this from source.
+You'll need a very recent Prog8 compiler (12.1 or newer) to build this from source.
 
 First type ``git submodule update --init`` to fetch the external modules. 
 Then just type ``make`` to compile the shell.
@@ -115,8 +115,8 @@ The "ext-command.p8" source file contains a piece of example Prog8 source code o
 
 ## Todo
 
+- tab completion should probably use native CMD DOS prefix matching for efficiency and free (iso) case-insensitivity?
 - ls <directory> should list files in that directory (support multiple levels deep)
-- ls should display file sizes in bytes instead of blocks?  (or is that too slow, requires opening every file?)
 - github issue about folder name upper/lowercase problem
 - once the unzip and xar programs fully work, can we have a version for this shell as well?
 - need more manpages written.
