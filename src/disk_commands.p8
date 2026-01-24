@@ -7,9 +7,8 @@
 
 disk_commands {
     sub cmd_ls() -> bool {
-        ubyte num_files = 0
         if main.command_arguments_ptr!=0
-            strings.lower_iso(main.command_arguments_ptr)
+            void strings.lower_iso(main.command_arguments_ptr)
 
         cbm.SETNAM(3, petscii:"$=l")
         cbm.SETLFS(12, diskio.drivenumber, 0)
@@ -36,7 +35,7 @@ disk_commands {
             }
 
             ; skip 2 bytes + 2 bytes (size in Kb)
-            repeat 4  cbm.CHRIN()
+            repeat 4  void cbm.CHRIN()
             while cbm.CHRIN()!='"' {
                 if cbm.READST()!=0
                     goto end
@@ -186,14 +185,23 @@ io_error:
     }
 
     sub cmd_cat() -> bool {
-        if main.command_arguments_size==0 {
-            err.no_args("filename")
+        uword[3] @nosplit parts
+        ubyte num_parts = strings.split(main.command_arguments_ptr, parts, len(parts))
+        if num_parts==0 or num_parts==2 {
+            err.no_args("[-n count] filename")
             return false
         }
 
-        if diskio.f_open(main.command_arguments_ptr) {
+        uword filename_ptr = parts[0]
+        uword max_lines = 65535
+        if num_parts==3 {
+            max_lines = conv.str2uword(parts[1])
+            filename_ptr = parts[2]
+        }
+
+        if diskio.f_open(filename_ptr) {
             uword line = 0
-            repeat {
+            while line<max_lines {
                 void diskio.f_readline(main.command_line)
                 line++
                 main.txt_color(main.TXT_COLOR_HIGHLIGHT)

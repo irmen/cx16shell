@@ -254,7 +254,7 @@ main {
         ; we re-use command_word variable as storage for processing the filenames read from disk.
         ; note that this also returns a success for directory names, not just file names.
         ; The match is done case-insensitively, in ISO charset.
-        strings.lower_iso(filename_ptr)
+        void strings.lower_iso(filename_ptr)
         if diskio.lf_start_list(0) {
             while diskio.lf_next_entry_nocase() {
                 void strings.copy(diskio.list_filename, command_word)
