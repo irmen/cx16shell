@@ -169,12 +169,10 @@ main {
         }
 
         sub tabcomplete(str prefix, ubyte prefixlen) -> uword {
-            ; TODO use CBM DOS native prefix matching routine for efficiency
-            prefix[prefixlen] = '*'
-            prefix[prefixlen+1] = 0
-            strings.lower_iso(prefix)
-            if diskio.lf_start_list(prefix) {
-                if diskio.lf_next_entry_nocase() {
+            ; use CMD DOS prefix matching
+            ; this has 2 benefits: it's super fast, and is already case-insensitive
+            if diskio.lf_start_list_having_prefix(prefix) {
+                if diskio.lf_next_entry() {
                     diskio.lf_end_list()
                     void strings.copy(diskio.list_filename, &tabcomplete_buffer)
                     return &tabcomplete_buffer
