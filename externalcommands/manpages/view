@@ -1,0 +1,19 @@
+@hviews@n displays a graphics image file.
+Supported formats include:
+@e.koa @n C64 Koala
+@e.iff @n Amiga IFF ILBM
+@e.lbm @n Amiga IFF ILBM
+@e.pcx @n PCX
+@e.bmp @n Windows Bitmap
+@e.bmx @n X16 BMX
+@e.dd  @n C64 Doodle
+@e.ddl @n C64 Doodle
+
+@eSYNTAX:  @n view @pfilename
+
+Press any key to exit the viewer.
+Press '@hb@n' to save the current image as X16 BMX format.
+
+Color cycling is supported on certain image format such as IFF.
+If you want to exit from viewing such an image, you have to stop the color cycling effect first. This is done by pressing the '@hSTOP@n' key.
+You can exit the viewer normally by pressing any other key after that.

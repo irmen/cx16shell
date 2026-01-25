@@ -1,0 +1,7 @@
+@hplay@n plays a sound or music file.
+Supported formats include @eZSM, ZCM, WAV@n (normal and IMA-ADPCM).
+
+@eSYNTAX:  @n play @pfilename @n
+
+This program uses the @eZSMKit@n library made by MooingLemur for playback of ZSM and ZCM files.
+You can find that library on github: @ehttps://github.com/mooinglemur/zsmkit @n

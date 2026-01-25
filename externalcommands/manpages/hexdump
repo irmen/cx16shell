@@ -1,0 +1,11 @@
+@hhexdump@n displays contents in hex format of any file on disk.
+
+@eSYNTAX:
+@p$@n hexdump @p[-n numbytes] @pfilename
+
+@eEXAMPLES:
+@p$@n hexdump test.prg
+  @hdisplays the full contents of the file test.prg in hex format
+
+@p$@n hexdump -n 100 test.prg
+  @hdisplays the first 100 bytes of the file test.prg in hex format

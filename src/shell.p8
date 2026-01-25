@@ -435,7 +435,7 @@ main {
     }
 
     sub extcommand_shell_version() -> str {
-        return "1.8-dev"
+        return "1.8"
     }
 
     sub extcommand_drive_number() -> ubyte {

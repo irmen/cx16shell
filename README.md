@@ -116,10 +116,10 @@ The "ext-command.p8" source file contains a piece of example Prog8 source code o
 
 ## Todo
 
-- github issue about folder name upper/lowercase problem
-- once the unzip and xar programs fully work, can we have a version for this shell as well?
-- need more manpages written.
+- need more manpages written for most of the builtin commands.
 - load .sh scripts in a ram bank instead of golden ram to avoid program corruption when script > 1KB
+- github issue about folder name upper/lowercase problem
+- once the unzip and xar programs fully work, can we have a version for this shell as well? They need a lot of RAM though
 - new memory layout? Shell program at the top of memory (say $6000-$9f00) or split it over 2 HiRam banks so that you can load regular programs at $0801? What about the external commands? No longer forced to start at $4000 but just regular programs?
 
 ...

@@ -1,2 +1,11 @@
 @hExternal commands@n are a special kind of programs, that are designed to be ran from the @hSHELL@n. They're located at the @p/SHELL-FILES/commands/@n directory. 
-An external command can be executed by typing its name to the command prompt. 
+An external command can be executed by typing its name to the command prompt.
+
+Here's a list of the available external commands:
+
+@h hexdump @n print a hexdump of any file
+@h man @n displays manual pages (like this one)
+@h neofetch @n displays system information
+@h play @n play various sound and music files
+@h time @n displays RTC date and time
+@h view @n view various image files

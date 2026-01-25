@@ -269,7 +269,7 @@ misc_commands {
         txt.print("Type the name of a command program located in the 'SHELL-FILES/commands'\r  subdirectory (see documentation).\r")
         txt.print("Or just type name of program to launch (no suffix req'd, case insensitive).\r")
         txt.print("Typing the name of a directory moves into it.\r")
-        txt.print("Filename tab-completion is active (case sensitive).\r")
+        txt.print("Filename tab-completion is active.\r")
         return true
     }
 
