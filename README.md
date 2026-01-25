@@ -54,6 +54,7 @@ You can also type the name of an "external command" program, located in the "SHE
 Finally you can simply type the name of a program to launch (no file extension required, case-insensitive).
 Supplied external commands:
 - man  (manuals)
+- hexdump  (binary file viewer)
 - time  (display time)
 - view  (image viewer)
 - play  (sound and music player)
@@ -115,12 +116,11 @@ The "ext-command.p8" source file contains a piece of example Prog8 source code o
 
 ## Todo
 
-- add hexdump command (including -n option)
 - ls <directory> should list files in that directory (support multiple levels deep)
 - github issue about folder name upper/lowercase problem
 - once the unzip and xar programs fully work, can we have a version for this shell as well?
 - need more manpages written.
 - load .sh scripts in a ram bank instead of golden ram to avoid program corruption when script > 1KB
-- new memory layout? Shell program at the top of memory (say $6000-$9f00) so that you can load regular programs at $0801? What about the external commands? No longer forced to start at $4000 but just regular programs?
+- new memory layout? Shell program at the top of memory (say $6000-$9f00) or split it over 2 HiRam banks so that you can load regular programs at $0801? What about the external commands? No longer forced to start at $4000 but just regular programs?
 
 ...

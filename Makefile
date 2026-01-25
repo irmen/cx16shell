@@ -4,7 +4,7 @@ PROG8C ?= prog8c       # if that fails, try this alternative (point to the corre
 ZIP ?= zip
 
 
-all:  shell.prg ext-command.prg neofetch.prg time.prg view.prg play.prg man.prg
+all:  shell.prg ext-command.prg neofetch.prg time.prg view.prg play.prg man.prg hexdump.prg
 
 clean:
 	rm -f *.prg *.asm *.vice-*
@@ -15,6 +15,7 @@ run:  all
 	mmd -D s x:SHELL-FILES/commands || true
 	mcopy -D o ext-command.prg x:SHELL-FILES/commands/EXT-COMMAND
 	mcopy -D o neofetch.prg x:SHELL-FILES/commands/NEOFETCH
+	mcopy -D o hexdump.prg x:SHELL-FILES/commands/HEXDUMP
 	mcopy -D o time.prg x:SHELL-FILES/commands/TIME
 	mcopy -D o view.prg x:SHELL-FILES/commands/VIEW
 	mcopy -D o play.prg x:SHELL-FILES/commands/PLAY
@@ -46,6 +47,9 @@ play.prg: externalcommands/play.p8 externalcommands/shellroutines.p8
 man.prg: externalcommands/man.p8 externalcommands/shellroutines.p8
 	$(PROG8C) $< -target cx16
 
+hexdump.prg: externalcommands/hexdump.p8 externalcommands/shellroutines.p8
+	$(PROG8C) $< -target cx16
+
 zip: all
 	rm -f shell.zip
 	rm -rf SHELL-FILES
@@ -53,6 +57,7 @@ zip: all
 	mkdir -p SHELL-FILES/commands
 	cp ext-command.prg SHELL-FILES/commands/EXT-COMMAND
 	cp neofetch.prg SHELL-FILES/commands/NEOFETCH
+	cp hexdump.prg SHELL-FILES/commands/HEXDUMP
 	cp time.prg SHELL-FILES/commands/TIME
 	cp view.prg SHELL-FILES/commands/VIEW
 	cp play.prg SHELL-FILES/commands/PLAY
