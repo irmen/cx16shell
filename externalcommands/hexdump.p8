@@ -54,7 +54,7 @@ main {
             }
         }
 
-        str line = "?" * 16
+        ubyte[16] line
         uword index = 0
 
         if diskio.f_open(filename) {

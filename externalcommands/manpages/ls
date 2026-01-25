@@ -10,4 +10,5 @@
 @p$@n ls *.sh
   @hlists all shell scripts in the current directory
 
-@hNOTE:@n Unlike a @hPOSIX@n compliant @hls@n, @eyou can't display contents of subdirectories@n with this command. Instead, you need to @pcd@n into the subdirectory and then run @pls@n. This is a case due to a limimited file IO API provided by CX16.
+@p$@n ls dirname
+  @hlists the files in the given subdirectory (can be multiple levels deep if you separate the directory names with slashes)

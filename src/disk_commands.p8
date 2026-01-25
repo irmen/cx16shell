@@ -6,9 +6,22 @@
 %encoding iso
 
 disk_commands {
+
     sub cmd_ls() -> bool {
         if main.command_arguments_ptr!=0
             void strings.lower_iso(main.command_arguments_ptr)
+
+        ; see if the argument is a directory, if so, change into it to list its contents
+        if main.command_arguments_ptr!=0  {
+            if not strings.contains(main.command_arguments_ptr,'*') and not strings.contains(main.command_arguments_ptr,'?') {
+                void strings.copy(diskio.curdir(), main.command_word)
+                diskio.chdir(main.command_arguments_ptr)
+                if diskio.status_code()==0 {
+                    defer diskio.chdir(main.command_word)
+                    main.command_arguments_ptr = 0
+                }
+            }
+        }
 
         cbm.SETNAM(3, petscii:"$=l")
         cbm.SETLFS(12, diskio.drivenumber, 0)
@@ -90,40 +103,6 @@ end:
         cbm.CLRCHN()
         cbm.CLOSE(12)
         return true
-
-
-;        if diskio.lf_start_list(main.command_arguments_ptr) {
-;            main.txt_color(main.TXT_COLOR_HIGHLIGHT)
-;            txt.print(" Blocks  Filename\r")
-;            main.txt_color(main.TXT_COLOR_NORMAL)
-;            while diskio.lf_next_entry_nocase() {
-;                num_files++
-;                txt.spc()
-;                txt.spc()
-;                if diskio.list_filetype == petscii:"dir"
-;                    txt.print("[dir]")
-;                else
-;                    main.print_uw_right(diskio.list_blocks)
-;                txt.spc()
-;                txt.spc()
-;                txt.print(diskio.list_filename)
-;                txt.nl()
-;                void cbm.STOP()
-;                if_z {
-;                    main.txt_color(main.TXT_COLOR_HIGHLIGHT)
-;                    txt.print("Break\r")
-;                    main.txt_color(main.TXT_COLOR_NORMAL)
-;                    break
-;                }
-;            }
-;            diskio.lf_end_list()
-;            if num_files == 0 {
-;                main.txt_color(main.TXT_COLOR_HIGHLIGHT)
-;                txt.print("No files\r")
-;                main.txt_color(main.TXT_COLOR_NORMAL)
-;            }
-;            return true
-;        }
 
 io_error:
         cbm.CLRCHN()
@@ -237,79 +216,12 @@ io_error:
         main.txt_color(main.TXT_COLOR_NORMAL)
         txt.print_ub(diskio.drivenumber)
         txt.nl()
-
-        ; special X16 dos command to only return the current path in the entry list
-        ; pull request: https://github.com/commanderx16/x16-rom/pull/373
-        ; note: I'm also using *=d filter to not get a screen full of nonsense when
-        ; you run this code on a rom version that doesn't yet have the $=c command.
-        cbm.SETNAM(7, petscii:"$=c:*=d")
-        cbm.SETLFS(12, diskio.drivenumber, 0)
-        ubyte status = 1
-        void cbm.OPEN()          ; open 12,8,0,"$=c:*=d"
-        if_cs
-            goto io_error
-        void cbm.CHKIN(12)        ; use #12 as input channel
-        if_cs
-            goto io_error
-
-        while cbm.CHRIN()!='"' {
-            ; skip up to entry name
-        }
-
-        bool first_line_diskname=true
-        status = cbm.READST()
-        while status==0 {
-            cx16.r0 = &main.command_line
-            repeat {
-                @(cx16.r0) = cbm.CHRIN()
-                if @(cx16.r0)==0
-                    break
-                cx16.r0++
-            }
-            process_line(main.command_line, first_line_diskname)
-            first_line_diskname=false
-            while cbm.CHRIN()!='"' and status==0 {
-                status = cbm.READST()
-                ; skipping up to next entry name
-            }
-        }
-        status = cbm.READST()
-
-io_error:
-        cbm.CLRCHN()        ; restore default i/o devices
-        cbm.CLOSE(12)
-
-        if status!=0 and status & $40 == 0  {          ; bit 6=end of file
-            err.set("IO error")
-            return false
-        }
-
+        main.txt_color(main.TXT_COLOR_HIGHLIGHT)
+        txt.print("Current dir: ")
+        txt.print(diskio.curdir())
+        main.txt_color(main.TXT_COLOR_NORMAL)
         txt.nl()
         return true
-
-        sub process_line(uword lineptr, bool diskname) {
-            if diskname {
-                main.txt_color(main.TXT_COLOR_HIGHLIGHT)
-                txt.print("Disk name: ")
-                main.txt_color(main.TXT_COLOR_NORMAL)
-            }
-            repeat {
-                cx16.r0L=@(lineptr)
-                if cx16.r0L=='"'
-                    break
-                txt.chrout(cx16.r0L)
-                lineptr++
-            }
-            if diskname {
-                main.txt_color(main.TXT_COLOR_HIGHLIGHT)
-                txt.print("\rCurrent dir: ")
-                main.txt_color(main.TXT_COLOR_NORMAL)
-            } else if @(lineptr-1)!='/' {
-                main.txt_color(main.TXT_COLOR_HIGHLIGHT)
-                txt.print(" in ")
-                main.txt_color(main.TXT_COLOR_NORMAL)
-            }
-        }
     }
 
     sub cmd_mkdir() -> bool {

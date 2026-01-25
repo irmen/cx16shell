@@ -418,13 +418,12 @@ main {
     }
 
     sub is_directory(str filename) -> bool {
+        void strings.lower_iso(filename)
         if diskio.lf_start_list(filename) {
-            while diskio.lf_next_entry_nocase() {
-                if diskio.list_filename==filename {
-                    bool is_dir = diskio.list_filetype==petscii:"dir"
-                    diskio.lf_end_list()
-                    return is_dir
-                }
+            if diskio.lf_next_entry_nocase() {
+                bool is_dir = diskio.list_filetype==petscii:"dir"
+                diskio.lf_end_list()
+                return is_dir
             }
         }
         err.set("File not found")

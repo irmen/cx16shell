@@ -116,7 +116,6 @@ The "ext-command.p8" source file contains a piece of example Prog8 source code o
 
 ## Todo
 
-- ls <directory> should list files in that directory (support multiple levels deep)
 - github issue about folder name upper/lowercase problem
 - once the unzip and xar programs fully work, can we have a version for this shell as well?
 - need more manpages written.
