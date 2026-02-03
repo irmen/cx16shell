@@ -20,35 +20,38 @@ Save SHELL.PRG as AUTOBOOT.X16 to the sd-card to automatically load and run the 
 
 ## Usage
 
-Type "help" at the prompt to get a list of the built-in commands.
+Type "help" at the prompt to get a list of available commands and aliases.
+Type "man builtins" at the prompt to see the below list of the builtin commands.
 
-| command                | explanation                                                                                                                                                                                                                   |
-|------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| help                   | show short list of commands                                                                                                                                                                                                   |
-| alias                  | create a new command alias                                                                                                                                                                                                    | 
-| unalias                | remove an existing command alias                                                                                                                                                                                              | 
-| exit                   | return back to Basic prompt                                                                                                                                                                                                   |
-| mon                    | enter the machine code monitor program                                                                                                                                                                                        |
-| num                    | print number in various bases, accepts $hex, %binary and normal decimal                                                                                                                                                       |
-| run  ,<br/> *filename* | loads and executes the given file. You can omit any .PRG suffix and is case insensitive.                                                                                                                                      |
-| nano                   | uses X16Edit (in Rom or on disk) to edit the given text file  (see note below)                                                                                                                                                |       
-| mem                    | show some memory information                                                                                                                                                                                                  |       
-| cls                    | clear the screen                                                                                                                                                                                                              |       
-| echo                   | print something to the screen. Escape characters are \\n (newline), \\xAB to print char $AB. \\cX (X=0-4) to select text color type. \\; to not print a newline at the end. \\s=space. \\b=bell. \\\\=backslash. \\" = quote. | 
-| mode                   | change screen mode                                                                                                                                                                                                            |
-| color                  | change main screen colors                                                                                                                                                                                                     |
-| hicolor                | change highlight screen colors                                                                                                                                                                                                |
-| ls                     | shows files on disk. You can provide an optional pattern to match such as *.ASM or H???.TXT                                                                                                                                   |
-| cat                    | prints the contents of the given text file on the screen                                                                                                                                                                      |       
-| rm                     | remove given file from the disk                                                                                                                                                                                               |       
-| mv                     | rename given file to given new filename                                                                                                                                                                                       |
-| cp                     | copy given file to new file                                                                                                                                                                                                   |
-| cd                     | change current working directory                                                                                                                                                                                              |
-| pwd                    | show current drive information                                                                                                                                                                                                |       
-| mkdir                  | create a new directory                                                                                                                                                                                                        |       
-| rmdir                  | remove existing directory                                                                                                                                                                                                     |       
-| relabel                | change disk name                                                                                                                                                                                                              |       
-| drive                  | change current drive                                                                                                                                                                                                          |       
+| command  | explanation                                                                                                                                                                                                                   |
+|----------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| alias    | create a new command alias                                                                                                                                                                                                    | 
+| cat      | prints the contents of the given text file on the screen                                                                                                                                                                      |       
+| cd       | change current working directory                                                                                                                                                                                              |
+| cls      | clear the screen                                                                                                                                                                                                              |       
+| color    | change main screen colors                                                                                                                                                                                                     |
+| cp       | copy given file to new file                                                                                                                                                                                                   |
+| dos      | print drive status message or perform a cbm dos drive command                                                                                                                                                                 | 
+| drive    | change current drive                                                                                                                                                                                                          |       
+| echo     | print something to the screen. Escape characters are \\n (newline), \\xAB to print char $AB. \\cX (X=0-4) to select text color type. \\; to not print a newline at the end. \\s=space. \\b=bell. \\\\=backslash. \\" = quote. | 
+| exit     | return back to Basic prompt                                                                                                                                                                                                   |
+| help     | show short list of builtin commands and aliases                                                                                                                                                                               |
+| hicolor  | change highlight screen colors                                                                                                                                                                                                |
+| ls       | shows files on disk. You can provide an optional pattern to match such as *.ASM or H???.TXT                                                                                                                                   |
+| mem      | show some memory information                                                                                                                                                                                                  |       
+| mkdir    | create a new directory                                                                                                                                                                                                        |       
+| mode     | change screen mode                                                                                                                                                                                                            |
+| mon      | enter the machine code monitor program                                                                                                                                                                                        |
+| mv       | rename given file to given new filename                                                                                                                                                                                       |
+| nano     | uses X16Edit (in Rom or on disk) to edit the given text file  (see note below)                                                                                                                                                |       
+| num      | print number in various bases, accepts $hex, %binary and normal decimal                                                                                                                                                       |
+| pwd      | show current drive information                                                                                                                                                                                                |       
+| relabel  | change disk name                                                                                                                                                                                                              |       
+| rm       | remove given file from the disk                                                                                                                                                                                               |       
+| rmdir    | remove existing directory                                                                                                                                                                                                     |       
+| run      | loads and executes the given file. You can omit any .PRG suffix and is case insensitive. You can also just type the name of a PRG directly to run it.                                                                         |
+| shellver | prints the version of the shell program                                                                                                                                                                                       | 
+| unalias  | remove an existing command alias                                                                                                                                                                                              | 
 
 You can also type the name of an "external command" program, located in the "SHELL-FILES/commands" subdirectory.
 Finally you can simply type the name of a program to launch (no file extension required, case-insensitive).
@@ -116,7 +119,7 @@ The "ext-command.p8" source file contains a piece of example Prog8 source code o
 
 ## Todo
 
-- need more manpages written for most of the builtin commands.
+- make PR for the sd card image to update shell https://github.com/cx16forum/sdcard/pulls
 - load .sh scripts in a ram bank instead of golden ram to avoid program corruption when script > 1KB
 - github issue about folder name upper/lowercase problem
 - once the unzip and xar programs fully work, can we have a version for this shell as well? They need a lot of RAM though

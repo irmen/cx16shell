@@ -1,3 +1,4 @@
 Hello! This is the file "SHELL-FILES/motd.txt".
 It was printed by the "SHELL-FILES/config.sh" script.
 Type 'help' to see a list of the available commands.
+Type 'man builtins' for description of the builtin commands.

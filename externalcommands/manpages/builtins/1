@@ -1,0 +1,38 @@
+@PBuiltin commands overview:
+@Hcommand     explanation
+---------------------------------------------------------------------------
+@H alias     @N create a new command alias
+@H cat       @N prints the contents of the given text file on the screen
+@H cd        @N change current working directory
+@H cls       @N clear the screen
+@H color     @N change main screen colors
+@H cp        @N copy given file to new file
+@H dos       @N print drive status message or perform a cbm dos command
+@H drive     @N change current drive
+@H echo      @N print something to the screen. Escape characters are
+              \n (newline), \xAB to print char $AB. \cX (X=0-4) to select
+              text color type. \; to not print a newline at the end.
+              \s=space. \b=bell. \\=backslash. \"=quote.
+@H exit      @N return back to Basic prompt
+@H help      @N show short list of builtin commands and aliases
+@H hicolor   @N change highlight screen colors
+@H ls        @N shows files on disk. You can provide an optional pattern
+              to match such as *.ASM or H???.TXT
+@H mem       @N show some memory information
+@H mkdir     @N create a new directory
+@H mode      @N change screen mode
+@H mon       @N enter the machine code monitor program
+@H mv        @N rename given file to given new filename
+@H nano      @N uses X16Edit (in Rom or on disk) to edit the given text file
+@H num       @N print number in various bases, accepts $hex,
+              %binary and normal decimal
+@H pwd       @N show current drive information
+@H relabel   @N change disk name
+@H rm        @N remove given file from the disk
+@H rmdir     @N remove existing directory
+@H run       @N loads and executes the given file. You can omit any
+              .PRG suffix and is case insensitive. You can also just type
+              the name of a PRG directly to run it.
+@H shellver  @N prints the version of the shell program
+@H unalias   @N remove an existing command alias
+
